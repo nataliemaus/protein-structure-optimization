@@ -7,6 +7,7 @@ import math
 from lolbo.tm_objective import TMObjective
 import glob 
 import torch 
+from oracle.fold import inverse_fold
 
 def load_uniref_seqs():
     path = "../uniref_vae/uniref-small.csv"
@@ -37,12 +38,14 @@ def main(
     bsz=10,
     target_pdb_id="17_bp_sh3",
 ): 
+    if_seq = inverse_fold(target_pdb_id=target_pdb_id, chain_id="A", model=None)
     save_filename = f"../data/init_{num_seqs}_tmscores_{target_pdb_id}.csv"
     seqs = load_uniref_seqs()
     objective = TMObjective(
         target_pdb_id=target_pdb_id,
-    )
-    seqs = seqs[0:num_seqs]
+    ) 
+    seqs = seqs[0:num_seqs-1]
+    seqs = [if_seq] + seqs 
 
     all_scores = []
     for i in range(math.ceil(num_seqs/bsz)):
@@ -51,7 +54,6 @@ def main(
 
     all_scores = np.array(all_scores)
     pd.DataFrame(all_scores).to_csv(save_filename, index=None, header=None) 
-
 
 
 if __name__ == "__main__":

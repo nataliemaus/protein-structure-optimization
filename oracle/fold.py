@@ -4,6 +4,7 @@ from transformers.models.esm.openfold_utils.protein import to_pdb, Protein as OF
 from transformers.models.esm.openfold_utils.feats import atom14_to_atom37
 import uuid
 import os 
+import esm 
 device = "cuda:0" if torch.cuda.is_available() else "cpu"
 
 
@@ -28,6 +29,35 @@ def convert_outputs_to_pdb(outputs):
         )
         pdbs.append(to_pdb(pred))
     return pdbs
+
+
+def inverse_fold(target_pdb_id, chain_id="A", model=None):
+    # This function is used to convert a pdb file to a sequence using inverse folding
+    # Default to chain A, since we only support folding a single sequence at the moment
+    # import torch_geometric
+    # import torch_sparse 
+    # from torch_geometric.nn import MessagePassing
+    pdb_path = f"../oracle/target_pdb_files/{target_pdb_id}.ent" 
+    if model is None:
+        model, _ = esm.pretrained.esm_if1_gvp4_t16_142M_UR50()
+    model = model.eval()
+
+    structure = esm.inverse_folding.util.load_structure(pdb_path, chain_id)
+    coords, _ = esm.inverse_folding.util.extract_coords_from_structure(structure)
+
+    # Lower sampling temperature typically results in higher sequence recovery but less diversity
+    sampled_seq = model.sample(coords, temperature=1e-6)
+
+    # Calculate the TM-score between the inverse folded sequence and the target sequence
+    # First, we need to convert the sampled sequence to a pdb file
+    # seq_to_pdb(sampled_seq, "./data/inverse_folded.pdb")
+    # tm_score = cal_tm_score("./data/inverse_folded.pdb", pdb_path)
+    # Remove the pdb file
+    # os.remove("./data/inverse_folded.pdb") 
+    # print("The inverse folded sequence is: ", sampled_seq)
+    # print("The TM-score between the inverse folded sequence and the target sequence is: ", tm_score)
+
+    return sampled_seq # , tm_score
 
 
 def seq_to_pdb(seq, save_path="./output.pdb", model=None, device=device):
