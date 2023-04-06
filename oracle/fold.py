@@ -48,9 +48,6 @@ def inverse_fold(target_pdb_id, chain_id="A", model=None):
 
     # Lower sampling temperature typically results in higher sequence recovery but less diversity
     sampled_seq = model.sample(coords, temperature=1e-6)
-    import pdb 
-    pdb.set_trace() 
-
     # Calculate the TM-score between the inverse folded sequence and the target sequence
     # First, we need to convert the sampled sequence to a pdb file
     # seq_to_pdb(sampled_seq, "./data/inverse_folded.pdb")
