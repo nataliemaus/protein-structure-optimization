@@ -39,6 +39,9 @@ def seq_to_pdb(seq, save_path="./output.pdb", model=None, device=device):
     model = model.to(device)
     tokenizer = AutoTokenizer.from_pretrained("facebook/esmfold_v1")
 
+    import pdb 
+    pdb.set_trace() 
+
     tokenized_input = tokenizer([seq], return_tensors="pt", add_special_tokens=False)['input_ids'].to(device)
 
     with torch.no_grad():
