@@ -4,6 +4,8 @@ from torch.utils.data import DataLoader, Dataset
 import torch.nn.functional as F 
 import pandas as pd
 import itertools
+import os 
+import numpy as np
 
 
 class DataModuleKmers(pl.LightningDataModule):
@@ -28,17 +30,22 @@ class DataModuleKmers(pl.LightningDataModule):
 
 class DatasetKmers(Dataset): # asssuming train data 
     def __init__(self, dataset='train', data_path=None, k=3, vocab=None, vocab2idx=None, load_data=False):
-        if data_path is None: 
-            path_to_data = 'uniref-small.csv' 
-        df = pd.read_csv(path_to_data )
         self.dataset = dataset
-        train_seqs = df['sequence'].values  # 1_500_000  sequences 
-        # SEQUENCE LENGTHS ANALYSIS:  Max = 299, Min = 100, Mean = 183.03 
-
         self.k = k
-        regular_data = [] 
-        for seq in train_seqs: 
-            regular_data.append([token for token in seq]) # list of tokens
+
+        vocab_path = f"../uniref_vae/{k}mer_vocab.csv"
+        if data_path is None: 
+            path_to_data = "../uniref_vae/uniref-small.csv"
+        if (vocab is None) and os.path.exists(vocab_path):
+                vocab = pd.read_csv(vocab_path, header=None ).values.squeeze().tolist() 
+
+        if (vocab is None) or load_data:
+            df = pd.read_csv(path_to_data )
+            train_seqs = df['sequence'].values  # 1_500_000  sequences 
+            # SEQUENCE LENGTHS ANALYSIS:  Max = 299, Min = 100, Mean = 183.03 
+            regular_data = [] 
+            for seq in train_seqs: 
+                regular_data.append([token for token in seq]) # list of tokens
         
         # first get initial vocab set 
         if vocab is None:
@@ -48,6 +55,11 @@ class DatasetKmers(Dataset): # asssuming train data
                 self.regular_vocab.add('-')  # '-' used as pad token when length of sequence is not a multiple of k
             self.vocab = ["".join(kmer) for kmer in itertools.product(self.regular_vocab, repeat=k)] # 21**k tokens 
             self.vocab = ['<start>', '<stop>', *sorted(list(self.vocab))] # 21**k + 2 tokens 
+
+            # save vocab for next time... 
+            vocab_arr = np.array(self.vocab)
+            df = pd.DataFrame(vocab_arr)
+            df.to_csv(vocab_path, header=None, index=None)
         else: 
             self.vocab = vocab 
 

@@ -1,5 +1,4 @@
 from __future__ import annotations
-
 import sys
 sys.path.append("../")
 import os
@@ -10,7 +9,7 @@ import pytorch_lightning as pl
 import torch
 from torch import Tensor, nn
 from torch.nn import functional as F
-from data import DatasetKmers
+from uniref_vae.data import DatasetKmers
 from torch.optim import Adam
 
 
