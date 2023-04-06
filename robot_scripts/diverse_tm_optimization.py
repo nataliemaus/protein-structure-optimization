@@ -80,7 +80,7 @@ class DiverseTMOptimization(Optimize):
             '''
         train_x_seqs = load_uniref_seqs() 
         self.init_train_x = train_x_seqs[0:self.num_initialization_points]
-        self.init_train_y = load_uniref_scores(self.target_pdb_id, n_seqs=self.num_initialization_points)
+        self.init_train_y = load_uniref_scores(self.target_pdb_id, num_seqs_load=self.num_initialization_points)
         self.load_train_z() 
         return self 
 

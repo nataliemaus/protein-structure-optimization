@@ -14,7 +14,7 @@ def load_uniref_seqs():
     seqs = df['sequence'].values
     return seqs.tolist() 
 
-def load_uniref_scores(target_pdb_id, n_seqs=10_000):
+def load_uniref_scores(target_pdb_id, num_seqs_load=10_000):
     possible_filenames = glob.glob(f"../data/init_*_tmscores_{target_pdb_id}.csv")
     nums_seqs = []
     for filename in possible_filenames:
@@ -22,14 +22,13 @@ def load_uniref_scores(target_pdb_id, n_seqs=10_000):
         nums_seqs.append(n_seqs)
     nums_seqs = np.array(nums_seqs)
     max_n_seqs = nums_seqs.max() 
-    if max_n_seqs < n_seqs:
-        print(f"Have not saved enough initilization data to load {n_seqs} seqs")
+    if max_n_seqs < num_seqs_load:
+        print(f"Have not saved enough initilization data to load {num_seqs_load} seqs")
         assert 0 
     filename_scores = possible_filenames[np.argmax(nums_seqs)]
     df = pd.read_csv(filename_scores, header=None)
-    train_y = torch.from_numpy(df.values).float()
-    import pdb 
-    pdb.set_trace() 
+    train_y = torch.from_numpy(df.values.squeeze()).float()
+    train_y = train_y[0:num_seqs_load] 
     return train_y.unsqueeze(-1) 
 
 
