@@ -7,15 +7,15 @@ cd oracle/
 chmod 701 TMalign
 
 # SAVE DATA:
-CUDA_VISIBLE_DEVICES=0 python3 create_initialization_data.py --num_seqs 20 --bsz 10 --target_pdb_id 17_bp_sh3
+CUDA_VISIBLE_DEVICES=0 python3 create_initialization_data.py --num_seqs 10000 --bsz 10 --target_pdb_id 17_bp_sh3
 
 runai submit lolbo-struct1 -v /shared_data0/protein-structure-optimization/:/workspace/protein-structure-optimization/ --working-dir /workspace/antibody-design/lolbo_scripts -i nmaus/fold2 -g 1 \ --command -- python3 create_initialization_data.py --num_seqs 20000 --bsz 10 --target_pdb_id 17_bp_sh3
 
 
 # RUNAI GAUSS INTERACTIVE 
-runai submit test1 -v /shared_data0/protein-structure-optimization/:/workspace/protein-structure-optimization/ --working-dir /workspace/protein-structure-optimization/lolbo_scripts -i nmaus/fold2 -g 1 --interactive --attach 
+runai submit test3 -v /shared_data0/protein-structure-optimization/:/workspace/protein-structure-optimization/ --working-dir /workspace/protein-structure-optimization/lolbo_scripts -i nmaus/fold2 -g 1 --interactive --attach 
 
-runai attach test1
+runai attach test4
 
 runai delete job test1
 

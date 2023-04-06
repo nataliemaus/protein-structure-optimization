@@ -39,7 +39,11 @@ def seq_to_pdb(seq, save_path="./output.pdb", model=None, device=device):
     model = model.to(device)
     tokenizer = AutoTokenizer.from_pretrained("facebook/esmfold_v1")
     seq = seq.replace("-", "") ### Added by Natalie 
-    tokenized_input = tokenizer([seq], return_tensors="pt", add_special_tokens=False)['input_ids'].to(device)
+    try:
+        tokenized_input = tokenizer([seq], return_tensors="pt", add_special_tokens=False)['input_ids'].to(device)
+    except:
+        import pdb 
+        pdb.set_trace() 
 
     with torch.no_grad():
         output = model(tokenized_input)
