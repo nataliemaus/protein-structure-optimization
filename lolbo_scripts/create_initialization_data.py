@@ -8,6 +8,9 @@ from lolbo.tm_objective import TMObjective
 import glob 
 import torch 
 from oracle.fold import inverse_fold
+import copy
+import random 
+from constants import ALL_AMINO_ACIDS
 
 def load_uniref_seqs():
     path = "../uniref_vae/uniref-small.csv"
@@ -33,7 +36,7 @@ def load_uniref_scores(target_pdb_id, num_seqs_load=10_000):
     return train_y.unsqueeze(-1) 
 
 
-def main(
+def create_data_v1(
     num_seqs=10,
     bsz=10,
     target_pdb_id="17_bp_sh3",
@@ -56,17 +59,64 @@ def main(
     pd.DataFrame(all_scores).to_csv(save_filename, index=None, header=None) 
 
 
+def create_data_v2(
+    num_seqs=10,
+    bsz=10,
+    target_pdb_id="17_bp_sh3",
+    max_n_mutations=20,
+): 
+    if_seq = inverse_fold(target_pdb_id=target_pdb_id, chain_id="A", model=None)
+    scores_filename = f"../data/init_{num_seqs}_tmscores_V2_{target_pdb_id}.csv"
+    seqs_filename = f"../data/init_{num_seqs}_V2_seqs_{target_pdb_id}.csv"
+    objective = TMObjective(
+        target_pdb_id=target_pdb_id,
+    ) 
+
+    seqs = [if_seq]
+    scores = []
+    for _ in range(num_seqs - 1):
+        new_seq = copy.deepcopy(if_seq)
+        new_seq = [char for char in new_seq] 
+        random_mutation_idx = random.randint(0, len(if_seq) - 1)
+        num_mutations = random.randint(1,max_n_mutations)
+        for _ in range(num_mutations):
+            new_aa = random.choice(ALL_AMINO_ACIDS)
+            new_seq[random_mutation_idx] = new_aa 
+        new_seq = "".join(new_seq)
+        seqs.append(new_seq) 
+    
+    all_scores = []
+    for i in range(math.ceil(num_seqs/bsz)):
+        scores = objective.query_oracle(seqs[i*bsz:(i+1)*bsz])
+        all_scores = all_scores + scores   
+
+    pd.DataFrame(np.array(all_scores)).to_csv(scores_filename, index=None, header=None) 
+    pd.DataFrame(np.array(seqs)).to_csv(seqs_filename, index=None, header=None)
+
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser() 
     parser.add_argument('--num_seqs', type=int, default=10_000 ) 
     parser.add_argument('--bsz', type=int, default=10 ) 
     parser.add_argument('--target_pdb_id', default="17_bp_sh3" ) 
+    parser.add_argument('--data_version', type=int, default=2 ) 
+    parser.add_argument('--max_n_mutations', type=int, default=10 )
+
     args = parser.parse_args() 
-    main(
-        num_seqs=args.num_seqs,
-        bsz=args.bsz,
-        target_pdb_id=args.target_pdb_id,
-    )
+    if args.data_version == 1:
+        create_data_v1(
+            num_seqs=args.num_seqs,
+            bsz=args.bsz,
+            target_pdb_id=args.target_pdb_id,
+        )
+    elif args.data_version == 2:
+        create_data_v2(
+            num_seqs=args.num_seqs,
+            bsz=args.bsz,
+            target_pdb_id=args.target_pdb_id,
+            max_n_mutations=args.max_n_mutations,
+        )
 
     
     
