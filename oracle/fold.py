@@ -7,7 +7,6 @@ import os
 import esm 
 device = "cuda:0" if torch.cuda.is_available() else "cpu"
 
-
 def convert_outputs_to_pdb(outputs):
     final_atom_positions = atom14_to_atom37(outputs["positions"][-1], outputs)
     outputs = {k: v.to("cpu").numpy() for k, v in outputs.items()}
