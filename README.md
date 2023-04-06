@@ -10,14 +10,15 @@ chmod 701 TMalign
 docker run -v /home1/n/nmaus/protein-structure-optimization/:/workspace/protein-structure-optimization --gpus all -it nmaus/fold2
 
 # SAVE DATA:
-CUDA_VISIBLE_DEVICES=3 python3 create_initialization_data.py --num_seqs 10000 --bsz 10 --target_pdb_id 17_bp_sh3
+CUDA_VISIBLE_DEVICES=3 python3 create_initialization_data.py --num_seqs 10000 --bsz 10 --target_pdb_id 17_bp_sh3 
 
 
-runai submit lolbo-struct1 -v /shared_data0/protein-structure-optimization/:/workspace/protein-structure-optimization/ --working-dir /workspace/antibody-design/lolbo_scripts -i nmaus/fold2 -g 1 \ --command -- python3 create_initialization_data.py --num_seqs 30 --bsz 10 --target_pdb_id 17_bp_sh3 
+runai submit lolbo-struct2 -v /shared_data0/protein-structure-optimization/:/workspace/protein-structure-optimization/ --working-dir /workspace/antibody-design/lolbo_scripts -i nmaus/fold2 -g 1 \ --command -- python3 create_initialization_data.py --num_seqs 20000 --bsz 10 --target_pdb_id 17_bp_sh3 
 
+# running 1000, 20000 
 
 # RUNAI GAUSS INTERACTIVE 
-runai submit test1 -v /shared_data0/protein-structure-optimization/:/workspace/protein-structure-optimization/ --working-dir /workspace/protein-structure-optimization/lolbo_scripts -i nmaus/fold2 -g 1 --interactive --attach 
+runai submit lolbo-opt19 -v /shared_data0/protein-structure-optimization/:/workspace/protein-structure-optimization/ --working-dir /workspace/protein-structure-optimization/lolbo_scripts -i nmaus/fold2 -g 1 --interactive --attach 
 
 runai attach test1
 
@@ -27,10 +28,16 @@ runai delete job test1
 
 cd lolbo_scripts 
 
-CUDA_VISIBLE_DEVICES=0 python3 tm_optimization.py --task_id tm --track_with_wandb True --wandb_entity nmaus --num_initialization_points 15 --max_n_oracle_calls 500000000 --bsz 10 --max_string_length 60 --target_pdb_id 17_bp_sh3 --dim 1024 - run_lolbo - done 
+CUDA_VISIBLE_DEVICES=0 python3 tm_optimization.py --task_id tm --track_with_wandb True --wandb_entity nmaus --num_initialization_points 15 --max_n_oracle_calls 500000000 --bsz 10 --max_string_length 60 --dim 1024 --target_pdb_id 17_bp_sh3 - run_lolbo - done 
+# 17_bp_sh3 X5 gauss tmux attach -t struct0-5
+
+# 33_bp_sh3
+# 29_bp_sh3
+
+
 
 ## RUNAI GAUSS 
-runai submit lolbo-struct1 -v /shared_data0/protein-structure-optimization/:/workspace/protein-structure-optimization/ --working-dir /workspace/antibody-design/lolbo_scripts -i nmaus/fold2 -g 1 \ --command -- python3 tm_optimization.py ...
+runai submit lolbo-opt-5 -v /shared_data0/protein-structure-optimization/:/workspace/protein-structure-optimization/ --working-dir /workspace/antibody-design/lolbo_scripts -i nmaus/fold2 -g 1 --command -- python3 tm_optimization.py python3 tm_optimization.py --task_id tm --track_with_wandb True --wandb_entity nmaus --num_initialization_points 40 --max_n_oracle_calls 500000000 --bsz 10 --dim 1024 --max_string_length 60 --target_pdb_id 17_bp_sh3 - run_lolbo - done 
 
 
 
