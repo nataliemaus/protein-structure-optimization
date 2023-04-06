@@ -48,6 +48,8 @@ def inverse_fold(target_pdb_id, chain_id="A", model=None):
 
     # Lower sampling temperature typically results in higher sequence recovery but less diversity
     sampled_seq = model.sample(coords, temperature=1e-6)
+    import pdb 
+    pdb.set_trace() 
 
     # Calculate the TM-score between the inverse folded sequence and the target sequence
     # First, we need to convert the sampled sequence to a pdb file
@@ -76,13 +78,7 @@ def seq_to_pdb(seq, save_path="./output.pdb", model=None, device=device):
     seq = seq.replace("X", "") 
     seq = seq.replace("Z", "") 
     seq = seq.replace("O", "") 
-
-    try:
-        tokenized_input = tokenizer([seq], return_tensors="pt", add_special_tokens=False)['input_ids'].to(device)
-    except:
-        print("TOKENIZATION ERROR...")
-        import pdb 
-        pdb.set_trace() 
+    tokenized_input = tokenizer([seq], return_tensors="pt", add_special_tokens=False)['input_ids'].to(device)
 
     with torch.no_grad():
         output = model(tokenized_input)
