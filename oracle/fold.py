@@ -38,10 +38,16 @@ def seq_to_pdb(seq, save_path="./output.pdb", model=None, device=device):
 
     model = model.to(device)
     tokenizer = AutoTokenizer.from_pretrained("facebook/esmfold_v1")
-    seq = seq.replace("-", "") ### Added by Natalie 
+
+    ### Added by Natalie 
+    seq = seq.replace("-", "") 
+    seq = seq.replace("U", "") 
+    seq = seq.replace("X", "") 
+    
     try:
         tokenized_input = tokenizer([seq], return_tensors="pt", add_special_tokens=False)['input_ids'].to(device)
     except:
+        print("TOKENIZATION ERROR...")
         import pdb 
         pdb.set_trace() 
 
