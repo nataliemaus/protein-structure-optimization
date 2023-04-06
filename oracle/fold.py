@@ -43,7 +43,9 @@ def seq_to_pdb(seq, save_path="./output.pdb", model=None, device=device):
     seq = seq.replace("-", "") 
     seq = seq.replace("U", "") 
     seq = seq.replace("X", "") 
-    
+    seq = seq.replace("Z", "") 
+    seq = seq.replace("O", "") 
+
     try:
         tokenized_input = tokenizer([seq], return_tensors="pt", add_special_tokens=False)['input_ids'].to(device)
     except:
