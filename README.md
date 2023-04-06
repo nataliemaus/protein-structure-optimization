@@ -24,7 +24,7 @@ runai delete job test1
 
 cd lolbo_scripts 
 
-CUDA_VISIBLE_DEVICES=0 python3 tm_optimization.py --task_id tm --track_with_wandb True --wandb_entity nmaus --num_initialization_points 15 --max_n_oracle_calls 500000000 --bsz 10 --max_string_length 100 --target_pdb_id 17_bp_sh3 --dim 1024 - run_lolbo - done 
+CUDA_VISIBLE_DEVICES=0 python3 tm_optimization.py --task_id tm --track_with_wandb True --wandb_entity nmaus --num_initialization_points 20000 --max_n_oracle_calls 500000000 --bsz 10 --max_string_length 100 --target_pdb_id 17_bp_sh3 --dim 1024 - run_lolbo - done 
 
 ## RUNAI GAUSS 
 runai submit lolbo-struct1 -v /shared_data0/protein-structure-optimization/:/workspace/protein-structure-optimization/ --working-dir /workspace/antibody-design/lolbo_scripts -i nmaus/fold2 -g 1 \ --command -- python3 tm_optimization.py ...

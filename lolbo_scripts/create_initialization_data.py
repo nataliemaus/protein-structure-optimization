@@ -28,6 +28,8 @@ def load_uniref_scores(target_pdb_id, n_seqs=10_000):
     filename_scores = possible_filenames[np.argmax(nums_seqs)]
     df = pd.read_csv(filename_scores, header=None)
     train_y = torch.from_numpy(df.values).float()
+    import pdb 
+    pdb.set_trace() 
     return train_y.unsqueeze(-1) 
 
 
