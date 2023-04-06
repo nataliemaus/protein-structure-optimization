@@ -89,9 +89,9 @@ class TMOptimization(Optimize):
                 self.init_train_z (a tensor of corresponding latent space points)
             '''
         train_x_seqs = load_uniref_seqs() 
-        train_x_seqs = train_x_seqs[0:self.num_initialization_points]
+        self.init_train_x = train_x_seqs[0:self.num_initialization_points]
         self.init_train_y = load_uniref_scores(self.target_pdb_id, n_seqs=self.num_initialization_points)
-        self.load_train_z()
+        self.load_train_z() 
         return self 
 
     def load_train_z(
