@@ -21,7 +21,6 @@ CUDA_VISIBLE_DEVICES=0 python3 tm_optimization.py --task_id tm --track_with_wand
 ## RUNAI GAUSS 
 runai submit lolbo-struct1 -v /shared_data0/protein-structure-optimization/:/workspace/protein-structure-optimization/ --working-dir /workspace/antibody-design/lolbo_scripts -i nmaus/fold2 -g 1 \ --command -- python3 tm_optimization.py ...
 
-
 # ROBOT: 
 
 CUDA_VISIBLE_DEVICES=0 python3 diverse_tm_optimization.py --task_id tm \

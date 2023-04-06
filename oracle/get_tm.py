@@ -4,7 +4,7 @@ import numpy as np
 
 def cal_tm_score(folded_pdb, target_pdb):
     # Call the executable file in Bash and capture its output
-    command = ["./TMalign", folded_pdb, target_pdb]
+    command = ["../oracle/TMalign", folded_pdb, target_pdb]
     output = subprocess.check_output(command)
     # Extract the TM-score value using regular expressions
     tm_score_regex = r"TM-score= ([\d\.]+)"
