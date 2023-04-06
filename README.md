@@ -6,17 +6,20 @@ Optimize AA seqs with desired folded 3D structure
 cd oracle/
 chmod 701 TMalign
 
+# Locust/ 6000
+docker run -v /home1/n/nmaus/protein-structure-optimization/:/workspace/protein-structure-optimization --gpus all -it nmaus/fold2
+
 # SAVE DATA:
-CUDA_VISIBLE_DEVICES=0 python3 create_initialization_data.py --num_seqs 10000 --bsz 10 --target_pdb_id 17_bp_sh3
+CUDA_VISIBLE_DEVICES=3 python3 create_initialization_data.py --num_seqs 10000 --bsz 10 --target_pdb_id 17_bp_sh3
 
 
-runai submit lolbo-struct5 -v /shared_data0/protein-structure-optimization/:/workspace/protein-structure-optimization/ --working-dir /workspace/antibody-design/lolbo_scripts -i nmaus/fold2 -g 1 \ --command -- python3 create_initialization_data.py --num_seqs 30 --bsz 10 --target_pdb_id 17_bp_sh3 
+runai submit lolbo-struct1 -v /shared_data0/protein-structure-optimization/:/workspace/protein-structure-optimization/ --working-dir /workspace/antibody-design/lolbo_scripts -i nmaus/fold2 -g 1 \ --command -- python3 create_initialization_data.py --num_seqs 30 --bsz 10 --target_pdb_id 17_bp_sh3 
 
 
 # RUNAI GAUSS INTERACTIVE 
-runai submit test3 -v /shared_data0/protein-structure-optimization/:/workspace/protein-structure-optimization/ --working-dir /workspace/protein-structure-optimization/lolbo_scripts -i nmaus/fold2 -g 1 --interactive --attach 
+runai submit test1 -v /shared_data0/protein-structure-optimization/:/workspace/protein-structure-optimization/ --working-dir /workspace/protein-structure-optimization/lolbo_scripts -i nmaus/fold2 -g 1 --interactive --attach 
 
-runai attach test4
+runai attach test1
 
 runai delete job test1
 

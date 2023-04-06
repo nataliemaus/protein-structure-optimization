@@ -42,8 +42,12 @@ def inverse_fold(target_pdb_id, chain_id="A", model=None):
         model, _ = esm.pretrained.esm_if1_gvp4_t16_142M_UR50()
     model = model.eval()
 
-    structure = esm.inverse_folding.util.load_structure(pdb_path, chain_id)
-    coords, _ = esm.inverse_folding.util.extract_coords_from_structure(structure)
+    try:
+        structure = esm.inverse_folding.util.load_structure(pdb_path, chain_id)
+        coords, _ = esm.inverse_folding.util.extract_coords_from_structure(structure)
+    except:
+        import pdb 
+        pdb.set_trace() 
 
     # Lower sampling temperature typically results in higher sequence recovery but less diversity
     sampled_seq = model.sample(coords, temperature=1e-6)
