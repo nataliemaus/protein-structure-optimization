@@ -36,17 +36,15 @@ def inverse_fold(target_pdb_id, chain_id="A", model=None):
     # import torch_geometric
     # import torch_sparse 
     # from torch_geometric.nn import MessagePassing
-    pdb_path = f"../oracle/target_pdb_files/{target_pdb_id}.ent" 
+
+    # pdb_path = f"../oracle/target_pdb_files/{target_pdb_id}.ent" 
+    # Crystal: 
+    pdb_path = f"../oracle/target_cif_files/{target_pdb_id}.cif" 
     if model is None:
         model, _ = esm.pretrained.esm_if1_gvp4_t16_142M_UR50()
     model = model.eval()
-
-    try:
-        structure = esm.inverse_folding.util.load_structure(pdb_path, chain_id)
-        coords, _ = esm.inverse_folding.util.extract_coords_from_structure(structure)
-    except:
-        import pdb 
-        pdb.set_trace() 
+    structure = esm.inverse_folding.util.load_structure(pdb_path, chain_id)
+    coords, _ = esm.inverse_folding.util.extract_coords_from_structure(structure)
 
     # Lower sampling temperature typically results in higher sequence recovery but less diversity
     sampled_seq = model.sample(coords, temperature=1e-6)
