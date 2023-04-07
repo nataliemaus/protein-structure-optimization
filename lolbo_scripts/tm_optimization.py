@@ -12,8 +12,9 @@ from constants import (
 )
 import math 
 from create_initialization_data import (
-    load_uniref_seqs,
-    load_uniref_scores,
+    load_init_data
+    # load_uniref_seqs,
+    # load_uniref_scores,
 )
 
 class TMOptimization(Optimize):
@@ -88,9 +89,10 @@ class TMOptimization(Optimize):
                 self.init_train_y (a tensor of scores/y's)
                 self.init_train_z (a tensor of corresponding latent space points)
             '''
-        train_x_seqs = load_uniref_seqs() 
-        self.init_train_x = train_x_seqs[0:self.num_initialization_points]
-        self.init_train_y = load_uniref_scores(self.target_pdb_id, num_seqs_load=self.num_initialization_points)
+        self.init_train_x, self.init_train_y = load_init_data(
+            target_pdb_id=self.target_pdb_id, 
+            num_seqs_load=self.num_initialization_points
+        )
         self.load_train_z() 
         return self 
 

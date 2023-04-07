@@ -75,7 +75,14 @@ def seq_to_pdb(seq, save_path="./output.pdb", model=None, device=device):
     seq = seq.replace("X", "") 
     seq = seq.replace("Z", "") 
     seq = seq.replace("O", "") 
-    tokenized_input = tokenizer([seq], return_tensors="pt", add_special_tokens=False)['input_ids'].to(device)
+    seq = seq.replace("B", "")
+
+    try:
+        tokenized_input = tokenizer([seq], return_tensors="pt", add_special_tokens=False)['input_ids'].to(device)
+    except:
+        for char in seq:
+            print("problem char? :", char)
+            print(tokenizer([char], return_tensors="pt", add_special_tokens=False)['input_ids'].to(device))
 
     with torch.no_grad():
         output = model(tokenized_input)
