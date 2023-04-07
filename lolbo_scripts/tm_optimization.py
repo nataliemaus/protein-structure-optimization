@@ -30,12 +30,14 @@ class TMOptimization(Optimize):
         dim: int=1024,
         max_string_length: int=100,
         target_pdb_id="17_bp_sh3",
+        data_v2_flag=True,
         **kwargs
     ):
         self.dim = dim 
         self.path_to_vae_statedict = VAE_DIM_TO_STATE_DICT_PATH[self.dim]
         self.max_string_length = max_string_length
         self.target_pdb_id = target_pdb_id
+        self.data_v2_flag = data_v2_flag
         super().__init__(**kwargs)
 
         # add args to method args dict to be logged by wandb
