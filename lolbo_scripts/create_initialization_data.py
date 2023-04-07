@@ -55,7 +55,7 @@ def load_init_data(target_pdb_id, num_seqs_load=10_000):
     train_y = train_y[0:num_seqs_load] 
     train_y = train_y.unsqueeze(-1) 
 
-    df = pd.read_csv(filename_seqs)
+    df = pd.read_csv(filename_seqs, header=None)
     train_x = df.values.squeeze().tolist() 
     train_x = train_x[0:num_seqs_load] 
 
