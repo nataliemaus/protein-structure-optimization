@@ -124,6 +124,7 @@ def create_data_v2(
     seqs_filename = f"../data/init_{num_seqs}_V2_seqs_{target_pdb_id}.csv"
     objective = TMObjective(
         target_pdb_id=target_pdb_id,
+        init_vae=False,
     ) 
 
     seqs = copy.deepcopy(if_seqs)
