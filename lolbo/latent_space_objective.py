@@ -31,7 +31,7 @@ class LatentSpaceObjective:
         self.vae = None
         if init_vae:
             self.initialize_vae()
-        assert self.vae is not None
+            assert self.vae is not None
 
 
     def __call__(self, z):
