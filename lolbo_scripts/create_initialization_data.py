@@ -67,22 +67,26 @@ def create_data_v1(
     bsz=10,
     target_pdb_id="17_bp_sh3",
 ): 
-    path_to_if_seqs = "../collected_pdbs/eval_all_results.csv"
+    path_to_if_seqs = "../collected_pdbs/eval_all_results_new.csv"
     if_df = pd.read_csv(path_to_if_seqs)
     pdb_ids = if_df['pdb'].values.tolist() 
     if target_pdb_id in pdb_ids:
         target_idx = pdb_ids.index(target_pdb_id)
-        if_seq = if_df['starting_seq'].values.squeeze()[target_idx]
+        seq0 = if_df['seq_0'].values.squeeze()[target_idx]
+        seq1 = if_df['seq_1'].values.squeeze()[target_idx]
+        seq2 = if_df['seq_2'].values.squeeze()[target_idx]
+        seqs =[seq0, seq1, seq2]
     else:
         if_seq = inverse_fold(target_pdb_id=target_pdb_id, chain_id="A", model=None)
+        seqs = [if_seq] 
     
     save_filename = f"../data/init_{num_seqs}_tmscores_{target_pdb_id}.csv"
-    seqs = load_uniref_seqs()
+    uniref_seqs = load_uniref_seqs()
+    uniref_seqs = uniref_seqs[0:num_seqs-len(seqs)]
     objective = TMObjective(
         target_pdb_id=target_pdb_id,
     ) 
-    seqs = seqs[0:num_seqs-1]
-    seqs = [if_seq] + seqs 
+    seqs = seqs + uniref_seqs
 
     all_scores = []
     for i in range(math.ceil(num_seqs/bsz)):
@@ -99,14 +103,21 @@ def create_data_v2(
     target_pdb_id="17_bp_sh3",
     max_n_mutations=20,
 ): 
-    path_to_if_seqs = "../collected_pdbs/eval_all_results.csv"
+    path_to_if_seqs = "../collected_pdbs/eval_all_results_new.csv"
     if_df = pd.read_csv(path_to_if_seqs)
     pdb_ids = if_df['pdb'].values.tolist() 
     if target_pdb_id in pdb_ids:
         target_idx = pdb_ids.index(target_pdb_id)
-        if_seq = if_df['starting_seq'].values.squeeze()[target_idx]
+        seq0 = if_df['seq_0'].values.squeeze()[target_idx]
+        seq0 = seq0.replace("'", "")
+        seq1 = if_df['seq_1'].values.squeeze()[target_idx]
+        seq1 = seq1.replace("'", "")
+        seq2 = if_df['seq_2'].values.squeeze()[target_idx]
+        seq2 = seq2.replace("'", "")
+        if_seqs =[seq0, seq1, seq2] 
     else:
-        if_seq = inverse_fold(target_pdb_id=target_pdb_id, chain_id="A", model=None)
+        seq0 = inverse_fold(target_pdb_id=target_pdb_id, chain_id="A", model=None)
+        if_seqs = [seq0]
     
     scores_filename = f"../data/init_{num_seqs}_tmscores_V2_{target_pdb_id}.csv"
     seqs_filename = f"../data/init_{num_seqs}_V2_seqs_{target_pdb_id}.csv"
@@ -114,9 +125,10 @@ def create_data_v2(
         target_pdb_id=target_pdb_id,
     ) 
 
-    seqs = [if_seq]
+    seqs = copy.deepcopy(if_seqs)
     scores = []
-    for _ in range(num_seqs - 1):
+    for _ in range(num_seqs - len(if_seqs)):
+        if_seq = random.choice(if_seqs) 
         new_seq = copy.deepcopy(if_seq)
         new_seq = [char for char in new_seq] 
         random_mutation_idx = random.randint(0, len(if_seq) - 1)
@@ -134,7 +146,6 @@ def create_data_v2(
 
     pd.DataFrame(np.array(all_scores)).to_csv(scores_filename, index=None, header=None) 
     pd.DataFrame(np.array(seqs)).to_csv(seqs_filename, index=None, header=None)
-
 
 
 if __name__ == "__main__":
@@ -159,10 +170,3 @@ if __name__ == "__main__":
             target_pdb_id=args.target_pdb_id,
             max_n_mutations=args.max_n_mutations,
         )
-
-    
-    
-
-        
-        
-        
