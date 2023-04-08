@@ -35,14 +35,14 @@ runai delete job test1
 cd lolbo_scripts 
 
 CUDA_VISIBLE_DEVICES=0 
-python3 tm_optimization.py --task_id tm --track_with_wandb True --wandb_entity nmaus --num_initialization_points 100 --max_n_oracle_calls 500000000 --bsz 10 --max_string_length 75 --dim 1024 --target_pdb_id 170_h_ob - run_lolbo - done 
+python3 tm_optimization.py --task_id tm --track_with_wandb True --wandb_entity nmaus --num_initialization_points 10000 --max_n_oracle_calls 5000000000000 --bsz 10 --max_string_length 30 --dim 1024 --target_pdb_id 33_bp_sh3 - run_lolbo - done 
 
+# MAX STRING LENGTH == max_string_length*k ! 
 # Gauss  tmux attach -t struct0-19 
-# 17_bp_sh3 X4
-# 33_bp_sh3 X4 
-# 29_bp_sh3 X4
-# 170_h_ob X3 
-
+# 17_bp_sh3 X4 
+# 33_bp_sh3 X5 
+# 29_bp_sh3 X5 
+# 170_h_ob X5  
 
 
 ## RUNAI GAUSS 

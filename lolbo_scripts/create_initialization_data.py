@@ -67,7 +67,15 @@ def create_data_v1(
     bsz=10,
     target_pdb_id="17_bp_sh3",
 ): 
-    if_seq = inverse_fold(target_pdb_id=target_pdb_id, chain_id="A", model=None)
+    path_to_if_seqs = "../collected_pdbs/eval_all_results.csv"
+    if_df = pd.read_csv(path_to_if_seqs)
+    pdb_ids = if_df['pdb'].values.tolist() 
+    if target_pdb_id in pdb_ids:
+        target_idx = pdb_ids.index(target_pdb_id)
+        if_seq = if_df['starting_seq'].values.squeeze()[target_idx]
+    else:
+        if_seq = inverse_fold(target_pdb_id=target_pdb_id, chain_id="A", model=None)
+    
     save_filename = f"../data/init_{num_seqs}_tmscores_{target_pdb_id}.csv"
     seqs = load_uniref_seqs()
     objective = TMObjective(
@@ -91,7 +99,15 @@ def create_data_v2(
     target_pdb_id="17_bp_sh3",
     max_n_mutations=20,
 ): 
-    if_seq = inverse_fold(target_pdb_id=target_pdb_id, chain_id="A", model=None)
+    path_to_if_seqs = "../collected_pdbs/eval_all_results.csv"
+    if_df = pd.read_csv(path_to_if_seqs)
+    pdb_ids = if_df['pdb'].values.tolist() 
+    if target_pdb_id in pdb_ids:
+        target_idx = pdb_ids.index(target_pdb_id)
+        if_seq = if_df['starting_seq'].values.squeeze()[target_idx]
+    else:
+        if_seq = inverse_fold(target_pdb_id=target_pdb_id, chain_id="A", model=None)
+    
     scores_filename = f"../data/init_{num_seqs}_tmscores_V2_{target_pdb_id}.csv"
     seqs_filename = f"../data/init_{num_seqs}_V2_seqs_{target_pdb_id}.csv"
     objective = TMObjective(
