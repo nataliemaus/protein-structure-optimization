@@ -11,6 +11,7 @@ from constants import (
 )
 from transformers import EsmForProteinFolding
 from oracle.aa_seq_to_tm_score import aa_seq_to_tm_score
+import os 
 
 class TMObjective(LatentSpaceObjective):
     '''Objective class supports all antibody protein
@@ -31,7 +32,13 @@ class TMObjective(LatentSpaceObjective):
         self.path_to_vae_statedict  = VAE_DIM_TO_STATE_DICT_PATH[self.dim] # path to trained vae stat dict
         self.max_string_length      = max_string_length # max string length that VAE can generate
         self.target_pdb_id          = target_pdb_id 
-        self.target_pdb_path        = f"../oracle/target_pdb_files/{target_pdb_id}.ent"
+        try: 
+            self.target_pdb_path = f"../oracle/target_pdb_files/{target_pdb_id}.ent"
+            assert os.path.exists(self.target_pdb_path)
+        except:
+            self.target_pdb_path = f"../oracle/target_pdb_files/{target_pdb_id}.pdb"
+            assert os.path.exists(self.target_pdb_path)
+
         self.esm_model              = EsmForProteinFolding.from_pretrained("facebook/esmfold_v1")
 
         super().__init__(
