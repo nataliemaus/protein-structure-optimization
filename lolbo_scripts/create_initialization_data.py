@@ -85,6 +85,7 @@ def create_data_v1(
     uniref_seqs = uniref_seqs[0:num_seqs-len(seqs)]
     objective = TMObjective(
         target_pdb_id=target_pdb_id,
+        init_vae=False
     ) 
     seqs = seqs + uniref_seqs
 

@@ -15,6 +15,7 @@ class LatentSpaceObjective:
         xs_to_scores_dict={},
         num_calls=0,
         task_id='',
+        init_vae=True,
     ):
         # dict used to track xs and scores (ys) queried during optimization
         self.xs_to_scores_dict = xs_to_scores_dict 
@@ -28,7 +29,8 @@ class LatentSpaceObjective:
         
         # load in pretrained VAE, store in variable self.vae
         self.vae = None
-        self.initialize_vae()
+        if init_vae:
+            self.initialize_vae()
         assert self.vae is not None
 
 

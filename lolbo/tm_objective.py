@@ -25,6 +25,7 @@ class TMObjective(LatentSpaceObjective):
         num_calls=0,
         target_pdb_id="17_bp_sh3",
         dim=1024,
+        init_vae=True,
     ):
         self.dim                    = dim # SELFIES VAE DEFAULT LATENT SPACE DIM
         self.path_to_vae_statedict  = VAE_DIM_TO_STATE_DICT_PATH[self.dim] # path to trained vae stat dict
@@ -37,6 +38,7 @@ class TMObjective(LatentSpaceObjective):
             num_calls=num_calls,
             xs_to_scores_dict=xs_to_scores_dict,
             task_id=task_id,
+            init_vae=init_vae,
         )
 
     def vae_decode(self, z):

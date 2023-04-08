@@ -10,8 +10,15 @@ chmod 701 TMalign
 docker run -v /home1/n/nmaus/protein-structure-optimization/:/workspace/protein-structure-optimization --gpus all -it nmaus/fold2
 
 # SAVE DATA:
-CUDA_VISIBLE_DEVICES=3 python3 create_initialization_data.py --num_seqs 100 --bsz 10 --target_pdb_id 170_h_ob
+CUDA_VISIBLE_DEVICES=7 python3 create_initialization_data.py --num_seqs 10000 --bsz 10 --target_pdb_id 2lwe
 
+# saving 10k on locust for:(lowest scorign 6)
+4gmq,
+2lwx,
+6qb2,
+6w3d,
+2k3j
+2lwe,
 # all x100 and x10,000 
 # 17_bp_sh3
 # 33_bp_sh3 
