@@ -45,12 +45,12 @@ CUDA_VISIBLE_DEVICES=1 python3 tm_optimization.py --task_id tm --track_with_wand
 
 148/3 = 50 
 
-4gmq,
-2lwx,
-6qb2,
-6w3d,
-2k3j,
-2lwe,
+4gmq, X3
+2lwx, X1
+6qb2, X1
+6w3d, X1
+2k3j, X1
+2lwe, X1
 
 # MAX STRING LENGTH == max_string_length*k ! 
 # Gauss  tmux attach -t struct0-19 

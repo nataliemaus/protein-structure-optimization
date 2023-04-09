@@ -75,10 +75,10 @@ class TMOptimization(Optimize):
             init_zs.append(zs.detach().cpu())
         init_zs = torch.cat(init_zs, dim=0)
         # now save the zs so we don't have to recompute them in the future:
-        state_dict_file_type = self.objective.path_to_vae_statedict.split('.')[-1] # usually .pt or .ckpt
-        path_to_init_train_zs = self.objective.path_to_vae_statedict.replace(f".{state_dict_file_type}", '-train-zs.csv')
-        zs_arr = init_zs.cpu().detach().numpy()
-        pd.DataFrame(zs_arr).to_csv(path_to_init_train_zs, header=None, index=None) 
+        # state_dict_file_type = self.objective.path_to_vae_statedict.split('.')[-1] # usually .pt or .ckpt
+        # path_to_init_train_zs = self.objective.path_to_vae_statedict.replace(f".{state_dict_file_type}", '-train-zs.csv')
+        # zs_arr = init_zs.cpu().detach().numpy()
+        # pd.DataFrame(zs_arr).to_csv(path_to_init_train_zs, header=None, index=None) 
 
         return init_zs
 
