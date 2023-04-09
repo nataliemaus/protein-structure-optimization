@@ -17,7 +17,7 @@ CUDA_VISIBLE_DEVICES=7 python3 create_initialization_data.py --num_seqs 10000 --
 2lwx,
 6qb2,
 6w3d,
-2k3j
+2k3j,
 2lwe,
 # all x100 and x10,000 
 # 17_bp_sh3
@@ -41,8 +41,16 @@ runai delete job test1
 
 cd lolbo_scripts 
 
-CUDA_VISIBLE_DEVICES=0 
-python3 tm_optimization.py --task_id tm --track_with_wandb True --wandb_entity nmaus --num_initialization_points 10000 --max_n_oracle_calls 5000000000000 --bsz 10 --max_string_length 30 --dim 1024 --target_pdb_id 33_bp_sh3 - run_lolbo - done 
+CUDA_VISIBLE_DEVICES=1 python3 tm_optimization.py --task_id tm --track_with_wandb True --wandb_entity nmaus --num_initialization_points 10000 --max_n_oracle_calls 5000000000000 --bsz 10 --max_string_length 52 --dim 1024 --target_pdb_id 4gmq - run_lolbo - done 
+
+148/3 = 50 
+
+4gmq,
+2lwx,
+6qb2,
+6w3d,
+2k3j,
+2lwe,
 
 # MAX STRING LENGTH == max_string_length*k ! 
 # Gauss  tmux attach -t struct0-19 

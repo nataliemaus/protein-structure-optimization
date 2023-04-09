@@ -101,19 +101,21 @@ class TMOptimization(Optimize):
     def load_train_z(
         self,
     ):
-        state_dict_file_type = self.path_to_vae_statedict.split('.')[-1] # usually .pt or .ckpt
-        path_to_init_train_zs = self.path_to_vae_statedict.replace(f".{state_dict_file_type}", '-train-zs.csv')
-        # if we have a path to pre-computed train zs for vae, load them
-        try:
-            zs = pd.read_csv(path_to_init_train_zs, header=None).values
-            # make sure we have a sufficient number of saved train zs
-            assert len(zs) >= self.num_initialization_points
-            zs = zs[0:self.num_initialization_points]
-            zs = torch.from_numpy(zs).float()
-        # otherwisee, set zs to None 
-        except: 
-            zs = None 
-        self.init_train_z = zs 
+        # state_dict_file_type = self.path_to_vae_statedict.split('.')[-1] # usually .pt or .ckpt
+        # path_to_init_train_zs = self.path_to_vae_statedict.replace(f".{state_dict_file_type}", '-train-zs.csv')
+        # # if we have a path to pre-computed train zs for vae, load them
+        # try:
+        #     zs = pd.read_csv(path_to_init_train_zs, header=None).values
+        #     # make sure we have a sufficient number of saved train zs
+        #     assert len(zs) >= self.num_initialization_points
+        #     zs = zs[0:self.num_initialization_points]
+        #     zs = torch.from_numpy(zs).float()
+        # # otherwisee, set zs to None 
+        # except: 
+        #     zs = None 
+        # self.init_train_z = zs 
+        self.init_train_z = None 
+        # DIFF TRAIN ZS for each task!! s
         return self 
 
 if __name__ == "__main__":
