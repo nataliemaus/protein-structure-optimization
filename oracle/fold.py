@@ -31,13 +31,9 @@ def convert_outputs_to_pdb(outputs):
 
 
 def inverse_fold(target_pdb_id, chain_id="A", model=None):
-    # This function is used to convert a pdb file to a sequence using inverse folding
-    # Default to chain A, since we only support folding a single sequence at the moment
-    # import torch_geometric
-    # import torch_sparse 
-    # from torch_geometric.nn import MessagePassing
-
-    # pdb_path = f"../oracle/target_pdb_files/{target_pdb_id}.ent" 
+    '''This function is used to convert a pdb file to a sequence using inverse folding
+    Default to chain A, since we only support folding a single sequence at the moment
+    '''
     # Crystal: 
     pdb_path = f"../oracle/target_cif_files/{target_pdb_id}.cif" 
     if model is None:
@@ -45,20 +41,26 @@ def inverse_fold(target_pdb_id, chain_id="A", model=None):
     model = model.eval()
     structure = esm.inverse_folding.util.load_structure(pdb_path, chain_id)
     coords, _ = esm.inverse_folding.util.extract_coords_from_structure(structure)
-
     # Lower sampling temperature typically results in higher sequence recovery but less diversity
     sampled_seq = model.sample(coords, temperature=1e-6)
-    # Calculate the TM-score between the inverse folded sequence and the target sequence
-    # First, we need to convert the sampled sequence to a pdb file
-    # seq_to_pdb(sampled_seq, "./data/inverse_folded.pdb")
-    # tm_score = cal_tm_score("./data/inverse_folded.pdb", pdb_path)
-    # Remove the pdb file
-    # os.remove("./data/inverse_folded.pdb") 
-    # print("The inverse folded sequence is: ", sampled_seq)
-    # print("The TM-score between the inverse folded sequence and the target sequence is: ", tm_score)
+    return sampled_seq 
 
-    return sampled_seq # , tm_score
 
+def inverse_fold_many_seqs(target_pdb_id, num_seqs, chain_id="A", model=None):
+    '''This function is used to convert a pdb file to a sequence using inverse folding
+    Default to chain A, since we only support folding a single sequence at the moment
+    returns a list of inverse folded seqs
+    '''
+    # Crystal: 
+    pdb_path = f"../oracle/target_cif_files/{target_pdb_id}.cif" 
+    if model is None:
+        model, _ = esm.pretrained.esm_if1_gvp4_t16_142M_UR50()
+    model = model.eval()
+    structure = esm.inverse_folding.util.load_structure(pdb_path, chain_id)
+    coords, _ = esm.inverse_folding.util.extract_coords_from_structure(structure)
+    # Lower sampling temperature typically results in higher sequence recovery but less diversity
+    sampled_seqs = model.sample(coords, temperature=1, num_seqs=num_seqs) 
+    return sampled_seqs 
 
 def seq_to_pdb(seq, save_path="./output.pdb", model=None, device=device):
     # This function is used to fold a sequence to a pdb file
