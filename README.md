@@ -10,7 +10,19 @@ chmod 701 TMalign
 docker run -v /home1/n/nmaus/protein-structure-optimization/:/workspace/protein-structure-optimization --gpus all -it nmaus/fold2
 
 # SAVE DATA:
-CUDA_VISIBLE_DEVICES=7 python3 create_initialization_data.py --num_seqs 10000 --bsz 10 --target_pdb_id 3ekc
+CUDA_VISIBLE_DEVICES=7 python3 create_initialization_data.py --num_seqs 10000 --bsz 10 --target_pdb_id 300_28
+
+runai attach lolbo-opt2
+
+# new harder ones 
+# 170_44
+# 240_16
+# 260_9
+# 270_2
+# 270_3
+# 270_14 
+# 300_16
+# 300_28 
 
 # saving 10k on locust for:(lowest scorign 6)
 4gmq,
@@ -48,12 +60,22 @@ runai delete job test1
 
 cd lolbo_scripts 
 
-CUDA_VISIBLE_DEVICES=4 python3 tm_optimization.py --task_id tm --track_with_wandb True --wandb_entity nmaus --num_initialization_points 100 --max_n_oracle_calls 5000000000000 --bsz 10 --max_string_length 32 --dim 1024 --target_pdb_id 2lwx - run_lolbo - done 
+CUDA_VISIBLE_DEVICES=3 python3 tm_optimization.py --task_id tm --track_with_wandb True --wandb_entity nmaus --num_initialization_points 1000 --max_n_oracle_calls 5000000000000 --bsz 10 --max_string_length 60 --dim 1024 --target_pdb_id 170_44 - run_lolbo - done 
+
+# new harder ones 
+# 170_44 X1
+# 240_16
+# 260_9
+# 270_2
+# 270_3
+# 270_14 
+# 300_16
+# 300_28 
 
 
 # BEST, num init search... 
-2lwx, 10k, 1k, 100x3, 10     len 32 
-6w3d, 10k, 1k, 100, 10         len 40 
+2lwx, 10k, 1kx3, 100x4, 10     len 32 
+6w3d, 10k, 1k, 100x3, 10         len 40 
 4gmq, 10k, 1k, 100, 10     len 32
 6qb2, 10k, 1k, 100, 10           len 32
 

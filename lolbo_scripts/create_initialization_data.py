@@ -25,6 +25,8 @@ def load_uniref_scores(target_pdb_id, num_seqs_load=10_000):
         n_seqs = int(filename.split("/")[-1].split("_")[1])
         nums_seqs.append(n_seqs)
     nums_seqs = np.array(nums_seqs)
+    import pdb 
+    pdb.set_trace() 
     max_n_seqs = nums_seqs.max() 
     if max_n_seqs < num_seqs_load:
         print(f"Have not saved enough initilization data to load {num_seqs_load} seqs")
