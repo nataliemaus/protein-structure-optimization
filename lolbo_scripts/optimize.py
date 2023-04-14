@@ -65,9 +65,11 @@ class Optimize(object):
         verbose: bool=True,
         recenter_only=False,
         log_table_freq=10_000, 
+        save_vae_ckpt=False,
     ):
         signal.signal(signal.SIGINT, self.handler)
         # add all local args to method args dict to be logged by wandb
+        self.save_vae_ckpt = save_vae_ckpt
         self.log_table_freq = log_table_freq # log all collcted data every log_table_freq oracle calls 
         self.recenter_only = recenter_only # only recenter, no E2E 
         self.method_args = {}
@@ -293,19 +295,17 @@ class Optimize(object):
             except:
                 self.tracker.log({'save-data-table-failed':True})
             
-            # We also want to save the fine-tuned VAE! 
-            try:
-                n_calls = self.lolbo_state.objective.num_calls
-                model = copy.deepcopy(self.lolbo_state.objective.vae)
-                model = model.eval()
-                model = model.cpu() 
-                save_dir = 'finetuned_vae_ckpts/'
-                if not os.path.exists(save_dir):
-                    os.mkdir(save_dir)
-                model_save_path = save_dir + self.wandb_project_name + '_' + wandb.run.name + f'_finedtuned_vae_state_after_{n_calls}evals.pkl'  
-                torch.save(model.state_dict(), model_save_path) 
-            except: 
-                self.tracker.log({'save-vae-statedict-failed':True})
+        # We also want to save the fine-tuned VAE! 
+        if self.save_vae_ckpt:
+            n_calls = self.lolbo_state.objective.num_calls
+            model = copy.deepcopy(self.lolbo_state.objective.vae)
+            model = model.eval()
+            model = model.cpu() 
+            save_dir = 'finetuned_vae_ckpts/'
+            if not os.path.exists(save_dir):
+                os.mkdir(save_dir)
+            model_save_path = save_dir + self.wandb_project_name + '_' + wandb.run.name + f'_finedtuned_vae_state_after_{n_calls}evals.pkl'  
+            torch.save(model.state_dict(), model_save_path) 
 
         save_dir = 'optimization_all_collected_data/'
         if not os.path.exists(save_dir):

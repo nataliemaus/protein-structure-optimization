@@ -60,7 +60,7 @@ runai delete job test1
 
 cd lolbo_scripts 
 
-CUDA_VISIBLE_DEVICES=3 python3 tm_optimization.py --task_id tm --track_with_wandb True --wandb_entity nmaus --num_initialization_points 10000 --max_n_oracle_calls 5000000000000 --bsz 10 --max_string_length 60 --dim 1024 --target_pdb_id 17044 - run_lolbo - done 
+CUDA_VISIBLE_DEVICES=3 python3 tm_optimization.py --task_id tm --track_with_wandb True --wandb_entity nmaus --num_initialization_points 1000 --max_n_oracle_calls 5000000000000 --bsz 10 --max_string_length 60 --dim 1024 --target_pdb_id 17044 - run_lolbo - done 
 
 # new harder ones 
 # 170_44 X1
