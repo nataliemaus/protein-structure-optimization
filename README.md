@@ -12,7 +12,7 @@ docker run -v /home1/n/nmaus/protein-structure-optimization/:/workspace/protein-
 # IF BASELINE RUN: 
 cd lolbo_scripts 
 
-CUDA_VISIBLE_DEVICES=7 python3 if_baseline.py --target_pdb_id 17_bp_sh3
+CUDA_VISIBLE_DEVICES=7 python3 if_baseline.py --target_pdb_id 2lwe
 
 # SAVE DATA:
 CUDA_VISIBLE_DEVICES=7 python3 create_initialization_data.py --num_seqs 10000 --bsz 10 --target_pdb_id 300_28
@@ -22,19 +22,19 @@ runai attach lolbo-opt2
 # new harder ones 
 # 17044
 # 24016
-# 2609
-# 2702
-# 2703
+# 2609 
+# 2702 
+# 2703 
 # 27014 
-# 30016
+# 30016 
 # 30028 
 
 # saving 10k on locust for:(lowest scorign 6)
-4gmq,
-2lwx,
-6qb2,
-6w3d,
-2k3j,
+4gmq, d
+2lwx, d
+6qb2, d
+6w3d, d
+2k3j, d
 2lwe,
 5njn,
 2mn4,
