@@ -17,17 +17,17 @@ CUDA_VISIBLE_DEVICES=7 python3 if_baseline.py --target_pdb_id 17_bp_sh3
 # SAVE DATA:
 CUDA_VISIBLE_DEVICES=7 python3 create_initialization_data.py --num_seqs 10000 --bsz 10 --target_pdb_id 300_28
 
-runai attach lolbo-opt2
+runai attach lolbo-opt2 
 
 # new harder ones 
-# 170_44
-# 240_16
-# 260_9
-# 270_2
-# 270_3
-# 270_14 
-# 300_16
-# 300_28 
+# 17044
+# 24016
+# 2609
+# 2702
+# 2703
+# 27014 
+# 30016
+# 30028 
 
 # saving 10k on locust for:(lowest scorign 6)
 4gmq,

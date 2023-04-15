@@ -41,17 +41,21 @@ def run_if_baseline(
         init_vae=False,
     ) 
     if_model, _ = esm.pretrained.esm_if1_gvp4_t16_142M_UR50()
+    if_model = if_model.eval()
+    pdb_path = f"../oracle/target_cif_files/{target_pdb_id}.cif" 
+    structure = esm.inverse_folding.util.load_structure(pdb_path, chain_id="A")
+    coords, _ = esm.inverse_folding.util.extract_coords_from_structure(structure)
+
     seqs = []
     scores = []
     best_score = -np.inf
     steps = 0 
     while objective.num_calls < max_n_oracle_calls:
-        seqs_batch = inverse_fold_many_seqs(
-            target_pdb_id=target_pdb_id, 
-            num_seqs=bsz, 
-            chain_id="A", 
-            model=if_model,
-        )
+        seqs_batch = []
+        for _ in range(bsz):
+            sampled_seq = if_model.sample(coords, temperature=1) 
+            seqs_batch.append(sampled_seq)
+
         scores_batch = objective.query_oracle(seqs_batch)
         seqs = seqs + seqs_batch 
         scores = scores + scores_batch 
