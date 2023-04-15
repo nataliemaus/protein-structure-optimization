@@ -50,13 +50,15 @@ def run_if_baseline(
     scores = []
     best_score = -np.inf
     steps = 0 
-    while objective.num_calls < max_n_oracle_calls:
+    num_calls = 0
+    while num_calls < max_n_oracle_calls:
         seqs_batch = []
         for _ in range(bsz):
             sampled_seq = if_model.sample(coords, temperature=1) 
             seqs_batch.append(sampled_seq)
 
         scores_batch = objective.query_oracle(seqs_batch)
+        num_calls += len(scores_batch)
         seqs = seqs + seqs_batch 
         scores = scores + scores_batch 
         best_in_batch = np.array(scores_batch).max()
