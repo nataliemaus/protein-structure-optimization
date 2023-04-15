@@ -66,7 +66,7 @@ def run_if_baseline(
             best_score = best_in_batch
         tracker.log({
             "best_found":best_in_batch,
-            "n_oracle_calls":objective.num_calls,
+            "n_oracle_calls":num_calls,
         }) 
         if steps % save_freq == 0:
             pd.DataFrame(np.array(scores)).to_csv(scores_filename, index=None, header=None) 
