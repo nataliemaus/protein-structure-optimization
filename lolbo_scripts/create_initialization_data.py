@@ -79,7 +79,7 @@ def load_init_data(target_pdb_id, num_seqs_load=10_000):
     train_y = torch.tensor(train_ys).float() 
     train_y = train_y.unsqueeze(-1) 
     train_y = train_y[0:num_seqs_load] 
-    train_x = train_x[0:num_seqs_load]
+    train_x = train_xs[0:num_seqs_load]
      
     return train_x, train_y
 

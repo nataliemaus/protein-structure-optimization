@@ -12,7 +12,7 @@ docker run -v /home1/n/nmaus/protein-structure-optimization/:/workspace/protein-
 # IF BASELINE RUN: 
 cd lolbo_scripts 
 
-CUDA_VISIBLE_DEVICES=7 python3 if_baseline.py --target_pdb_id 2lwe
+CUDA_VISIBLE_DEVICES=3 python3 if_baseline.py --target_pdb_id 2l67 
 
 # SAVE DATA:
 CUDA_VISIBLE_DEVICES=7 python3 create_initialization_data.py --num_seqs 10000 --bsz 10 --target_pdb_id 300_28
@@ -35,14 +35,14 @@ runai attach lolbo-opt2
 6qb2, d
 6w3d, d
 2k3j, d
-2lwe,
-5njn,
-2mn4,
-6vg7,
-3leq,
-7cfv,
-6l7k,
-2l67,
+2lwe, d
+5njn, X
+2mn4, d
+6vg7, X
+3leq, d
+7cfv, X
+6l7k, X
+2l67, d
 # all x100 and x10,000 
 # 17_bp_sh3
 # 33_bp_sh3 
@@ -65,7 +65,7 @@ runai delete job test1
 
 cd lolbo_scripts 
 
-CUDA_VISIBLE_DEVICES=7 python3 tm_optimization.py --task_id tm --track_with_wandb True --wandb_entity nmaus --num_initialization_points 10000 --max_n_oracle_calls 5000000000000 --bsz 2 --max_string_length 102 --dim 1024 --target_pdb_id 30028 - run_lolbo - done 
+CUDA_VISIBLE_DEVICES=1 python3 tm_optimization.py --task_id tm --track_with_wandb True --wandb_entity nmaus --num_initialization_points 1000 --max_n_oracle_calls 5000000000000 --bsz 2 --max_string_length 88 --dim 1024 --target_pdb_id 2609 - run_lolbo - done 
 
 # new harder ones 
 # 17044 X1
