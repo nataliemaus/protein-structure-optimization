@@ -86,7 +86,7 @@ def load_init_data(target_pdb_id, num_seqs_load=10_000):
 
     df_scores = dfs[np.argmax(nums_seqs)]
     filename_scores = possible_score_filenames[np.argmax(nums_seqs)]
-    wandb_run_name = filename_scores.split["/"][-1].split("_")[-1].split(".")[0]
+    wandb_run_name = filename_scores.split("/")[-1].split("_")[-1].split(".")[0]
     filename_seqs = f"../data/if_baseline_seqs_{target_pdb_id}_{wandb_run_name}.csv"
     # HERE 
 
