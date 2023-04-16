@@ -65,7 +65,7 @@ def run_if_baseline(
         if best_in_batch > best_score: 
             best_score = best_in_batch
         tracker.log({
-            "best_found":best_in_batch,
+            "best_found":best_score,
             "n_oracle_calls":num_calls,
         }) 
         if steps % save_freq == 0:
