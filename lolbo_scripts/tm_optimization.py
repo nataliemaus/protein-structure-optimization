@@ -30,7 +30,8 @@ class TMOptimization(Optimize):
         dim: int=1024,
         max_string_length: int=100,
         target_pdb_id="17_bp_sh3",
-        data_v2_flag=True,
+        data_v2_flag=False,
+        data_v3_flag=True,
         **kwargs
     ):
         self.dim = dim 
@@ -38,7 +39,8 @@ class TMOptimization(Optimize):
         self.max_string_length = max_string_length
         self.target_pdb_id = target_pdb_id
         self.data_v2_flag = data_v2_flag
-        super().__init__(**kwargs)
+        self.data_v3_flag = data_v3_flag # inverse fold init data! 
+        super().__init__(**kwargs) 
 
         # add args to method args dict to be logged by wandb
         self.method_args['opt1'] = locals()

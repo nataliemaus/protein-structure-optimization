@@ -36,21 +36,60 @@ def load_uniref_scores(target_pdb_id, num_seqs_load=10_000):
     return train_y.unsqueeze(-1) 
 
 
+# def load_init_data(target_pdb_id, num_seqs_load=10_000):
+#     possible_score_filenames = glob.glob(f"../data/init_*_tmscores_V2_{target_pdb_id}.csv")
+#     nums_seqs = []
+#     for filename in possible_score_filenames:
+#         n_seqs = int(filename.split("/")[-1].split("_")[1])
+#         nums_seqs.append(n_seqs)
+#     nums_seqs = np.array(nums_seqs)
+#     max_n_seqs = nums_seqs.max() 
+#     if max_n_seqs < num_seqs_load:
+#         print(f"Have not saved enough initilization data to load {num_seqs_load} seqs")
+#         assert 0 
+#     filename_scores = possible_score_filenames[np.argmax(nums_seqs)]
+#     filename_seqs = f"../data/init_{max_n_seqs}_V2_seqs_{target_pdb_id}.csv"
+
+#     df_scores = pd.read_csv(filename_scores, header=None)
+#     train_y = torch.from_numpy(df_scores.values.squeeze()).float()
+#     train_y = train_y[0:num_seqs_load] 
+#     train_y = train_y.unsqueeze(-1) 
+
+#     df = pd.read_csv(filename_seqs, header=None)
+#     train_x = df.values.squeeze().tolist() 
+#     train_x = train_x[0:num_seqs_load] 
+
+#     return train_x, train_y
+
+
 def load_init_data(target_pdb_id, num_seqs_load=10_000):
-    possible_score_filenames = glob.glob(f"../data/init_*_tmscores_V2_{target_pdb_id}.csv")
-    nums_seqs = []
-    for filename in possible_score_filenames:
-        n_seqs = int(filename.split("/")[-1].split("_")[1])
-        nums_seqs.append(n_seqs)
+
+    scores_filename_ = f"../data/if_baseline_tmscores_{target_pdb_id}_*.csv"
+
+    possible_score_filenames = glob.glob(scores_filename_)
+    nums_seqs = [] 
+    dfs = []
+    for filename_scores in possible_score_filenames:
+        df_scores = pd.read_csv(filename_scores, header=None)
+        n_seqs = df_scores.shape[0] 
+        nums_seqs.append(n_seqs) 
+        dfs.append(df_scores)
+
+        # n_seqs = int(filename.split("/")[-1].split("_")[1])
+        # nums_seqs.append(n_seqs) 
+    
     nums_seqs = np.array(nums_seqs)
     max_n_seqs = nums_seqs.max() 
     if max_n_seqs < num_seqs_load:
         print(f"Have not saved enough initilization data to load {num_seqs_load} seqs")
         assert 0 
-    filename_scores = possible_score_filenames[np.argmax(nums_seqs)]
-    filename_seqs = f"../data/init_{max_n_seqs}_V2_seqs_{target_pdb_id}.csv"
 
-    df_scores = pd.read_csv(filename_scores, header=None)
+    df_scores = dfs[np.argmax(nums_seqs)]
+    filename_scores = possible_score_filenames[np.argmax(nums_seqs)]
+    wandb_run_name = filename_scores.split["/"][-1].split("_")[-1].split(".")[0]
+    filename_seqs = f"../data/if_baseline_seqs_{target_pdb_id}_{wandb_run_name}.csv"
+    # HERE 
+
     train_y = torch.from_numpy(df_scores.values.squeeze()).float()
     train_y = train_y[0:num_seqs_load] 
     train_y = train_y.unsqueeze(-1) 
