@@ -134,7 +134,7 @@ def create_data_v1(
     
     save_filename = f"../data/init_{num_seqs}_tmscores_{target_pdb_id}.csv"
     uniref_seqs = load_uniref_seqs()
-    uniref_seqs = uniref_seqs[0:num_seqs-len(seqs)]
+    uniref_seqs = uniref_seqs[0:num_seqs-len(if_seqs)]
     objective = TMObjective(
         target_pdb_id=target_pdb_id,
         init_vae=False
