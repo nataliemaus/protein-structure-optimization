@@ -114,6 +114,7 @@ def create_data_v1(
 ): 
     ''' Creates data using uniref seqs and a single esm if seq
     '''
+    if_succeeded = True
     path_to_if_seqs = "../collected_pdbs/eval_all_results_new.csv"
     if_df = pd.read_csv(path_to_if_seqs)
     pdb_ids = if_df['pdb'].values.tolist() 
@@ -122,10 +123,14 @@ def create_data_v1(
         seq0 = if_df['seq_0'].values.squeeze()[target_idx]
         seq1 = if_df['seq_1'].values.squeeze()[target_idx]
         seq2 = if_df['seq_2'].values.squeeze()[target_idx]
-        seqs =[seq0, seq1, seq2]
+        if_seqs =[seq0, seq1, seq2]
     else:
-        if_seq = inverse_fold(target_pdb_id=target_pdb_id, chain_id="A", model=None)
-        seqs = [if_seq] 
+        try:
+            if_seq = inverse_fold(target_pdb_id=target_pdb_id, chain_id="A", model=None)
+            if_seqs = [if_seq]  
+        except:
+            if_succeeded = False 
+            if_seqs = []
     
     save_filename = f"../data/init_{num_seqs}_tmscores_{target_pdb_id}.csv"
     uniref_seqs = load_uniref_seqs()
@@ -134,12 +139,17 @@ def create_data_v1(
         target_pdb_id=target_pdb_id,
         init_vae=False
     ) 
-    seqs = seqs + uniref_seqs
+
+    seqs = if_seqs + uniref_seqs 
 
     all_scores = []
-    for i in range(math.ceil(num_seqs/bsz)):
+    for i in range(math.ceil(len(seqs)/bsz)):
         scores = objective.query_oracle(seqs[i*bsz:(i+1)*bsz])
         all_scores = all_scores + scores   
+
+    if not if_succeeded:
+        seqs = ["DUMMY"] + seqs 
+        all_scores = [-1] + all_scores 
 
     all_scores = np.array(all_scores)
     pd.DataFrame(all_scores).to_csv(save_filename, index=None, header=None) 
@@ -167,7 +177,7 @@ def create_data_v2(
         if_seqs =[seq0, seq1, seq2] 
     else:
         seq0 = inverse_fold(target_pdb_id=target_pdb_id, chain_id="A", model=None)
-        if_seqs = [seq0]
+        if_seqs = [seq0] 
     
     scores_filename = f"../data/init_{num_seqs}_tmscores_V2_{target_pdb_id}.csv"
     seqs_filename = f"../data/init_{num_seqs}_V2_seqs_{target_pdb_id}.csv"
