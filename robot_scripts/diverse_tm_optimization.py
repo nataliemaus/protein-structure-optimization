@@ -27,12 +27,14 @@ class DiverseTMOptimization(Optimize):
         dim: int=1024,
         max_string_length: int=100,
         target_pdb_id: str="17_bp_sh3",
+        init_w_esmif: bool=True,
         **kwargs,
     ):
         self.dim=dim
         self.path_to_vae_statedict =VAE_DIM_TO_STATE_DICT_PATH[self.dim] 
         self.max_string_length = max_string_length 
         self.target_pdb_id = target_pdb_id 
+        self.init_w_esmif = init_w_esmif
         super().__init__(**kwargs)
 
         # add args to method args dict to be logged by wandb
@@ -84,7 +86,8 @@ class DiverseTMOptimization(Optimize):
         # self.init_train_y = load_uniref_scores(self.target_pdb_id, num_seqs_load=self.num_initialization_points)
         self.init_train_x, self.init_train_y = load_init_data(
             target_pdb_id=self.target_pdb_id, 
-            num_seqs_load=self.num_initialization_points
+            num_seqs_load=self.num_initialization_points,
+            init_w_esmif=self.init_w_esmif,
         )
         self.load_train_z() 
         return self 

@@ -7,7 +7,7 @@ import math
 from lolbo.tm_objective import TMObjective
 import glob 
 import torch 
-from oracle.fold import inverse_fold
+from oracle.fold import inverse_fold 
 import copy
 import random 
 from constants import ALL_AMINO_ACIDS
@@ -36,33 +36,38 @@ def load_uniref_scores(target_pdb_id, num_seqs_load=10_000):
     return train_y.unsqueeze(-1) 
 
 
-# def load_init_data(target_pdb_id, num_seqs_load=10_000):
-#     possible_score_filenames = glob.glob(f"../data/init_*_tmscores_V2_{target_pdb_id}.csv")
-#     nums_seqs = []
-#     for filename in possible_score_filenames:
-#         n_seqs = int(filename.split("/")[-1].split("_")[1])
-#         nums_seqs.append(n_seqs)
-#     nums_seqs = np.array(nums_seqs)
-#     max_n_seqs = nums_seqs.max() 
-#     if max_n_seqs < num_seqs_load:
-#         print(f"Have not saved enough initilization data to load {num_seqs_load} seqs")
-#         assert 0 
-#     filename_scores = possible_score_filenames[np.argmax(nums_seqs)]
-#     filename_seqs = f"../data/init_{max_n_seqs}_V2_seqs_{target_pdb_id}.csv"
+def load_init_data_uniref(target_pdb_id, num_seqs_load=10_000):
+    possible_score_filenames = glob.glob(f"../data/init_*_tmscores_{target_pdb_id}.csv")
+    nums_seqs = [] 
+    for filename in possible_score_filenames:
+        n_seqs = int(filename.split("/")[-1].split("_")[1])
+        nums_seqs.append(n_seqs)
+    nums_seqs = np.array(nums_seqs)
+    max_n_seqs = nums_seqs.max() 
+    if (max_n_seqs-1) < num_seqs_load:
+        print(f"Have not saved enough initilization data to load {num_seqs_load} seqs")
+        assert 0 
+    filename_scores = possible_score_filenames[np.argmax(nums_seqs)]
 
-#     df_scores = pd.read_csv(filename_scores, header=None)
-#     train_y = torch.from_numpy(df_scores.values.squeeze()).float()
-#     train_y = train_y[0:num_seqs_load] 
-#     train_y = train_y.unsqueeze(-1) 
+    df_scores = pd.read_csv(filename_scores, header=None)
+    scores = df_scores.values.squeeze()
+    scores = scores[1:] # exclude first entry which is the one if seq score 
+    train_y = torch.from_numpy(scores).float()
+    train_y = train_y[0:num_seqs_load] 
+    train_y = train_y.unsqueeze(-1) 
 
-#     df = pd.read_csv(filename_seqs, header=None)
-#     train_x = df.values.squeeze().tolist() 
-#     train_x = train_x[0:num_seqs_load] 
+    uniref_seqs = load_uniref_seqs()
+    train_x = uniref_seqs[0:num_seqs_load] 
 
-#     return train_x, train_y
+    return train_x, train_y
 
 
-def load_init_data(target_pdb_id, num_seqs_load=10_000):
+def load_init_data_esmif(
+    target_pdb_id, 
+    num_seqs_load=10_000,
+):
+    ''' Loads data from inverse fold baseline seqs 
+    '''
     scores_filename_ = f"../data/if_baseline_tmscores_{target_pdb_id}_*.csv"
     possible_score_filenames = glob.glob(scores_filename_)
 
@@ -84,11 +89,31 @@ def load_init_data(target_pdb_id, num_seqs_load=10_000):
     return train_x, train_y
 
 
+def load_init_data(
+    target_pdb_id, 
+    num_seqs_load=10_000,
+    init_w_esmif=False
+):
+    if init_w_esmif:
+        train_x, train_y = load_init_data_esmif(
+            target_pdb_id, 
+            num_seqs_load=num_seqs_load,
+        )
+    else:
+        train_x, train_y = load_init_data_uniref(
+            target_pdb_id, 
+            num_seqs_load=num_seqs_load
+        )
+    return train_x, train_y
+
+
 def create_data_v1(
     num_seqs=10,
     bsz=10,
     target_pdb_id="17_bp_sh3",
 ): 
+    ''' Creates data using uniref seqs and a single esm if seq
+    '''
     path_to_if_seqs = "../collected_pdbs/eval_all_results_new.csv"
     if_df = pd.read_csv(path_to_if_seqs)
     pdb_ids = if_df['pdb'].values.tolist() 
@@ -126,6 +151,8 @@ def create_data_v2(
     target_pdb_id="17_bp_sh3",
     max_n_mutations=20,
 ): 
+    ''' Creates data using random mutations of a few esm if seqs 
+    '''
     path_to_if_seqs = "../collected_pdbs/eval_all_results_new.csv"
     if_df = pd.read_csv(path_to_if_seqs)
     pdb_ids = if_df['pdb'].values.tolist() 
@@ -174,11 +201,11 @@ def create_data_v2(
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser() 
-    parser.add_argument('--num_seqs', type=int, default=10_000 ) 
+    parser.add_argument('--num_seqs', type=int, default=1000 ) 
     parser.add_argument('--bsz', type=int, default=10 ) 
     parser.add_argument('--target_pdb_id', default="17_bp_sh3" ) 
-    parser.add_argument('--data_version', type=int, default=2 ) 
-    parser.add_argument('--max_n_mutations', type=int, default=10 )
+    parser.add_argument('--data_version', type=int, default=1 ) 
+    parser.add_argument('--max_n_mutations', type=int, default=10 ) # only releant for v2
 
     args = parser.parse_args() 
     if args.data_version == 1:

@@ -32,6 +32,7 @@ class TMOptimization(Optimize):
         target_pdb_id="17_bp_sh3",
         data_v2_flag=False,
         data_v3_flag=True,
+        init_w_esmif=False,
         **kwargs
     ):
         self.dim = dim 
@@ -40,6 +41,7 @@ class TMOptimization(Optimize):
         self.target_pdb_id = target_pdb_id
         self.data_v2_flag = data_v2_flag
         self.data_v3_flag = data_v3_flag # inverse fold init data! 
+        self.init_w_esmif = init_w_esmif # choose esmif or uniref 
         super().__init__(**kwargs) 
 
         # add args to method args dict to be logged by wandb
@@ -95,8 +97,10 @@ class TMOptimization(Optimize):
             '''
         self.init_train_x, self.init_train_y = load_init_data(
             target_pdb_id=self.target_pdb_id, 
-            num_seqs_load=self.num_initialization_points
+            num_seqs_load=self.num_initialization_points,
+            init_w_esmif=self.init_w_esmif,
         )
+        
         self.load_train_z() 
         return self 
 
