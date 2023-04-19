@@ -75,7 +75,7 @@ def load_init_data(target_pdb_id, num_seqs_load=10_000):
         filename_seqs = f"../data/if_baseline_seqs_{target_pdb_id}_{wandb_run_name}.csv"
         df = pd.read_csv(filename_seqs, header=None)
         train_xs = train_xs + df.values.squeeze().tolist() 
-    
+
     train_y = torch.tensor(train_ys).float() 
     train_y = train_y.unsqueeze(-1) 
     train_y = train_y[0:num_seqs_load] 

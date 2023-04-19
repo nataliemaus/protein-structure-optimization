@@ -65,17 +65,17 @@ runai delete job test1
 
 cd lolbo_scripts 
 
-CUDA_VISIBLE_DEVICES=1 python3 tm_optimization.py --task_id tm --track_with_wandb True --wandb_entity nmaus --num_initialization_points 1000 --max_n_oracle_calls 5000000000000 --bsz 2 --max_string_length 88 --dim 1024 --target_pdb_id 2609 - run_lolbo - done 
+CUDA_VISIBLE_DEVICES=1 python3 tm_optimization.py --task_id tm --track_with_wandb True --wandb_entity nmaus --num_initialization_points 1000 --max_n_oracle_calls 5000000000000 --bsz 10 --max_string_length 82 --dim 1024 --target_pdb_id 24016 - run_lolbo - done 
 
 # new harder ones 
-# 17044 X1
-# 24016 X1 
-# 2609 X1 
-# 2702 X1 
-# 2703 X1 
-# 27014 X1 
-# 30016
-# 30028 
+# 17044 X4 
+# 24016 X0
+# 2609 X0
+# 2702 X0 
+# 2703 X0
+# 27014 X0
+# 30016 X0
+# 30028 X0
 ## First three numbers give actual seq length ... 
 
 
