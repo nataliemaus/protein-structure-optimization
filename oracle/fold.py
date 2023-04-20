@@ -114,7 +114,6 @@ def load_esm_if_model():
     if_model = if_model.cuda() 
     return if_model, if_alphabet 
 
-
 def get_gvp_encoding(pdb_path, chain_id='A', model=None, alphabet=None):
     # This function is used to get the GVP encoding of a sequence
     if model is None:
@@ -131,7 +130,7 @@ def get_gvp_encoding(pdb_path, chain_id='A', model=None, alphabet=None):
     batch_converter = CoordBatchConverter(alphabet)
     batch = [(coords, None, native_seq)]
 
-    coords, confidence, strs, tokens, padding_mask = batch_converter(batch)
+    coords, confidence, strs, tokens, padding_mask = batch_converter(batch.cuda())
     confidence = confidence.cuda() 
 
     gvp_out = model.encoder.forward_embedding(coords, padding_mask=padding_mask, confidence=confidence)[1]['gvp_out']
