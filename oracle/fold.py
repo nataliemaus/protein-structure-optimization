@@ -127,10 +127,13 @@ def get_gvp_encoding(pdb_path, chain_id='A', model=None, alphabet=None):
     coords, native_seq = esm.inverse_folding.util.extract_coords_from_structure(structure)
     coords = torch.tensor(coords).cuda() 
 
-    batch_converter = CoordBatchConverter(alphabet)
+    batch_converter = CoordBatchConverter(alphabet) # .cuda() 
     batch = [(coords, None, native_seq)]
 
-    coords, confidence, strs, tokens, padding_mask = batch_converter(batch.cuda())
+    import pdb 
+    pdb.set_trace() 
+
+    coords, confidence, strs, tokens, padding_mask = batch_converter(batch)
     confidence = confidence.cuda() 
 
     gvp_out = model.encoder.forward_embedding(coords, padding_mask=padding_mask, confidence=confidence)[1]['gvp_out']
