@@ -6,39 +6,15 @@ import wandb
 import argparse 
 import os 
 os.environ["WANDB_SILENT"] = "true" 
-from utils import get_gvp_encoding
-import esm
 from transformers import EsmForProteinFolding
 if not torch.cuda.is_available():
     print("No GPU Available")
     assert 0 
-from oracle.fold import fold_aa_seq 
-
-
-def load_esm_if_model():
-    if_model, if_alphabet = esm.pretrained.esm_if1_gvp4_t16_142M_UR50()
-    if_model = if_model.eval() 
-    if_model = if_model.cuda() 
-    return if_model, if_alphabet 
-
-def get_gvp_encoding(target_pdb, if_model, if_alphabet ):
-    # Load all models before starting the BO loop can reduce overhead
-    
-    # fold_model = EsmForProteinFolding.from_pretrained("facebook/esmfold_v1").cuda() 
-    # inv_model, alphabet = esm.pretrained.esm_if1_gvp4_t16_142M_UR50()
-
-    # Here is how to sample starting sequences via inverse folding
-
-    # from utils import sample_starting_seqs
-    target_pdb = 'data/beta_barrel.pdb'
-    # starting_seqs, tmscores = sample_starting_seqs(target_pdb, model=inv_model, num_seqs=3, temperature=1e-2, device=device, fold_model=fold_model)
-    # print(starting_seqs)
-
-    encoding = get_gvp_encoding(target_pdb, model=if_model, alphabet=if_alphabet) # , device=device)  device = "cuda:0"
-    print(encoding.shape) 
-    import pdb 
-    pdb.set_trace() 
-    return encoding 
+from oracle.fold import (
+    fold_aa_seq,
+    load_esm_if_model,
+    get_gvp_encoding,
+)
 
 
 def start_wandb(args_dict):
@@ -160,4 +136,9 @@ if __name__ == "__main__":
     aa_seq = 'MEELLKKILEEVKKLEEELKKLEGLEPELKPLLEKLKEELEKLLEELEKLKEEGKEELPEELLEKLLEELEKLEEELEELLEELEELLEGLEELEELKELFEELKEKLEELKELLEELKEE'
     fold_model = EsmForProteinFolding.from_pretrained("facebook/esmfold_v1").cuda() 
     folded_pdb = fold_aa_seq(aa_seq, esm_model=fold_model)
-    test_encdoing = get_gvp_encoding(folded_pdb, if_model, if_alphabet )
+    encoding = get_gvp_encoding(pdb_path=folded_pdb, model=if_model, alphabet=if_alphabet) 
+    print(encoding.shape) 
+    import pdb 
+    pdb.set_trace() 
+
+    # CUDA_VISIBLE_DEVICES=7 python3 train_

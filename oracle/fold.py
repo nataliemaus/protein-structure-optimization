@@ -5,7 +5,11 @@ from transformers.models.esm.openfold_utils.feats import atom14_to_atom37
 import uuid
 import os 
 import esm 
-device = "cuda:0" if torch.cuda.is_available() else "cpu"
+from esm.inverse_folding.util import CoordBatchConverter
+# device = "cuda:0" if torch.cuda.is_available() else "cpu"
+if not torch.cuda.is_available():
+    print("NO GPU AVAILABLE")
+    assert 0 
 
 def convert_outputs_to_pdb(outputs):
     final_atom_positions = atom14_to_atom37(outputs["positions"][-1], outputs)
@@ -62,13 +66,13 @@ def inverse_fold_many_seqs(target_pdb_id, num_seqs, chain_id="A", model=None):
     sampled_seqs = model.sample(coords, temperature=1, num_seqs=num_seqs) 
     return sampled_seqs 
 
-def seq_to_pdb(seq, save_path="./output.pdb", model=None, device=device):
+def seq_to_pdb(seq, save_path="./output.pdb", model=None):
     # This function is used to fold a sequence to a pdb file
     # Load the model and tokenizer
     if model is None:
         model = EsmForProteinFolding.from_pretrained("facebook/esmfold_v1")
 
-    model = model.to(device)
+    model = model.cuda() 
     tokenizer = AutoTokenizer.from_pretrained("facebook/esmfold_v1")
 
     ### Added by Natalie 
@@ -80,11 +84,11 @@ def seq_to_pdb(seq, save_path="./output.pdb", model=None, device=device):
     seq = seq.replace("B", "")
 
     try:
-        tokenized_input = tokenizer([seq], return_tensors="pt", add_special_tokens=False)['input_ids'].to(device)
+        tokenized_input = tokenizer([seq], return_tensors="pt", add_special_tokens=False)['input_ids'].cuda() 
     except:
         for char in seq:
             print("problem char? :", char)
-            print(tokenizer([char], return_tensors="pt", add_special_tokens=False)['input_ids'].to(device))
+            print(tokenizer([char], return_tensors="pt", add_special_tokens=False)['input_ids'].cuda())
 
     with torch.no_grad():
         output = model(tokenized_input)
@@ -101,8 +105,38 @@ def fold_aa_seq(aa_seq, esm_model=None):
     if not os.path.exists("temp_pdbs/"):
         os.mkdir("temp_pdbs/")
     folded_pdb_path = f"temp_pdbs/{uuid.uuid1()}.pdb"
-    seq_to_pdb(seq=aa_seq, save_path=folded_pdb_path, model=esm_model, device=device)
+    seq_to_pdb(seq=aa_seq, save_path=folded_pdb_path, model=esm_model)
     return folded_pdb_path 
+
+def load_esm_if_model():
+    if_model, if_alphabet = esm.pretrained.esm_if1_gvp4_t16_142M_UR50()
+    if_model = if_model.eval() 
+    if_model = if_model.cuda() 
+    return if_model, if_alphabet 
+
+
+def get_gvp_encoding(pdb_path, chain_id='A', model=None, alphabet=None):
+    # This function is used to get the GVP encoding of a sequence
+    if model is None:
+        model, alphabet = esm.pretrained.esm_if1_gvp4_t16_142M_UR50()
+    model = model.eval()
+    model = model.cuda() 
+
+    structure = esm.inverse_folding.util.load_structure(pdb_path, chain_id)
+
+    # Extracting Coordinates from Structure
+    coords, native_seq = esm.inverse_folding.util.extract_coords_from_structure(structure)
+    coords = torch.tensor(coords).cuda() 
+
+    batch_converter = CoordBatchConverter(alphabet)
+    batch = [(coords, None, native_seq)]
+
+    coords, confidence, strs, tokens, padding_mask = batch_converter(batch)
+    confidence = confidence.cuda() 
+
+    gvp_out = model.encoder.forward_embedding(coords, padding_mask=padding_mask, confidence=confidence)[1]['gvp_out']
+
+    return gvp_out
 
 if __name__ == "__main__":
     aa_seq = "AABBCCDDEEFFGG"
