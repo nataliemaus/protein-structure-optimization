@@ -15,7 +15,39 @@ cd lolbo_scripts
 CUDA_VISIBLE_DEVICES=3 python3 if_baseline.py --target_pdb_id 2l67 
 
 # SAVE DATA:
-CUDA_VISIBLE_DEVICES=7 python3 create_initialization_data.py --num_seqs 10000 --bsz 10 --target_pdb_id 300_28
+CUDA_VISIBLE_DEVICES=7 python3 create_initialization_data.py --num_seqs 1000 --bsz 10 --target_pdb_id sample569
+
+
+---gauss 
+337
+215
+664
+668
+611
+375
+65
+280
+424
+121
+458
+585
+41
+583
+283
+286
+587
+616
+579
+4107
+___ locust 
+167
+135
+3106
+374
+527
+213
+569
+
 
 runai attach lolbo-opt2 
 
@@ -65,14 +97,44 @@ runai delete job test1
 
 cd lolbo_scripts 
 
-CUDA_VISIBLE_DEVICES=1 python3 tm_optimization.py --task_id tm --track_with_wandb True --wandb_entity nmaus --num_initialization_points 1000 --max_n_oracle_calls 5000000000000 --bsz 10 --max_string_length 82 --dim 1024 --target_pdb_id 24016 - run_lolbo - done 
+CUDA_VISIBLE_DEVICES=0 python3 tm_optimization.py --task_id tm --track_with_wandb True --wandb_entity nmaus --num_initialization_points 1000 --max_n_oracle_calls 5000000000000 --bsz 10 --max_string_length 52 --dim 1024 --target_pdb_id 2703 - run_lolbo - done 
+
+---gauss 
+337
+215
+664
+668
+611
+375
+65
+280
+424
+121
+458
+585
+41
+583
+283
+286
+587
+616
+579
+4107
+___ locust 
+167
+135
+3106
+374
+527
+213
+569
 
 # new harder ones 
 # 17044 X4 
-# 24016 X0
-# 2609 X0
-# 2702 X0 
-# 2703 X0
+# 24016 X2   82
+# 2609 X2   88
+# 2702 X2   92
+# 2703 X1   92
 # 27014 X0
 # 30016 X0
 # 30028 X0
@@ -118,7 +180,7 @@ runai submit lolbo-opt-5 -v /shared_data0/protein-structure-optimization/:/works
 
 CUDA_VISIBLE_DEVICES=0 python3 diverse_tm_optimization.py --task_id tm \
 --max_n_oracle_calls 500000000 --bsz 10 --save_csv_frequency 10 \
---track_with_wandb True --wandb_entity nmaus --num_initialization_points 10000 \
+--track_with_wandb True --wandb_entity nmaus --num_initialization_points 10000 \ 
 --target_pdb_id 17_bp_sh3 --dim 1024 \
 --max_string_length 100 --M 10 --tau 5 - run_robot - done 
 

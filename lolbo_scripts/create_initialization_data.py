@@ -12,6 +12,7 @@ import copy
 import random 
 from constants import ALL_AMINO_ACIDS
 
+
 def load_uniref_seqs():
     path = "../uniref_vae/uniref-small.csv"
     df = pd.read_csv(path)
@@ -44,7 +45,7 @@ def load_init_data_uniref(target_pdb_id, num_seqs_load=10_000):
         nums_seqs.append(n_seqs)
     nums_seqs = np.array(nums_seqs)
     max_n_seqs = nums_seqs.max() 
-    if (max_n_seqs-1) < num_seqs_load:
+    if max_n_seqs < num_seqs_load:
         print(f"Have not saved enough initilization data to load {num_seqs_load} seqs")
         assert 0 
     filename_scores = possible_score_filenames[np.argmax(nums_seqs)]
@@ -55,7 +56,6 @@ def load_init_data_uniref(target_pdb_id, num_seqs_load=10_000):
     train_y = torch.from_numpy(scores).float()
     train_y = train_y[0:num_seqs_load] 
     train_y = train_y.unsqueeze(-1) 
-
     uniref_seqs = load_uniref_seqs()
     train_x = uniref_seqs[0:num_seqs_load] 
 
