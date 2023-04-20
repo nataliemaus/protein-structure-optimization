@@ -17,6 +17,8 @@ from oracle.fold import fold_aa_seq
 
 def load_esm_if_model():
     if_model, if_alphabet = esm.pretrained.esm_if1_gvp4_t16_142M_UR50()
+    if_model = if_model.eval() 
+    if_model = if_model.cuda() 
     return if_model, if_alphabet 
 
 def get_gvp_encoding(target_pdb, if_model, if_alphabet ):
