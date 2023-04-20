@@ -97,7 +97,7 @@ def seq_to_pdb(seq, save_path="./output.pdb", model=None, device=device):
 
 def fold_aa_seq(aa_seq, esm_model=None):
     if esm_model is None:
-        esm_model = EsmForProteinFolding.from_pretrained("facebook/esmfold_v1")
+        esm_model = EsmForProteinFolding.from_pretrained("facebook/esmfold_v1").cuda() 
     if not os.path.exists("temp_pdbs/"):
         os.mkdir("temp_pdbs/")
     folded_pdb_path = f"temp_pdbs/{uuid.uuid1()}.pdb"

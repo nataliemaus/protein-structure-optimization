@@ -97,7 +97,7 @@ runai delete job test1
 
 cd lolbo_scripts 
 
-CUDA_VISIBLE_DEVICES=0 python3 tm_optimization.py --task_id tm --track_with_wandb True --wandb_entity nmaus --num_initialization_points 1000 --max_n_oracle_calls 5000000000000 --bsz 10 --max_string_length 52 --dim 1024 --target_pdb_id 2703 - run_lolbo - done 
+CUDA_VISIBLE_DEVICES=2 python3 tm_optimization.py --task_id tm --track_with_wandb True --wandb_entity nmaus --num_initialization_points 1000 --max_n_oracle_calls 5000000000000 --bsz 8 --max_string_length 52 --dim 1024 --target_pdb_id sample579 - run_lolbo - done 
 
 ---gauss 
 337
@@ -119,7 +119,7 @@ CUDA_VISIBLE_DEVICES=0 python3 tm_optimization.py --task_id tm --track_with_wand
 587
 616
 579
-4107
+4107   ## NOT RUNNING (GAVE KYURAE GPU)
 ___ locust 
 167
 135
