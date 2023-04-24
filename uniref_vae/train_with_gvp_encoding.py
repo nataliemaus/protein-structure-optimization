@@ -1,24 +1,27 @@
 import torch
-from data import DataModuleKmers
-from transformer_vae_unbounded import InfoTransformerVAE 
+from esm_tokenizer_data import DataModuleESM
+# from transformer_vae_unbounded import InfoTransformerVAE 
+from esm_transformer_vae import InfoTransformerVAE 
 import time 
 import wandb 
 import argparse 
 import os 
 os.environ["WANDB_SILENT"] = "true" 
-from transformers import EsmForProteinFolding
 if not torch.cuda.is_available():
     print("No GPU Available")
     assert 0 
-from oracle.fold import (
-    fold_aa_seq,
-    load_esm_if_model,
-    get_gvp_encoding,
-)
+
+GVP_READY = False 
+if GVP_READY:
+    from oracle.fold import (
+        fold_aa_seq,
+        load_esm_if_model,
+        get_gvp_encoding,
+    )
+    from transformers import EsmForProteinFolding
 
 
 def start_wandb(args_dict):
-    import wandb 
     tracker = wandb.init(entity="nmaus", project='UNIREF-VAE', config=args_dict) 
     print('running', wandb.run.name) 
     return tracker 
@@ -28,7 +31,7 @@ def train(args_dict):
     print("training") 
     tracker = start_wandb(args_dict) 
     model_save_path = 'saved_models/' + wandb.run.name + '_model_state.pkl'  
-    datamodule = DataModuleKmers(args_dict["batch_size"], k=args_dict["k"], version=args_dict['data_version'] ) 
+    datamodule = DataModuleESM(args_dict["batch_size"], load_data=True ) 
 
     if args_dict['debug']:
         print("Reducing to num points to debug")
@@ -62,7 +65,7 @@ def train(args_dict):
             tracker.log(train_dict) 
             loss = out_dict['loss'] 
             sum_train_loss += loss.item()  
-            num_iters += 1
+            num_iters += data.shape[0] # 1
             loss.backward()
             optimizer.step() 
         avg_train_loss = sum_train_loss/num_iters
@@ -79,7 +82,7 @@ def train(args_dict):
                 input = data.cuda() 
                 out_dict = model(input)
                 sum_val_loss += out_dict['loss'].item() 
-                num_val_iters += 1 
+                num_val_iters += data.shape[0] # 1 
                 val_dict = {'val_' + k:out_dict[k] for k in out_dict.keys() }
                 tracker.log(val_dict) 
             tracker.log({'time for val epoch':time.time() - start_time})
@@ -97,48 +100,39 @@ def train(args_dict):
 def run_training():
     parser = argparse.ArgumentParser() 
     parser.add_argument('--debug', type=bool, default=False)  
+    parser.add_argument('--flag_esm_tokenizer', type=bool, default=True)  
+    parser.add_argument('--use_gvp', type=bool, default=False)  
     parser.add_argument('--lr', type=float, default=0.0001)  
-    parser.add_argument('--compute_val_freq', type=int, default=50 )  
+    parser.add_argument('--compute_val_freq', type=int, default=5 )  
     parser.add_argument('--load_ckpt', default="" )  
     parser.add_argument('--max_epochs', type=int, default=100_000 )  
     parser.add_argument('--num_debug', type=int, default=100 )  
     parser.add_argument('--batch_size', type=int, default=128 )  
-    parser.add_argument('--k', type=int, default=3 )  
-    parser.add_argument('--data_version', type=int, default=1 ) 
     parser.add_argument('--d_model', type=int, default=128 )
     args = parser.parse_args() 
-
-    args_dict = {} 
-    args_dict['d_model'] = args.d_model
-    args_dict['batch_size'] = args.batch_size 
-    args_dict['k'] = args.k 
-    args_dict['lr'] = args.lr  
-    args_dict['debug'] = args.debug  
-    args_dict['compute_val_freq'] = args.compute_val_freq  
-    args_dict['load_ckpt'] = args.load_ckpt
-    args_dict['max_epochs'] = args.max_epochs 
-    args_dict['num_debug'] = args.num_debug 
-    args_dict['data_version'] = args.data_version 
+    args_dict = vars(args)
     train(args_dict) 
 
-    # CUDA_VISIBLE_DEVICES=4 python3 train.py --debug True --num_debug 1000 --lr 0.001 --compute_val_freq 50 
-    # 0,1,2 
 
-    # cd protein-BO/utils/oas_heavy_ighg_vae/
-    # conda activate lolbo_mols
-    # CUDA_VISIBLE_DEVICES=9 python3 train.py --lr 0.001 --compute_val_freq 50 --k 3 --d_model 128 
-    # CUDA_VISIBLE_DEVICES=0 python3 train.py --lr 0.0005 --d_model 256  
-
-
-if __name__ == "__main__":
-    # run_training()
+def test_gvp():
     if_model, if_alphabet = load_esm_if_model()
     aa_seq = 'MEELLKKILEEVKKLEEELKKLEGLEPELKPLLEKLKEELEKLLEELEKLKEEGKEELPEELLEKLLEELEKLEEELEELLEELEELLEGLEELEELKELFEELKEKLEELKELLEELKEE'
     fold_model = EsmForProteinFolding.from_pretrained("facebook/esmfold_v1").cuda() 
     folded_pdb = fold_aa_seq(aa_seq, esm_model=fold_model)
     encoding = get_gvp_encoding(pdb_path=folded_pdb, model=if_model, alphabet=if_alphabet) 
-    print(encoding.shape) 
+    print(encoding.shape)  # torch.Size([1, 123, 512]) = 1, seq_len, 512 
     import pdb 
     pdb.set_trace() 
 
-    # CUDA_VISIBLE_DEVICES=7 python3 train_
+
+if __name__ == "__main__":
+    print("main")
+    run_training()
+    # test_gvp()
+    # CUDA_VISIBLE_DEVICES=0 python3 train_with_gvp_encoding.py --debug True
+    # CUDA_VISIBLE_DEVICES=0 python3 train_with_gvp_encoding.py --d_model 256 
+
+    # conda activate lolbo_mols
+    # conda activate bighat2 
+    # CUDA_VISIBLE_DEVICES=9 python3 train.py --lr 0.001 --compute_val_freq 50 --k 3 --d_model 128 
+    # CUDA_VISIBLE_DEVICES=0 python3 train.py --lr 0.0005 --d_model 256  
