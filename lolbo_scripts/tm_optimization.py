@@ -7,9 +7,9 @@ from lolbo.tm_objective import TMObjective
 import math 
 import pandas as pd 
 import torch 
-from constants import (
-    VAE_DIM_TO_STATE_DICT_PATH, 
-)
+# from constants import (
+#     VAE_DIM_TO_STATE_DICT_PATH, 
+# )
 import math 
 from create_initialization_data import (
     load_init_data
@@ -36,7 +36,7 @@ class TMOptimization(Optimize):
         **kwargs
     ):
         self.dim = dim 
-        self.path_to_vae_statedict = VAE_DIM_TO_STATE_DICT_PATH[self.dim]
+        # self.path_to_vae_statedict = VAE_DIM_TO_STATE_DICT_PATH[self.dim]
         self.max_string_length = max_string_length
         self.target_pdb_id = target_pdb_id
         self.data_v2_flag = data_v2_flag
