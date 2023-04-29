@@ -33,11 +33,13 @@ class TMOptimization(Optimize):
         data_v2_flag=False,
         data_v3_flag=True,
         init_w_esmif=False,
+        vae_tokens="esm",
         **kwargs
     ):
         self.dim = dim 
         # self.path_to_vae_statedict = VAE_DIM_TO_STATE_DICT_PATH[self.dim]
         self.max_string_length = max_string_length
+        self.vae_tokens = vae_tokens
         self.target_pdb_id = target_pdb_id
         self.data_v2_flag = data_v2_flag
         self.data_v3_flag = data_v3_flag # inverse fold init data! 
@@ -56,6 +58,7 @@ class TMOptimization(Optimize):
             dim=self.dim,
             max_string_length=self.max_string_length,
             target_pdb_id=self.target_pdb_id,
+            vae_tokens=self.vae_tokens,
         )
         # if train zs have not been pre-computed for particular vae, compute them 
         #   by passing initialization selfies through vae 
