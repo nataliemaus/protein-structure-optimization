@@ -2,7 +2,7 @@ import numpy as np
 import torch 
 import sys 
 sys.path.append("../")
-from uniref_vae.transformer_vae_unbounded import InfoTransformerVAE
+from uniref_vae.transformer_vae_unbounded import InfoTransformerVAE as OgInfoTransformerVAE
 from uniref_vae.data import collate_fn, DataModuleKmers
 from lolbo.latent_space_objective import LatentSpaceObjective
 from constants import (
@@ -12,6 +12,9 @@ from constants import (
 from transformers import EsmForProteinFolding
 from oracle.aa_seq_to_tm_score import aa_seq_to_tm_score
 import os 
+from uniref_vae.esm_tokenizer_data import DataModuleESM
+# from transformer_vae_unbounded import InfoTransformerVAE 
+from uniref_vae.esm_transformer_vae import InfoTransformerVAE as EsmInfoTransformerVAE
 
 class TMObjective(LatentSpaceObjective):
     '''Objective class supports all antibody protein
@@ -27,11 +30,15 @@ class TMObjective(LatentSpaceObjective):
         target_pdb_id="17_bp_sh3",
         dim=1024,
         init_vae=True,
+        vae_tokens="esm",
     ):
+        self.vae_tokens             = vae_tokens 
+        assert vae_tokens in ["esm", "uniref"] 
         self.dim                    = dim # SELFIES VAE DEFAULT LATENT SPACE DIM
-        self.path_to_vae_statedict  = VAE_DIM_TO_STATE_DICT_PATH[self.dim] # path to trained vae stat dict
+        self.path_to_vae_statedict  = VAE_DIM_TO_STATE_DICT_PATH[vae_tokens][self.dim] # path to trained vae stat dict
         self.max_string_length      = max_string_length # max string length that VAE can generate
         self.target_pdb_id          = target_pdb_id 
+        
         try: 
             self.target_pdb_path = f"../oracle/target_pdb_files/{target_pdb_id}.ent"
             assert os.path.exists(self.target_pdb_path)
@@ -112,13 +119,22 @@ class TMObjective(LatentSpaceObjective):
         ''' Sets self.vae to the desired pretrained vae and 
             sets self.dataobj to the corresponding data class 
             used to tokenize inputs, etc. '''
-        data_module = DataModuleKmers(
-            batch_size=10,
-            k=3,
-            load_data=False,
-        )
-        self.dataobj = data_module.train
-        self.vae = InfoTransformerVAE(dataset=self.dataobj, d_model=self.dim//2)
+        if self.vae_tokens == "uniref": # just all uniref tokens
+            self.vae = OgInfoTransformerVAE(dataset=self.dataobj, d_model=self.dim//2)
+            data_module = DataModuleKmers(
+                batch_size=10,
+                k=3,
+                load_data=False,
+            )
+            self.dataobj = data_module.train
+        elif self.vae_tokens == "esm":
+            data_module = DataModuleESM(
+                batch_size=10,
+                load_data=False,
+            )
+            self.dataobj = data_module.train
+            self.vae = EsmInfoTransformerVAE(dataset=self.dataobj, d_model=self.dim//2)
+
         # load in state dict of trained model:
         if self.path_to_vae_statedict:
             state_dict = torch.load(self.path_to_vae_statedict) 

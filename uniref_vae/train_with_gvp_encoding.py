@@ -11,6 +11,10 @@ if not torch.cuda.is_available():
     print("No GPU Available")
     assert 0 
 
+''' FOR NOW JUST TRAINS REGULAR MODEL WITH ESM TOKENS
+ADDING GVP EMBEDDING NOT READY YET... 
+'''
+
 GVP_READY = False 
 if GVP_READY:
     from oracle.fold import (
@@ -130,9 +134,10 @@ if __name__ == "__main__":
     run_training()
     # test_gvp()
     # CUDA_VISIBLE_DEVICES=0 python3 train_with_gvp_encoding.py --debug True
-    # CUDA_VISIBLE_DEVICES=0 python3 train_with_gvp_encoding.py --d_model 256 
+    # CUDA_VISIBLE_DEVICES=0 python3 train_with_gvp_encoding.py --d_model 256  (jkgardner)
+    # CUDA_VISIBLE_DEVICES=0 python3 train_with_gvp_encoding.py --d_model 512  (locust)
+    # --batch_size 32 
 
+    # tmux attach -t test1 
     # conda activate lolbo_mols
     # conda activate bighat2 
-    # CUDA_VISIBLE_DEVICES=9 python3 train.py --lr 0.001 --compute_val_freq 50 --k 3 --d_model 128 
-    # CUDA_VISIBLE_DEVICES=0 python3 train.py --lr 0.0005 --d_model 256  

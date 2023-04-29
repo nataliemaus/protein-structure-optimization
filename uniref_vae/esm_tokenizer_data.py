@@ -152,3 +152,4 @@ def collate_fn(data):
         [F.pad(x, (0, max_size - x.shape[-1]), value=1) for x in data]
     )
 
+

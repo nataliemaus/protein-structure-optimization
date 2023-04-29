@@ -15,9 +15,21 @@ cd lolbo_scripts
 CUDA_VISIBLE_DEVICES=3 python3 if_baseline.py --target_pdb_id 2l67 
 
 # SAVE DATA:
-CUDA_VISIBLE_DEVICES=7 python3 create_initialization_data.py --num_seqs 1000 --bsz 10 --target_pdb_id sample569
+CUDA_VISIBLE_DEVICES=4 python3 create_initialization_data.py --num_seqs 1000 --bsz 10 --target_pdb_id sample228
 
 
+YIMENG SET (1k done)
+25 GAUSS 0.7 
+286 GAUSS 0.9 
+575 GAUSS 0.8 
+587 GAUSS 0.9 
+359 LOCUST running 
+455 LOCUST running 
+228 LOCUST running 
+
+
+
+IF DOES VERY BAD
 ---gauss 
 337
 215
@@ -89,6 +101,7 @@ runai submit lolbo-struct2 -v /shared_data0/protein-structure-optimization/:/wor
 # RUNAI GAUSS INTERACTIVE 
 runai submit lolbo-opt19 -v /shared_data0/protein-structure-optimization/:/workspace/protein-structure-optimization/ --working-dir /workspace/protein-structure-optimization/lolbo_scripts -i nmaus/fold2 -g 1 --interactive --attach 
 
+
 runai attach test1
 
 runai delete job test1
@@ -97,7 +110,56 @@ runai delete job test1
 
 cd lolbo_scripts 
 
-CUDA_VISIBLE_DEVICES=2 python3 tm_optimization.py --task_id tm --track_with_wandb True --wandb_entity nmaus --num_initialization_points 1000 --max_n_oracle_calls 5000000000000 --bsz 8 --max_string_length 52 --dim 1024 --target_pdb_id sample579 - run_lolbo - done 
+CUDA_VISIBLE_DEVICES=2 
+python3 tm_optimization.py --task_id tm --track_with_wandb True --wandb_entity nmaus --num_initialization_points 1000 --max_n_oracle_calls 5000000000000 --bsz 10 --max_string_length 36 --dim 1024 --target_pdb_id sample587 - run_lolbo - done 
+
+
+YIMENG SET (1k done)
+25 GAUSS IF0.70865 len34 X3 
+286 GAUSS IF0.59618 len34 X3 
+575 GAUSS IF0.82061 len44 X3 
+587 GAUSS IF0.59744 len35 X3 
+359 LOCUST 
+455 LOCUST 
+228 LOCUST 
+
+
+IF DOES VERY GOOD (0.95)
+350 GAUSS X2
+253 GAUSS X
+494 GAUSS X
+129 GAUSS X
+537 LOCUST X
+174 LOCUST X
+582
+647
+292
+486
+478
+295
+591
+216
+126
+
+IF DOES VERY MEDIUM (0.8)
+575 GAUSS X
+199 GAUSS X
+386 GAUSS X
+479 GAUSS X
+437 LOCUST X
+459 LOCUST X
+101
+
+(0.7)
+117 GAUSS X
+499 GAUSS X
+25 GAUSS X
+1104 GAUSS X
+615 GAUSS X
+254 LOCUST X
+363 LOCUST X
+651 LOCUST X
+
 
 ---gauss 
 337
@@ -115,11 +177,11 @@ CUDA_VISIBLE_DEVICES=2 python3 tm_optimization.py --task_id tm --track_with_wand
 41
 583
 283
-286
+286 
 587
 616
 579
-4107   ## NOT RUNNING (GAVE KYURAE GPU)
+4107   
 ___ locust 
 167
 135
@@ -128,6 +190,7 @@ ___ locust
 527
 213
 569
+
 
 # new harder ones 
 # 17044 X4 
