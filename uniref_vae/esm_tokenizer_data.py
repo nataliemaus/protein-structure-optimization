@@ -42,11 +42,11 @@ class DatasetESM(Dataset): # asssuming train data
             path_to_data = "../uniref_vae/uniref-small.csv"
         assert vocab is not None 
 
+        regular_data = [] 
         if load_data:
             df = pd.read_csv(path_to_data )
             train_seqs = df['sequence'].values  # 1_500_000  sequences 
             # SEQUENCE LENGTHS ANALYSIS:  Max = 299, Min = 100, Mean = 183.03 
-            regular_data = [] 
             for seq in train_seqs: 
                 tokens_list = []
                 for token in seq:

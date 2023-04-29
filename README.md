@@ -111,14 +111,14 @@ runai delete job test1
 cd lolbo_scripts 
 
 CUDA_VISIBLE_DEVICES=2 
-python3 tm_optimization.py --task_id tm --track_with_wandb True --wandb_entity nmaus --num_initialization_points 1000 --max_n_oracle_calls 5000000000000 --bsz 10 --max_string_length 36 --dim 1024 --target_pdb_id sample587 - run_lolbo - done 
+python3 tm_optimization.py --task_id tm --track_with_wandb True --wandb_entity nmaus --num_initialization_points 1000 --max_n_oracle_calls 5000000000000 --bsz 10 --max_string_length 36 --dim 1024 --vae_tokens esm --target_pdb_id sample587 - run_lolbo - done 
 
 
 YIMENG SET (1k done)
 25 GAUSS IF0.70865 len34 X3 
 286 GAUSS IF0.59618 len34 X3 
 575 GAUSS IF0.82061 len44 X3 
-587 GAUSS IF0.59744 len35 X3 
+587 GAUSS IF0.59744 len35 unirefX3 esmX3 
 359 LOCUST 
 455 LOCUST 
 228 LOCUST 
