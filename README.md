@@ -18,16 +18,6 @@ CUDA_VISIBLE_DEVICES=3 python3 if_baseline.py --target_pdb_id 2l67
 CUDA_VISIBLE_DEVICES=4 python3 create_initialization_data.py --num_seqs 1000 --bsz 10 --target_pdb_id sample228
 
 
-YIMENG SET (1k done)
-25 GAUSS 0.7 
-286 GAUSS 0.9 
-575 GAUSS 0.8 
-587 GAUSS 0.9 
-359 LOCUST running 
-455 LOCUST running 
-228 LOCUST running 
-
-
 
 IF DOES VERY BAD
 ---gauss 
@@ -110,14 +100,14 @@ runai delete job test1
 
 cd lolbo_scripts 
 
-CUDA_VISIBLE_DEVICES=6 python3 tm_optimization.py --task_id tm --track_with_wandb True --wandb_entity nmaus --num_initialization_points 1000 --max_n_oracle_calls 5000000000000 --bsz 10 --dim 1024 --max_string_length 150 --vae_tokens esm --target_pdb_id sample228 - run_lolbo - done 
+CUDA_VISIBLE_DEVICES=6 python3 tm_optimization.py --task_id tm --track_with_wandb True --wandb_entity nmaus --num_initialization_points 1000 --max_n_oracle_calls 5000000000000 --bsz 10 --dim 1024 --max_string_length 150 --vae_tokens uniref --target_pdb_id sample359 - run_lolbo - done 
 
 YIMENG SET (1k done)
-25 GAUSS IF0.70865 len34/102 uniref-X3 esm-X1? 
+25 GAUSS IF0.70865 len34/102 uniref-X3 esm-X1
 286 GAUSS IF0.59618 len34/102 uniref-X3 esm-X0 
 575 GAUSS IF0.82061 len44/132 uniref-X3 esm-X3 
 587 GAUSS IF0.59744 len35/105 uniref-X3 esm-X3 
-359 LOCUST IF0.74537 len34/102 uniref-X0 esm-X2 
+359 LOCUST IF0.74537 len34/102 uniref-X2 esm-X2 
 455 LOCUST IF0.67958 len40/120 uniref-X0 esm-X2 
 228 LOCUST IF0.77884 len41/126 uniref-X0 esm-X2 
 
