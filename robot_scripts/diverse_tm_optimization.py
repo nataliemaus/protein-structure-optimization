@@ -7,9 +7,9 @@ import pandas as pd
 import math 
 from robot_scripts.optimize import Optimize
 from robot.diverse_tm_objective import DiverseTMObjective
-from constants import (
-    VAE_DIM_TO_STATE_DICT_PATH
-)
+# from constants import (
+#     VAE_DIM_TO_STATE_DICT_PATH
+# )
 import math
 from lolbo_scripts.create_initialization_data import (
     load_init_data,
@@ -28,10 +28,12 @@ class DiverseTMOptimization(Optimize):
         max_string_length: int=100,
         target_pdb_id: str="17_bp_sh3",
         init_w_esmif: bool=True,
+        vae_tokens="esm",
         **kwargs,
     ):
         self.dim=dim
-        self.path_to_vae_statedict =VAE_DIM_TO_STATE_DICT_PATH[self.dim] 
+        self.vae_tokens = vae_tokens
+        # self.path_to_vae_statedict =VAE_DIM_TO_STATE_DICT_PATH[self.dim] 
         self.max_string_length = max_string_length 
         self.target_pdb_id = target_pdb_id 
         self.init_w_esmif = init_w_esmif
@@ -48,6 +50,7 @@ class DiverseTMOptimization(Optimize):
             max_string_length=self.max_string_length,
             dim=self.dim,
             target_pdb_id=self.target_pdb_id,
+            vae_tokens=self.vae_tokens,
         )
 
         return self

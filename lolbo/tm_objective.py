@@ -13,7 +13,6 @@ from transformers import EsmForProteinFolding
 from oracle.aa_seq_to_tm_score import aa_seq_to_tm_score
 import os 
 from uniref_vae.esm_tokenizer_data import DataModuleESM
-# from transformer_vae_unbounded import InfoTransformerVAE 
 from uniref_vae.esm_transformer_vae import InfoTransformerVAE as EsmInfoTransformerVAE
 
 class TMObjective(LatentSpaceObjective):
@@ -120,13 +119,13 @@ class TMObjective(LatentSpaceObjective):
             sets self.dataobj to the corresponding data class 
             used to tokenize inputs, etc. '''
         if self.vae_tokens == "uniref": # just all uniref tokens
-            self.vae = OgInfoTransformerVAE(dataset=self.dataobj, d_model=self.dim//2)
             data_module = DataModuleKmers(
                 batch_size=10,
                 k=3,
                 load_data=False,
             )
             self.dataobj = data_module.train
+            self.vae = OgInfoTransformerVAE(dataset=self.dataobj, d_model=self.dim//2)
         elif self.vae_tokens == "esm":
             data_module = DataModuleESM(
                 batch_size=10,
@@ -134,6 +133,8 @@ class TMObjective(LatentSpaceObjective):
             )
             self.dataobj = data_module.train
             self.vae = EsmInfoTransformerVAE(dataset=self.dataobj, d_model=self.dim//2)
+        else:
+            assert 0 
 
         # load in state dict of trained model:
         if self.path_to_vae_statedict:
