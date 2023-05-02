@@ -273,12 +273,11 @@ runai submit lolbo-opt-5 -v /shared_data0/protein-structure-optimization/:/works
 
 ######### ROBOT: 
 
-# PRESTO:
-docker run -v /home/nmaus/protein-structure-optimization/:/workspace/protein-structure-optimization -w /workspace/protein-structure-optimization/robot_scripts --gpus "device=0" -d nmaus/fold2 python3 diverse_tm_optimization.py --task_id tm \
+# PRESTO: -d 
+docker run -v /home/nmaus/protein-structure-optimization/:/workspace/protein-structure-optimization -w /workspace/protein-structure-optimization/robot_scripts --gpus "device=1" nmaus/fold2 python3 diverse_tm_optimization.py --task_id tm \
 --max_n_oracle_calls 5000000000000000000 --bsz 10 --save_csv_frequency 10 \
 --track_with_wandb True --wandb_entity nmaus --num_initialization_points 1000 \ 
---dim 1024 --vae_tokens uniref --max_string_length 150  \
---M 10 --tau 5 --target_pdb_id sample286 - run_robot - done 
+--dim 1024 --vae_tokens uniref --max_string_length 150 --M 10 --tau 5 --target_pdb_id sample587 - run_robot - done 
 
 YIMENG SET w/ NEW UNIREF VAE MODEL + ROBOT! 
 25 GAUSS IF0.70865 len34/102 X0 

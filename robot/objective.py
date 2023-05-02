@@ -1,7 +1,5 @@
 import numpy as np
 import torch 
-from seq_to_score import compute_edit_distance
-from constants import REFERENCE_SEQUENCE
 
 class Objective:
     '''Base class for any optimization task
@@ -48,13 +46,9 @@ class Objective:
     def xs_to_valid_scores(self, xs):
         scores = []
         for idx, x in enumerate(xs):
-            # if too far from parental, don't compute score
-            parental_edit_dist = compute_edit_distance(x, REFERENCE_SEQUENCE)
-            if parental_edit_dist > self.max_allowed_edit_dist:
-                score = np.nan 
             # if we have already computed the score, don't 
             #   re-compute (don't call oracle unnecessarily)
-            elif x in self.xs_to_scores_dict:
+            if x in self.xs_to_scores_dict:
                 score = self.xs_to_scores_dict[x]
             else: # otherwise call the oracle to get score
                 score = self.query_oracle(x)
