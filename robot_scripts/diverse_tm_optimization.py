@@ -29,6 +29,8 @@ class DiverseTMOptimization(Optimize):
         target_pdb_id: str="17_bp_sh3",
         init_w_esmif: bool=True,
         vae_tokens="esm",
+        vae_kmers_k=1,
+        vae_kl_factor=0.0001,
         **kwargs,
     ):
         self.dim=dim
@@ -37,6 +39,8 @@ class DiverseTMOptimization(Optimize):
         self.max_string_length = max_string_length 
         self.target_pdb_id = target_pdb_id 
         self.init_w_esmif = init_w_esmif
+        self.vae_kmers_k = vae_kmers_k
+        self.vae_kl_factor = vae_kl_factor
         super().__init__(**kwargs)
 
         # add args to method args dict to be logged by wandb
@@ -51,6 +55,8 @@ class DiverseTMOptimization(Optimize):
             dim=self.dim,
             target_pdb_id=self.target_pdb_id,
             vae_tokens=self.vae_tokens,
+            vae_kmers_k=self.vae_kmers_k,
+            vae_kl_factor=self.vae_kl_factor,
         )
 
         return self

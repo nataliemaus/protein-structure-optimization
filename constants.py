@@ -19,7 +19,6 @@ VAE_DIM_TO_STATE_DICT_PATH["uniref"] = {}
 VAE_DIM_TO_STATE_DICT_PATH["uniref"][1024] = "../uniref_vae/saved_models/dim512_k1_kl0001_acc94_vivid-cherry-17_model_state_newest.pkl"
 
 
-
 VAE_DIM_TO_STATE_DICT_PATH["esm"][1024] = "../uniref_vae/saved_models/cerulean-bee-51_model_state.pkl" 
 VAE_DIM_TO_STATE_DICT_PATH["esm"][512] = "../uniref_vae/saved_models/iconic-star-52_model_state.pkl" 
 # VAE_DIM_TO_STATE_DICT_PATH["esm"][1024] = "../uniref_vae/saved_models/cerulean-spaceship-32_epoch_20.pkl" 
