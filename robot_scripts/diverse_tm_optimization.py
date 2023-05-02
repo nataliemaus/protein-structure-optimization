@@ -27,7 +27,7 @@ class DiverseTMOptimization(Optimize):
         dim: int=1024,
         max_string_length: int=100,
         target_pdb_id: str="17_bp_sh3",
-        init_w_esmif: bool=True,
+        init_w_esmif: bool=False,
         vae_tokens="esm",
         vae_kmers_k=1,
         vae_kl_factor=0.0001,
@@ -98,6 +98,8 @@ class DiverseTMOptimization(Optimize):
             num_seqs_load=self.num_initialization_points,
             init_w_esmif=self.init_w_esmif,
         )
+        import pdb 
+        pdb.set_trace() 
         self.load_train_z() 
         return self 
 
