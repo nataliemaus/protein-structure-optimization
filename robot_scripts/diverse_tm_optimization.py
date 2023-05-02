@@ -99,6 +99,8 @@ class DiverseTMOptimization(Optimize):
             init_w_esmif=self.init_w_esmif,
         )
         self.load_train_z() 
+        if self.init_train_z is None:
+            self.init_train_z = self.compute_train_zs()
         return self 
 
 
