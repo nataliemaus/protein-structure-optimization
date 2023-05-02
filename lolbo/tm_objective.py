@@ -49,6 +49,8 @@ class TMObjective(LatentSpaceObjective):
             assert os.path.exists(self.target_pdb_path)
 
         self.esm_model              = EsmForProteinFolding.from_pretrained("facebook/esmfold_v1")
+        self.esm_model = self.esm_model.eval() 
+        self.esm_model = self.esm_model.cuda() 
 
         super().__init__(
             num_calls=num_calls,
