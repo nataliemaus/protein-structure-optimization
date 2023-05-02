@@ -1,4 +1,5 @@
 import pymol2
+import glob 
 
 def convert_pdb_to_cif(pdb_file):
     with pymol2.PyMOL() as pymol:
@@ -25,5 +26,6 @@ if __name__ == "__main__":
     # 270_14 
     # 300_16
     # 300_28 
-    pdb_file = "target_pdb_files/300_28.pdb"
-    convert_pdb_to_cif(pdb_file)
+    pdb_files = glob.glob("target_pdb_files/sample*.pdb")
+    for pdb_file in pdb_files:
+        convert_pdb_to_cif(pdb_file)
