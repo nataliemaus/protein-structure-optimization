@@ -70,7 +70,7 @@ class DiverseTMObjective(LatentSpaceObjective):
         self.vae = self.vae.eval()
         self.vae = self.vae.cuda()
         # sample molecular string form VAE decoder
-        sample = self.vae.sample(z=z.reshape(-1, 2, 128))
+        sample = self.vae.sample(z=z.reshape(-1, 2, self.dim//2))
         # grab decoded aa strings
         decoded_seqs = [self.dataobj.decode(sample[i]) for i in range(sample.size(-2))]
 
