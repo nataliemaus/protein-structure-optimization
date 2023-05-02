@@ -1,6 +1,5 @@
 import torch
 import math
-import selfies as sf
 from torch.utils.data import TensorDataset, DataLoader
 
 

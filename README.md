@@ -17,6 +17,11 @@ docker run -v /home/nmaus/protein-structure-optimization/:/workspace/protein-str
 
 docker run -v /home/nmaus/protein-structure-optimization/:/workspace/protein-structure-optimization --gpus "device=1" -it nmaus/fold2 
 
+# PRESTO
+docker run -v /home/nmaus/protein-structure-optimization/:/workspace/protein-structure-optimization -w /workspace/protein-structure-optimization/lolbo_scripts --gpus "device=0" -it nmaus/fold2 
+
+docker run -v /home/nmaus/protein-structure-optimization/:/workspace/protein-structure-optimization -w /workspace/protein-structure-optimization/lolbo_scripts --gpus "device=0" -d nmaus/fold2 COMMAND
+
 
 
 
@@ -112,6 +117,7 @@ runai delete job test1
 # IF BASELINE! ... 
 CUDA_VISIBLE_DEVICES=0 
 python3 if_baseline.py --target_pdb_id sample228
+
 
 YIMENG SET w/ NEW UNIREF VAE MODEL, IF BASELINE
 25 GAUSS if baseline X1 
@@ -265,13 +271,24 @@ runai submit lolbo-opt-5 -v /shared_data0/protein-structure-optimization/:/works
 
 
 
-# ROBOT: 
+######### ROBOT: 
 
-CUDA_VISIBLE_DEVICES=0 python3 diverse_tm_optimization.py --task_id tm \
---max_n_oracle_calls 500000000 --bsz 10 --save_csv_frequency 10 \
---track_with_wandb True --wandb_entity nmaus --num_initialization_points 10000 \ 
---target_pdb_id 17_bp_sh3 --dim 1024 \
---max_string_length 100 --M 10 --tau 5 - run_robot - done 
+# PRESTO:
+docker run -v /home/nmaus/protein-structure-optimization/:/workspace/protein-structure-optimization -w /workspace/protein-structure-optimization/robot_scripts --gpus "device=0" -d nmaus/fold2 python3 diverse_tm_optimization.py --task_id tm \
+--max_n_oracle_calls 5000000000000000000 --bsz 10 --save_csv_frequency 10 \
+--track_with_wandb True --wandb_entity nmaus --num_initialization_points 1000 \ 
+--dim 1024 --vae_tokens uniref --max_string_length 150  \
+--M 10 --tau 5 --target_pdb_id sample286 - run_robot - done 
+
+YIMENG SET w/ NEW UNIREF VAE MODEL + ROBOT! 
+25 GAUSS IF0.70865 len34/102 X0 
+286 GAUSS IF0.59618 len34/102 X0
+575 GAUSS IF0.82061 len44/132 X0  
+587 GAUSS IF0.59744 len35/105 X0 
+359 LOCUST IF0.74537 len34/102 X0 
+455 LOCUST IF0.67958 len40/120 X0
+228 LOCUST IF0.77884 len41/126 X0  
+
 
 ## RUNAI GAUSS 
 runai submit robot-struct1 -v /shared_data0/protein-structure-optimization/:/workspace/protein-structure-optimization/ --working-dir /workspace/antibody-design/robot_scripts -i nmaus/fold2 -g 1 \ --command -- python3 diverse_tm_optimization.py ... 
