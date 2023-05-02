@@ -109,25 +109,25 @@ runai attach test1
 
 runai delete job test1
 
-# LOLBO: 
+# IF BASELINE! ... 
+CUDA_VISIBLE_DEVICES=0 
+python3 if_baseline.py --target_pdb_id sample228
+
+YIMENG SET w/ NEW UNIREF VAE MODEL, IF BASELINE
+25 GAUSS if baseline X1 
+286 GAUSS if baseline X1
+575 GAUSS if baseline X1 
+587 GAUSS if baseline X1 
+359 LOCUST if baseline X1 
+455 LOCUST if baseline X1 
+228 LOCUST if baseline X1 
+
+# LOLBO OPTIMIZE TM... : 
 
 cd lolbo_scripts 
 
 CUDA_VISIBLE_DEVICES=7 
 python3 tm_optimization.py --task_id tm --track_with_wandb True --wandb_entity nmaus --num_initialization_points 1000 --max_n_oracle_calls 5000000000000 --bsz 10 --dim 1024 --max_string_length 150 --vae_tokens uniref --target_pdb_id sample286 - run_lolbo - done 
-
-# IF BASELINE! ... 
-CUDA_VISIBLE_DEVICES=0 
-python3 if_baseline.py --target_pdb_id sample587
-
-YIMENG SET w/ NEW UNIREF VAE MODEL 
-25 GAUSS if baseline X1 
-286 GAUSS if baseline X1
-575 GAUSS if baseline X1 
-587 GAUSS if baseline X1 
-359 LOCUST if baseline X0 
-455 LOCUST if baseline X0 
-228 LOCUST if baseline X0 
 
 YIMENG SET w/ NEW UNIREF VAE MODEL 
 25 GAUSS IF0.70865 len34/102 X4 

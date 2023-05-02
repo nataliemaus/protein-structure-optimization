@@ -47,6 +47,7 @@ def run_if_baseline(
     pdb_path = f"../oracle/target_cif_files/{target_pdb_id}.cif" 
     structure = esm.inverse_folding.util.load_structure(pdb_path, "A")
     coords, _ = esm.inverse_folding.util.extract_coords_from_structure(structure)
+    coords = coords.cuda() 
 
     # get n_init seqs and scores 
     seqs = []
