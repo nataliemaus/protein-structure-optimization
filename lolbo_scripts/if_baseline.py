@@ -44,22 +44,15 @@ def run_if_baseline(
     ) 
     if_model, _ = esm.pretrained.esm_if1_gvp4_t16_142M_UR50()
     if_model = if_model.eval()
-    if_model = if_model.cuda() 
     pdb_path = f"../oracle/target_cif_files/{target_pdb_id}.cif" 
     structure = esm.inverse_folding.util.load_structure(pdb_path, "A")
     coords, _ = esm.inverse_folding.util.extract_coords_from_structure(structure)
-    coords = torch.from_numpy(coords).cuda() 
-    # coords = coords.cuda() 
 
     # get n_init seqs and scores 
     seqs = []
     scores = []
     for _ in range(n_init):
-        try:
-            sampled_seq = if_model.sample(coords, temperature=1) 
-        except:
-            import pdb 
-            pdb.set_trace() 
+        sampled_seq = if_model.sample(coords, temperature=1) 
         seqs.append(sampled_seq)
         score = objective.query_oracle([sampled_seq])[0]
         scores.append(score) 
