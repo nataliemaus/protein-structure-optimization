@@ -33,17 +33,21 @@ class TMOptimization(Optimize):
         data_v2_flag=False,
         data_v3_flag=True,
         init_w_esmif=False,
-        vae_tokens="esm",
+        vae_tokens="uniref",
+        vae_kmers_k=1,
+        vae_kl_factor=0.001,
         **kwargs
     ):
         self.dim = dim 
-        # self.path_to_vae_statedict = VAE_DIM_TO_STATE_DICT_PATH[self.dim]
+        # self.path_to_vae_statedict = VAE_DIM_TO_STATE_DICT_PATH[self.dim] 
         self.max_string_length = max_string_length
         self.vae_tokens = vae_tokens
         self.target_pdb_id = target_pdb_id
         self.data_v2_flag = data_v2_flag
         self.data_v3_flag = data_v3_flag # inverse fold init data! 
         self.init_w_esmif = init_w_esmif # choose esmif or uniref 
+        self.vae_kmers_k = vae_kmers_k
+        self.vae_kl_factor = vae_kl_factor
         super().__init__(**kwargs) 
 
         # add args to method args dict to be logged by wandb
@@ -59,6 +63,8 @@ class TMOptimization(Optimize):
             max_string_length=self.max_string_length,
             target_pdb_id=self.target_pdb_id,
             vae_tokens=self.vae_tokens,
+            vae_kmers_k=self.vae_kmers_k,
+            vae_kl_factor=self.vae_kl_factor,
         )
         # if train zs have not been pre-computed for particular vae, compute them 
         #   by passing initialization selfies through vae 

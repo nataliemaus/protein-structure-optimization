@@ -2,8 +2,6 @@ import numpy as np
 import torch 
 import sys 
 sys.path.append("../")
-from uniref_vae.transformer_vae_unbounded import InfoTransformerVAE as OgInfoTransformerVAE
-from uniref_vae.data import collate_fn, DataModuleKmers
 from lolbo.latent_space_objective import LatentSpaceObjective
 from constants import (
     DEBUG_MODE,
@@ -12,8 +10,9 @@ from constants import (
 from transformers import EsmForProteinFolding
 from oracle.aa_seq_to_tm_score import aa_seq_to_tm_score
 import os 
-from uniref_vae.esm_tokenizer_data import DataModuleESM
-from uniref_vae.esm_transformer_vae import InfoTransformerVAE as EsmInfoTransformerVAE
+from uniref_vae.data import collate_fn
+from uniref_vae.load_uniref_vae import load_uniref_vae 
+
 
 class TMObjective(LatentSpaceObjective):
     '''Objective class supports all antibody protein
@@ -29,7 +28,9 @@ class TMObjective(LatentSpaceObjective):
         target_pdb_id="17_bp_sh3",
         dim=1024,
         init_vae=True,
-        vae_tokens="esm",
+        vae_tokens="uniref",
+        vae_kmers_k=1,
+        vae_kl_factor=0.001,
     ):
         self.vae_tokens             = vae_tokens 
         assert vae_tokens in ["esm", "uniref"] 
@@ -37,6 +38,8 @@ class TMObjective(LatentSpaceObjective):
         self.path_to_vae_statedict  = VAE_DIM_TO_STATE_DICT_PATH[vae_tokens][self.dim] # path to trained vae stat dict
         self.max_string_length      = max_string_length # max string length that VAE can generate
         self.target_pdb_id          = target_pdb_id 
+        self.vae_kmers_k            = vae_kmers_k
+        self.vae_kl_factor          = vae_kl_factor
         
         try: 
             self.target_pdb_path = f"../oracle/target_pdb_files/{target_pdb_id}.ent"
@@ -56,7 +59,7 @@ class TMObjective(LatentSpaceObjective):
 
     def vae_decode(self, z):
         '''Input
-                z: a tensor latent space points
+                z: a tensor latent space points 
             Output
                 a corresponding list of the decoded input space 
                 items output by vae decoder 
@@ -118,33 +121,15 @@ class TMObjective(LatentSpaceObjective):
         ''' Sets self.vae to the desired pretrained vae and 
             sets self.dataobj to the corresponding data class 
             used to tokenize inputs, etc. '''
-        if self.vae_tokens == "uniref": # just all uniref tokens
-            data_module = DataModuleKmers(
-                batch_size=10,
-                k=3,
-                load_data=False,
-            )
-            self.dataobj = data_module.train
-            self.vae = OgInfoTransformerVAE(dataset=self.dataobj, d_model=self.dim//2)
-        elif self.vae_tokens == "esm":
-            data_module = DataModuleESM(
-                batch_size=10,
-                load_data=False,
-            )
-            self.dataobj = data_module.train
-            self.vae = EsmInfoTransformerVAE(dataset=self.dataobj, d_model=self.dim//2)
-        else:
-            assert 0 
-
-        # load in state dict of trained model:
-        if self.path_to_vae_statedict:
-            state_dict = torch.load(self.path_to_vae_statedict) 
-            self.vae.load_state_dict(state_dict, strict=True) 
-        self.vae = self.vae.cuda()
-        self.vae = self.vae.eval()
+        self.vae, self.dataobj = load_uniref_vae(
+            path_to_vae_statedict=self.path_to_vae_statedict,
+            vae_tokens=self.vae_tokens,
+            vae_kmers_k=self.vae_kmers_k,
+            d_model=self.dim//2,
+            vae_kl_factor=self.vae_kl_factor,
+            max_string_length=self.max_string_length,
+        )
         
-        # set max string length that VAE can generate
-        self.vae.max_string_length = self.max_string_length
 
     def vae_forward(self, xs_batch):
         ''' Input: 

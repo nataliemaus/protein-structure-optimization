@@ -10,3 +10,4 @@ optimization_all_collected_data/
 optimization_all_collected_data/*
 notes.py
 uniref_vae/saved_models/*.pkl
+*vocab.csv
