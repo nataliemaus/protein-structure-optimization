@@ -9,6 +9,7 @@ from lolbo.tm_objective import TMObjective
 import esm 
 import numpy as np 
 import argparse 
+import torch 
 
 
 def create_wandb_tracker(
@@ -47,13 +48,18 @@ def run_if_baseline(
     pdb_path = f"../oracle/target_cif_files/{target_pdb_id}.cif" 
     structure = esm.inverse_folding.util.load_structure(pdb_path, "A")
     coords, _ = esm.inverse_folding.util.extract_coords_from_structure(structure)
-    coords = coords.cuda() 
+    coords = torch.from_numpy(coords).cuda() 
+    # coords = coords.cuda() 
 
     # get n_init seqs and scores 
     seqs = []
     scores = []
     for _ in range(n_init):
-        sampled_seq = if_model.sample(coords, temperature=1) 
+        try:
+            sampled_seq = if_model.sample(coords, temperature=1) 
+        except:
+            import pdb 
+            pdb.set_trace() 
         seqs.append(sampled_seq)
         score = objective.query_oracle([sampled_seq])[0]
         scores.append(score) 
