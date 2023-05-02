@@ -98,8 +98,6 @@ class DiverseTMOptimization(Optimize):
             num_seqs_load=self.num_initialization_points,
             init_w_esmif=self.init_w_esmif,
         )
-        import pdb 
-        pdb.set_trace() 
         self.load_train_z() 
         return self 
 
