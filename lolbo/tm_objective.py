@@ -30,7 +30,8 @@ class TMObjective(LatentSpaceObjective):
         init_vae=True,
         vae_tokens="uniref",
         vae_kmers_k=1,
-        vae_kl_factor=0.001,
+        vae_kl_factor=0.0001,
+        # 0.0001
     ):
         self.vae_tokens             = vae_tokens 
         assert vae_tokens in ["esm", "uniref"] 

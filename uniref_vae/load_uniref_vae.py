@@ -13,7 +13,7 @@ def load_uniref_vae(
     vae_tokens="uniref",
     vae_kmers_k=1,
     d_model=512, # dim//2
-    vae_kl_factor=0.001,
+    vae_kl_factor=0.0001,
     max_string_length=150,
 ):
     if vae_tokens == "uniref": # just all uniref tokens

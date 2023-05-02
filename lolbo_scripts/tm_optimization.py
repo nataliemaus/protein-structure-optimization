@@ -35,7 +35,7 @@ class TMOptimization(Optimize):
         init_w_esmif=False,
         vae_tokens="uniref",
         vae_kmers_k=1,
-        vae_kl_factor=0.001,
+        vae_kl_factor=0.0001,
         **kwargs
     ):
         self.dim = dim 
