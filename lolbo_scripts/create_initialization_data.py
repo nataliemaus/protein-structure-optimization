@@ -95,9 +95,8 @@ def load_init_data_esmif(
     train_xs = train_xs[bool_arr]
     train_ys = train_ys[bool_arr]
     train_xs = train_xs.tolist() 
-    if len(train_ys) < num_seqs_load:
-        print(f"ERROR: Number of Valid ESM IF baseline scores < {num_seqs_load}")
-        assert 0 
+    if len(train_ys) < num_seqs_load: 
+        print(f"WARNING: Number of Valid ESM IF baseline scores is {len(train_ys)} < {num_seqs_load}")
     
     train_y = torch.from_numpy(train_ys).float() 
     train_y = train_y.unsqueeze(-1) 
