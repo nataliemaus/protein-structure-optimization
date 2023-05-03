@@ -133,16 +133,16 @@ YIMENG SET w/ NEW UNIREF VAE MODEL, IF BASELINE
 cd lolbo_scripts 
 
 CUDA_VISIBLE_DEVICES=7 
-python3 tm_optimization.py --task_id tm --track_with_wandb True --wandb_entity nmaus --num_initialization_points 1000 --max_n_oracle_calls 5000000000000 --bsz 10 --dim 1024 --max_string_length 150 --vae_tokens uniref --target_pdb_id sample286 - run_lolbo - done 
+python3 tm_optimization.py --task_id tm --track_with_wandb True --wandb_entity nmaus --num_initialization_points 1000 --max_n_oracle_calls 5000000000000 --bsz 10 --dim 1024 --max_string_length 150 --vae_tokens uniref --target_pdb_id sample587 --init_w_esmif True - run_lolbo - done 
 
 YIMENG SET w/ NEW UNIREF VAE MODEL 
-25 GAUSS IF0.70865 len34/102 X4 
-286 GAUSS IF0.59618 len34/102 X5
-575 GAUSS IF0.82061 len44/132 X5  
-587 GAUSS IF0.59744 len35/105 X5 
-359 LOCUST IF0.74537 len34/102 X3 
-455 LOCUST IF0.67958 len40/120 X3
-228 LOCUST IF0.77884 len41/126 X2  
+25 GAUSS IF0.70865 len34/102 X4     ALLEGROesmifinit X1
+286 GAUSS IF0.59618 len34/102 X5     ALLEGROesmifinit X1
+575 GAUSS IF0.82061 len44/132 X5    ALLEGROesmifinit X1
+587 GAUSS IF0.59744 len35/105 X5    ALLEGROesmifinit X2
+359 LOCUST IF0.74537 len34/102 X3   ALLEGROesmifinit X1
+455 LOCUST IF0.67958 len40/120 X3   ALLEGROesmifinit X1
+228 LOCUST IF0.77884 len41/126 X2   ALLEGROesmifinit X1
 
 YIMENG SET (1k done)
 25 GAUSS IF0.70865 len34/102 uniref-X3 esm-X1
@@ -274,16 +274,18 @@ runai submit lolbo-opt-5 -v /shared_data0/protein-structure-optimization/:/works
 ######### ROBOT: 
 
 # PRESTO: -d to detach and run in background 
-docker run -v /home/nmaus/protein-structure-optimization/:/workspace/protein-structure-optimization -w /workspace/protein-structure-optimization/robot_scripts --gpus "device=1" nmaus/fold2 python3 diverse_tm_optimization.py --task_id tm --max_n_oracle_calls 5000000000000000000 --bsz 10 --save_csv_frequency 10 --track_with_wandb True --wandb_entity nmaus --num_initialization_points 1000 --dim 1024 --vae_tokens uniref --max_string_length 150 --M 10 --tau 5 --target_pdb_id sample587 - run_robot - done 
+docker run -v /home/nmaus/protein-structure-optimization/:/workspace/protein-structure-optimization -w /workspace/protein-structure-optimization/robot_scripts --gpus "device=5" -d nmaus/fold2 python3 diverse_tm_optimization.py --task_id tm --max_n_oracle_calls 5000000000000000000 --bsz 10 --save_csv_frequency 10 --track_with_wandb True --wandb_entity nmaus --num_initialization_points 1000 --dim 1024 --vae_tokens uniref --max_string_length 150 --M 10 --tau 5 --target_pdb_id sample228 - run_robot - done 
 
-YIMENG SET w/ NEW UNIREF VAE MODEL + ROBOT! 
-25 GAUSS IF0.70865 len34/102 X0 
-286 GAUSS IF0.59618 len34/102 X0
-575 GAUSS IF0.82061 len44/132 X0  
-587 GAUSS IF0.59744 len35/105 X0 
-359 LOCUST IF0.74537 len34/102 X0 
-455 LOCUST IF0.67958 len40/120 X0
-228 LOCUST IF0.77884 len41/126 X0  
+docker run -v /home/nmaus/protein-structure-optimization/:/workspace/protein-structure-optimization -w /workspace/protein-structure-optimization/lolbo_scripts --gpus "device=5" -d nmaus/fold2 python3 if_baseline.py --target_pdb_id sample286
+
+YIMENG SET w/ NEW UNIREF VAE MODEL + ROBOT! (presto! )
+25 presto X1  if_baselineX0
+286 presto X1  if_baselineX1
+575 presto X1  if_baselineX1
+587 presto X1  if_baselineX1
+359 presto X1  if_baselineX1
+455 presto X1   if_baselineX1
+228 presto X2 (both GPU 5)   if_baselineX1 
 
 
 ## RUNAI GAUSS 

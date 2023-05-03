@@ -84,7 +84,11 @@ class TMOptimization(Optimize):
         n_batches = math.ceil(len(self.init_train_x)/bsz)
         for i in range(n_batches):
             xs_batch = self.init_train_x[i*bsz:(i+1)*bsz] 
-            zs, _ = self.objective.vae_forward(xs_batch)
+            try:
+                zs, _ = self.objective.vae_forward(xs_batch)
+            except:
+                import pdb 
+                pdb.set_trace() 
             init_zs.append(zs.detach().cpu())
         init_zs = torch.cat(init_zs, dim=0)
         # now save the zs so we don't have to recompute them in the future:

@@ -34,7 +34,7 @@ class TMObjective(LatentSpaceObjective):
     ):
         self.vae_tokens             = vae_tokens 
         assert vae_tokens in ["esm", "uniref"] 
-        self.dim                    = dim # SELFIES VAE DEFAULT LATENT SPACE DIM
+        self.dim                    = dim # SELFIES VAE DEFAULT LATENT SPACE DIM 
         self.path_to_vae_statedict  = VAE_DIM_TO_STATE_DICT_PATH[vae_tokens][self.dim] # path to trained vae stat dict
         self.max_string_length      = max_string_length # max string length that VAE can generate
         self.target_pdb_id          = target_pdb_id 
@@ -48,7 +48,7 @@ class TMObjective(LatentSpaceObjective):
             self.target_pdb_path = f"../oracle/target_pdb_files/{target_pdb_id}.pdb"
             assert os.path.exists(self.target_pdb_path)
 
-        self.esm_model              = EsmForProteinFolding.from_pretrained("facebook/esmfold_v1")
+        self.esm_model = EsmForProteinFolding.from_pretrained("facebook/esmfold_v1")
         self.esm_model = self.esm_model.eval() 
         self.esm_model = self.esm_model.cuda() 
 
@@ -104,7 +104,7 @@ class TMObjective(LatentSpaceObjective):
                     aa_seq, 
                     target_pdb_path=self.target_pdb_path,
                     esm_model=self.esm_model,
-                )
+                ) 
             else:
                 try:
                     score = aa_seq_to_tm_score(
