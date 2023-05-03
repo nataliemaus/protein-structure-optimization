@@ -86,9 +86,20 @@ def load_init_data_esmif(
     train_xs = [x.replace("<cls>", "X") for x in train_xs]
     train_xs = [x.replace("<sep>", "X") for x in train_xs]
     train_xs = [x.replace("<pad>", "X") for x in train_xs]
-    train_xs = [x.replace("<eos>", "X") for x in train_xs]
+    train_xs = [x.replace("<eos>", "X") for x in train_xs] 
 
-    train_y = torch.tensor(train_ys).float() 
+    # filter out nan scores... 
+    train_xs = np.array(train_xs)
+    train_ys = np.array(train_ys)
+    bool_arr = np.logical_not(np.isnan(train_ys))
+    train_xs = train_xs[bool_arr]
+    train_ys = train_ys[bool_arr]
+    train_xs = train_xs.tolist() 
+    if len(train_ys) < num_seqs_load:
+        print(f"ERROR: Number of Valid ESM IF baseline scores < {num_seqs_load}")
+        assert 0 
+    
+    train_y = torch.from_numpy(train_ys).float() 
     train_y = train_y.unsqueeze(-1) 
     train_y = train_y[0:num_seqs_load] 
     train_x = train_xs[0:num_seqs_load]
