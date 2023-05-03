@@ -75,7 +75,7 @@ def seq_to_pdb(seq, save_path="./output.pdb", model=None):
     model = model.cuda() 
     tokenizer = AutoTokenizer.from_pretrained("facebook/esmfold_v1")
 
-    ### Added by Natalie 
+    ### Added by Natalie, remove tokens in UNIREF that are unsupported by ESM  
     seq = seq.replace("-", "") 
     seq = seq.replace("U", "") 
     seq = seq.replace("X", "") 
@@ -83,12 +83,7 @@ def seq_to_pdb(seq, save_path="./output.pdb", model=None):
     seq = seq.replace("O", "") 
     seq = seq.replace("B", "")
 
-    try:
-        tokenized_input = tokenizer([seq], return_tensors="pt", add_special_tokens=False)['input_ids'].cuda() 
-    except:
-        for char in seq:
-            print("problem char? :", char)
-            print(tokenizer([char], return_tensors="pt", add_special_tokens=False)['input_ids'].cuda())
+    tokenized_input = tokenizer([seq], return_tensors="pt", add_special_tokens=False)['input_ids'].cuda() 
 
     with torch.no_grad():
         output = model(tokenized_input)
