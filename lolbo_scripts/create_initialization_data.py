@@ -80,6 +80,13 @@ def load_init_data_esmif(
         filename_seqs = f"../data/if_baseline_seqs_{target_pdb_id}_{wandb_run_name}.csv"
         df = pd.read_csv(filename_seqs, header=None)
         train_xs = train_xs + df.values.squeeze().tolist() 
+    
+    # remove mask, etc. tokens occasionally output by ESM IF  
+    train_xs = [x.replace("<mask>", "X") for x in train_xs]
+    train_xs = [x.replace("<cls>", "X") for x in train_xs]
+    train_xs = [x.replace("<sep>", "X") for x in train_xs]
+    train_xs = [x.replace("<pad>", "X") for x in train_xs]
+    train_xs = [x.replace("<eos>", "X") for x in train_xs]
 
     train_y = torch.tensor(train_ys).float() 
     train_y = train_y.unsqueeze(-1) 
