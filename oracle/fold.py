@@ -151,19 +151,28 @@ def aa_seqs_list_to_avg_gvp_encodings(aa_seq_list, if_model=None, if_alphabet=No
         fold_model = EsmForProteinFolding.from_pretrained("facebook/esmfold_v1").cuda() 
     folded_pdbs = [fold_aa_seq(aa_seq, esm_model=fold_model) for aa_seq in aa_seq_list]
 
-    # Memory saving version: 
-    encodings = [get_gvp_encoding(pdb_path=folded_pdb, model=if_model, alphabet=if_alphabet) for folded_pdb in folded_pdbs]
-    avg_encodings = [encoding.nanmean(-2) for encoding in encodings]
-    avg_encodings = torch.cat(avg_encodings, 0) 
+    # V1 get individually  
+    # encodings = [get_gvp_encoding(pdb_path=folded_pdb, model=if_model, alphabet=if_alphabet) for folded_pdb in folded_pdbs]
+    # avg_encodings = [encoding.nanmean(-2) for encoding in encodings]
+    # avg_encodings = torch.cat(avg_encodings, 0) 
     
-    # faster version: 
-    # encodings = get_gvp_encoding_batch(pdb_path=folded_pdbs, chain_id='A', model=if_model, alphabet=if_alphabet)  
-    # avg_encodings = encodings.nanmean(-2)
+    # Faster version: 
+    encodings = get_gvp_encoding_batch(
+        pdb_path=folded_pdbs, 
+        chain_id='A', 
+        model=if_model, 
+        alphabet=if_alphabet, 
+        save_memory=True # set to true to forward through GVP on cpu 
+    )  
+    avg_encodings = encodings.nanmean(-2)
     return avg_encodings 
 
 
-def get_gvp_encoding_batch(pdb_path=[], chain_id='A', model=None, alphabet=None):
-    device = "cuda:0"
+def get_gvp_encoding_batch(pdb_path=[], chain_id='A', model=None, alphabet=None, save_memory=True):
+    if save_memory:
+        device = "cuda:0"
+    else:
+        device = "cpu"
     # This function is used to get the GVP encoding of a sequence
     if model is None:
         model, alphabet = esm.pretrained.esm_if1_gvp4_t16_142M_UR50()
