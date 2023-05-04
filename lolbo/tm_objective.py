@@ -76,13 +76,14 @@ class TMObjective(LatentSpaceObjective):
         # grab decoded aa strings
         decoded_seqs = [self.dataobj.decode(sample[i]) for i in range(sample.size(-2))]
 
+        # decoded_seqs = [dataobj.decode(sample[i]) for i in range(sample.size(-2))]
         # get rid of X's (deletion)
         temp = [] 
         for seq in decoded_seqs:
-            seq = seq.replace("X", "A")
+            seq = seq.replace("X", "")
             if len(seq) == 0:
                 seq = "AAA" # catch empty string case too... 
-            temp.append(seq)
+            temp.append(seq) 
         decoded_seqs = temp
 
         return decoded_seqs
@@ -148,7 +149,8 @@ class TMObjective(LatentSpaceObjective):
         encoded_seqs = [self.dataobj.encode(seq).unsqueeze(0) for seq in tokenized_seqs]
         X = collate_fn(encoded_seqs)
         dict = self.vae(X.cuda())
-        vae_loss, z = dict['loss'], dict['z']
+        # FOR GVP: *** TypeError: forward() missing 1 required positional argument: 'encodings'
+        vae_loss, z = dict['loss'], dict['z'] 
         z = z.reshape(-1,self.dim)
 
         return z, vae_loss

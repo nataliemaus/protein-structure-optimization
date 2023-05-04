@@ -5,7 +5,46 @@ from uniref_vae.esm_transformer_vae import InfoTransformerVAE as EsmInfoTransfor
 from uniref_vae.transformer_vae_unbounded import InfoTransformerVAE as OgInfoTransformerVAE
 from uniref_vae.data import DataModuleKmers
 import torch 
-from constants import VAE_DIM_TO_STATE_DICT_PATH
+from constants import VAE_DIM_TO_STATE_DICT_PATH, GVP_VAE_STATE_DICT_PATH
+
+from uniref_vae.gvp.gvp_vae_v4 import InfoTransformerVAE as GvpInfoTransformerVAE
+from uniref_vae.gvp.data_gvp import DataModuleKmers as GvpDataModuleKmers
+
+def load_gvp_vae(
+    vae_tokens="uniref",
+    vae_kmers_k=1,
+    d_model=512, # dim//2
+    vae_kl_factor=0.001,
+    max_string_length=150,
+):
+    assert vae_tokens == "uniref"
+    assert vae_kmers_k == 1
+    assert vae_kl_factor == 0.001
+    assert d_model == 512 
+    data_module = GvpDataModuleKmers(
+        batch_size=10,
+        k=vae_kmers_k,
+        load_data=False,
+    )
+    dataobj = data_module.train
+
+    vae = GvpInfoTransformerVAE(
+        dataset=dataobj, 
+        d_model=d_model,
+        kl_factor=vae_kl_factor,
+    ) 
+
+    # load in state dict of trained model:
+    state_dict = torch.load(GVP_VAE_STATE_DICT_PATH) 
+    vae.load_state_dict(state_dict, strict=True) 
+    vae = vae.cuda()
+    vae = vae.eval() 
+
+    # set max string length that VAE can generate
+    vae.max_string_length = max_string_length
+
+    return vae, dataobj 
+
 
 
 def load_uniref_vae(
@@ -52,12 +91,47 @@ def load_uniref_vae(
 
 
 if __name__ == "__main__":
-    dim = 1024
-    vae, dataobj = load_uniref_vae(
-        path_to_vae_statedict=VAE_DIM_TO_STATE_DICT_PATH["uniref"][dim],
-        vae_tokens="uniref",
-        vae_kmers_k=1,
-        d_model=dim//2, # dim//2
-        vae_kl_factor=0.001,
-        max_string_length=150,
-    )
+    # dim = 1024
+    # vae, dataobj = load_uniref_vae(
+    #     path_to_vae_statedict=VAE_DIM_TO_STATE_DICT_PATH["uniref"][dim],
+    #     vae_tokens="uniref",
+    #     vae_kmers_k=1,
+    #     d_model=dim//2, # dim//2
+    #     vae_kl_factor=0.001,
+    #     max_string_length=150,
+    # )
+    aa_seq = 'MEELLKKILEEVKKLEEELKKLEGLEPELKPLLEKLKEELEKLLEELEKLKEEGKEELPEELLEKLLEELEKLEEELEELLEELEELLEGLEELEELKELFEELKEKLEELKELLEELKEE'
+    from oracle.fold import aa_seq_to_gvp_encoding
+    encoding = aa_seq_to_gvp_encoding(aa_seq, if_model=None, if_alphabet=None, fold_model=None)
+
+    vae, dataobj = load_gvp_vae() 
+
+    # ENCODE: 
+    tokenized_seqs = dataobj.tokenize_sequence([aa_seq])
+    encoded_seqs = [dataobj.encode(seq).unsqueeze(0) for seq in tokenized_seqs]
+    from uniref_vae.data import collate_fn 
+    X = collate_fn(encoded_seqs)
+    import pdb 
+    pdb.set_trace() 
+    dict = vae(X.cuda(), encoding)
+
+    
+    # FOR GVP: *** TypeError: forward() missing 1 required positional argument: 'encodings'
+    vae_loss, z = dict['loss'], dict['z'] 
+    dim = 1024 # ?? 
+    z = z.reshape(-1,dim)
+
+
+    # DECODE: 
+
+    # if type(z) is np.ndarray: 
+    #     z = torch.from_numpy(z).float()
+    z = z.cuda()
+    # sample molecular string form VAE decoder
+    sample = vae.sample(z=z.reshape(-1, 2, dim//2))
+    # grab decoded aa strings
+    decoded_seqs = [dataobj.decode(sample[i]) for i in range(sample.size(-2))]
+
+    
+    import pdb 
+    pdb.set_trace() 

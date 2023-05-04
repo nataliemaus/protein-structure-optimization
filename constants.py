@@ -8,6 +8,7 @@ ALL_AMINO_ACIDS = ['A', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L', 'M', 'N', '
 # dim512_k1_kl0001_acc94_vivid-cherry-17_model_state_newest.pkl     
 # dim512_k1_kl001_acc89_radiant-sun-31_epoch_35.pkl    
 
+GVP_VAE_STATE_DICT_PATH = "../uniref_vae/gvp/efficient-water-79_epoch_36.pkl"
 
 # UNIREF VAE 
 VAE_DIM_TO_STATE_DICT_PATH = {}

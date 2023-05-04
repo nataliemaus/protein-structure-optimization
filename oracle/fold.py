@@ -133,6 +133,17 @@ def get_gvp_encoding(pdb_path, chain_id='A', model=None, alphabet=None):
     # gvp_out.shape   torch.Size([1, 123, 512])
     return gvp_out
 
+
+def aa_seq_to_gvp_encoding(aa_seq, if_model=None, if_alphabet=None, fold_model=None):
+    if (if_model is None) or (if_alphabet is None):
+        if_model, if_alphabet = load_esm_if_model()
+    if fold_model is None: 
+        fold_model = EsmForProteinFolding.from_pretrained("facebook/esmfold_v1").cuda() 
+    folded_pdb = fold_aa_seq(aa_seq, esm_model=fold_model)
+    encoding = get_gvp_encoding(pdb_path=folded_pdb, model=if_model, alphabet=if_alphabet) 
+    return encoding
+
+
 if __name__ == "__main__":
     aa_seq = "AABBCCDDEEFFGG"
     folded_pdb = fold_aa_seq(aa_seq, esm_model=None) 

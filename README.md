@@ -132,17 +132,16 @@ YIMENG SET w/ NEW UNIREF VAE MODEL, IF BASELINE
 
 cd lolbo_scripts 
 
-CUDA_VISIBLE_DEVICES=7 
-python3 tm_optimization.py --task_id tm --track_with_wandb True --wandb_entity nmaus --num_initialization_points 1000 --max_n_oracle_calls 5000000000000 --bsz 10 --dim 1024 --max_string_length 150 --vae_tokens uniref --target_pdb_id sample587 --init_w_esmif True - run_lolbo - done 
+CUDA_VISIBLE_DEVICES=4 python3 tm_optimization.py --task_id tm --track_with_wandb True --wandb_entity nmaus --num_initialization_points 1000 --max_n_oracle_calls 5000000000000 --bsz 10 --dim 1024 --max_string_length 150 --vae_tokens uniref --target_pdb_id sample25 --init_w_esmif True - run_lolbo - done 
 
 YIMENG SET w/ NEW UNIREF VAE MODEL 
-25 GAUSS IF0.70865 len34/102 X4     ALLEGROesmifinit X1
-286 GAUSS IF0.59618 len34/102 X5     ALLEGROesmifinit X1
-575 GAUSS IF0.82061 len44/132 X5    ALLEGROesmifinit X1
-587 GAUSS IF0.59744 len35/105 X5    ALLEGROesmifinit X2
-359 LOCUST IF0.74537 len34/102 X3   ALLEGROesmifinit X1
-455 LOCUST IF0.67958 len40/120 X3   ALLEGROesmifinit X1
-228 LOCUST IF0.77884 len41/126 X2   ALLEGROesmifinit X1
+25 GAUSS IF0.70865 len34/102 X4     ALLEGROesmifinit X1   GAUSSesmifinit X4 
+286 GAUSS IF0.59618 len34/102 X5     ALLEGROesmifinit X1    GAUSSesmifinit X1 
+575 GAUSS IF0.82061 len44/132 X5    ALLEGROesmifinit X1     GAUSSesmifinit X1 
+587 GAUSS IF0.59744 len35/105 X5    ALLEGROesmifinit X2     GAUSSesmifinit X1 
+359 LOCUST IF0.74537 len34/102 X3   ALLEGROesmifinit X1     GAUSSesmifinit X4 
+455 LOCUST IF0.67958 len40/120 X3   ALLEGROesmifinit X1     GAUSSesmifinit X1
+228 LOCUST IF0.77884 len41/126 X2   ALLEGROesmifinit X1     GAUSSesmifinit X4 
 
 YIMENG SET (1k done)
 25 GAUSS IF0.70865 len34/102 uniref-X3 esm-X1
