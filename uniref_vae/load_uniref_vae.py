@@ -90,29 +90,26 @@ def load_uniref_vae(
     return vae, dataobj 
 
 
-if __name__ == "__main__":
-    # dim = 1024
-    # vae, dataobj = load_uniref_vae(
-    #     path_to_vae_statedict=VAE_DIM_TO_STATE_DICT_PATH["uniref"][dim],
-    #     vae_tokens="uniref",
-    #     vae_kmers_k=1,
-    #     d_model=dim//2, # dim//2
-    #     vae_kl_factor=0.001,
-    #     max_string_length=150,
-    # )
+def test_gvp():
     aa_seq = 'MEELLKKILEEVKKLEEELKKLEGLEPELKPLLEKLKEELEKLLEELEKLKEEGKEELPEELLEKLLEELEKLEEELEELLEELEELLEGLEELEELKELFEELKEKLEELKELLEELKEE'
-    from oracle.fold import aa_seq_to_gvp_encoding
+    aa_seq2 = 'MEELLKKILEEVKKLEEELKKLLLEKLKEELEKLLEELEKLKEEGKEELPEELLEKLLEELEKLEEELEELLLLLEELEELLEGLEELEEL'
+    from oracle.fold import aa_seq_to_gvp_encoding, aa_seqs_list_to_gvp_encoding
     from uniref_vae.data import collate_fn 
+    aa_seqs_list = [aa_seq]
+
 
     vae, dataobj = load_gvp_vae() 
 
-    # ENCODE: 
-    tokenized_seqs = dataobj.tokenize_sequence([aa_seq])
+    # FOREWARD: 
+    tokenized_seqs = dataobj.tokenize_sequence(aa_seqs_list)
     encoded_seqs = [dataobj.encode(seq).unsqueeze(0) for seq in tokenized_seqs]
     X = collate_fn(encoded_seqs)  # torch.Size([1, 122])
-    gvp_encoding = aa_seq_to_gvp_encoding(aa_seq, if_model=None, if_alphabet=None, fold_model=None)
+
+    gvp_encodings = aa_seqs_list_to_gvp_encoding(aa_seqs_list, if_model=None, if_alphabet=None, fold_model=None)
+
+    # gvp_encoding = aa_seq_to_gvp_encoding(aa_seq, if_model=None, if_alphabet=None, fold_model=None)
     # print(gvp_encoding.shape) torch.Size([1, 123, 512]) 
-    avg_gvp_encoding = gvp_encoding.mean(-2) # torch.Size([1, 512])
+    avg_gvp_encoding = gvp_encodings.nanmean(-2) # torch.Size([1, 512])
     dict = vae(X.cuda(), avg_gvp_encoding) # torch.Size([1, 122])
     vae_loss, z = dict['loss'], dict['z'] 
     # print(z.shape) = torch.Size([1, 2, 512]) 
@@ -125,13 +122,22 @@ if __name__ == "__main__":
     #     z = torch.from_numpy(z).float()
     z = z.cuda()
     # sample molecular string form VAE decoder
-    # sample_old = vae.sample(z=z.reshape(-1, 2, dim//2))
-
-    import pdb 
-    pdb.set_trace() 
-    # grab decoded aa strings
     sample = vae.sample(1, z=z.reshape(-1, 2, dim//2), encodings=avg_gvp_encoding.cuda() ) 
     decoded_seqs = [dataobj.decode(sample[i]) for i in range(sample.size(-2))]
 
     import pdb 
     pdb.set_trace() 
+
+
+if __name__ == "__main__":
+    print("main")
+    # dim = 1024
+    # vae, dataobj = load_uniref_vae(
+    #     path_to_vae_statedict=VAE_DIM_TO_STATE_DICT_PATH["uniref"][dim],
+    #     vae_tokens="uniref",
+    #     vae_kmers_k=1,
+    #     d_model=dim//2, # dim//2
+    #     vae_kl_factor=0.001,
+    #     max_string_length=150,
+    # )
+     

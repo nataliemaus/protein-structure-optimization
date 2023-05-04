@@ -12,6 +12,7 @@ from oracle.aa_seq_to_tm_score import aa_seq_to_tm_score
 import os 
 from uniref_vae.data import collate_fn
 from uniref_vae.load_uniref_vae import load_uniref_vae 
+from oracle.fold import load_esm_if_model 
 
 
 class TMObjective(LatentSpaceObjective):
@@ -31,6 +32,7 @@ class TMObjective(LatentSpaceObjective):
         vae_tokens="uniref",
         vae_kmers_k=1,
         vae_kl_factor=0.0001,
+        gvp_vae=False,
     ):
         self.vae_tokens             = vae_tokens 
         assert vae_tokens in ["esm", "uniref"] 
@@ -40,6 +42,7 @@ class TMObjective(LatentSpaceObjective):
         self.target_pdb_id          = target_pdb_id 
         self.vae_kmers_k            = vae_kmers_k
         self.vae_kl_factor          = vae_kl_factor
+        self.gvp_vae                = gvp_vae
         
         try: 
             self.target_pdb_path = f"../oracle/target_pdb_files/{target_pdb_id}.ent"
@@ -51,6 +54,9 @@ class TMObjective(LatentSpaceObjective):
         self.esm_model = EsmForProteinFolding.from_pretrained("facebook/esmfold_v1")
         self.esm_model = self.esm_model.eval() 
         self.esm_model = self.esm_model.cuda() 
+
+        if self.gvp_vae:
+            self.if_model, self.if_alphabet = load_esm_if_model()
 
         super().__init__(
             num_calls=num_calls,
@@ -124,14 +130,23 @@ class TMObjective(LatentSpaceObjective):
         ''' Sets self.vae to the desired pretrained vae and 
             sets self.dataobj to the corresponding data class 
             used to tokenize inputs, etc. '''
-        self.vae, self.dataobj = load_uniref_vae(
-            path_to_vae_statedict=self.path_to_vae_statedict,
-            vae_tokens=self.vae_tokens,
-            vae_kmers_k=self.vae_kmers_k,
-            d_model=self.dim//2,
-            vae_kl_factor=self.vae_kl_factor,
-            max_string_length=self.max_string_length,
-        )
+        if self.gvp_vae:
+            self.vae, self.dataobj = load_uniref_vae(
+                vae_tokens=self.vae_tokens,
+                vae_kmers_k=self.vae_kmers_k,
+                d_model=self.dim//2,
+                vae_kl_factor=self.vae_kl_factor,
+                max_string_length=self.max_string_length,
+            ) 
+        else:
+            self.vae, self.dataobj = load_uniref_vae(
+                path_to_vae_statedict=self.path_to_vae_statedict,
+                vae_tokens=self.vae_tokens,
+                vae_kmers_k=self.vae_kmers_k,
+                d_model=self.dim//2,
+                vae_kl_factor=self.vae_kl_factor,
+                max_string_length=self.max_string_length,
+            )
         
 
     def vae_forward(self, xs_batch):
@@ -148,7 +163,18 @@ class TMObjective(LatentSpaceObjective):
         tokenized_seqs = self.dataobj.tokenize_sequence(xs_batch)
         encoded_seqs = [self.dataobj.encode(seq).unsqueeze(0) for seq in tokenized_seqs]
         X = collate_fn(encoded_seqs)
-        dict = self.vae(X.cuda())
+
+        if self.gvp_vae:
+            gvp_encoding = aa_seq_to_gvp_encoding(
+                aa_seq, 
+                if_model=self.if_model, 
+                if_alphabet=self.if_alphabet, 
+                fold_model=self.esm_model
+            )
+            avg_gvp_encoding = gvp_encoding.nanmean(-2) # torch.Size([1, 512])
+            dict = self.vae(X.cuda(), avg_gvp_encoding) # torch.Size([1, 122])
+        else:
+            dict = self.vae(X.cuda())
         # FOR GVP: *** TypeError: forward() missing 1 required positional argument: 'encodings'
         vae_loss, z = dict['loss'], dict['z'] 
         z = z.reshape(-1,self.dim)

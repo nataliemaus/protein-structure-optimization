@@ -6,7 +6,7 @@ import uuid
 import os 
 import esm 
 from esm.inverse_folding.util import CoordBatchConverter
-# device = "cuda:0" if torch.cuda.is_available() else "cpu"
+# device = "cuda:0" if torch.cuda.is_available() else "cpu" 
 if not torch.cuda.is_available():
     print("NO GPU AVAILABLE")
     assert 0 
@@ -130,7 +130,7 @@ def get_gvp_encoding(pdb_path, chain_id='A', model=None, alphabet=None):
 
     gvp_out = model.encoder.forward_embedding(coords.cuda(), padding_mask=padding_mask.cuda(), confidence=confidence)[1]['gvp_out']
 
-    # gvp_out.shape   torch.Size([1, 123, 512])
+    # gvp_out.shape   torch.Size([1, 123, 512]) 
     return gvp_out
 
 
@@ -142,6 +142,45 @@ def aa_seq_to_gvp_encoding(aa_seq, if_model=None, if_alphabet=None, fold_model=N
     folded_pdb = fold_aa_seq(aa_seq, esm_model=fold_model)
     encoding = get_gvp_encoding(pdb_path=folded_pdb, model=if_model, alphabet=if_alphabet) 
     return encoding
+
+
+def aa_seqs_list_to_gvp_encoding(aa_seq_list, if_model=None, if_alphabet=None, fold_model=None):
+    if (if_model is None) or (if_alphabet is None):
+        if_model, if_alphabet = load_esm_if_model()
+    if fold_model is None: 
+        fold_model = EsmForProteinFolding.from_pretrained("facebook/esmfold_v1").cuda() 
+    folded_pdbs = [fold_aa_seq(aa_seq, esm_model=fold_model) for aa_seq in aa_seq_list]
+    encodings = get_gvp_encoding_batch(pdb_path=[], chain_id='A', model=if_model, alphabet=if_alphabet) 
+    return encodings
+
+
+def get_gvp_encoding_batch(pdb_path=[], chain_id='A', model=None, alphabet=None):
+    device = "cuda:0"
+    # This function is used to get the GVP encoding of a sequence
+    if model is None:
+        model, alphabet = esm.pretrained.esm_if1_gvp4_t16_142M_UR50()
+    model = model.eval()
+    model = model.to(device)
+
+    batch = []
+
+    for pdb in pdb_path:
+        structure = esm.inverse_folding.util.load_structure(pdb, chain_id)
+
+        # Extracting Coordinates from Structure
+        coords, native_seq = esm.inverse_folding.util.extract_coords_from_structure(structure)
+        coords = torch.tensor(coords).to(device)
+
+        batch.append((coords, None, native_seq))
+
+    batch_converter = CoordBatchConverter(alphabet)
+
+    coords_batch, confidence_batch, strs, tokens, padding_mask_batch = batch_converter(batch, device=device)
+    confidence_batch = confidence_batch.to(device)
+
+    gvp_out = model.encoder.forward_embedding(coords_batch, padding_mask=padding_mask_batch, confidence=confidence_batch)[1]['gvp_out']
+
+    return gvp_out
 
 
 if __name__ == "__main__":
