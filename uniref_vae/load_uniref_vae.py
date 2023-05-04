@@ -102,36 +102,33 @@ if __name__ == "__main__":
     # )
     aa_seq = 'MEELLKKILEEVKKLEEELKKLEGLEPELKPLLEKLKEELEKLLEELEKLKEEGKEELPEELLEKLLEELEKLEEELEELLEELEELLEGLEELEELKELFEELKEKLEELKELLEELKEE'
     from oracle.fold import aa_seq_to_gvp_encoding
-    encoding = aa_seq_to_gvp_encoding(aa_seq, if_model=None, if_alphabet=None, fold_model=None)
+    from uniref_vae.data import collate_fn 
 
     vae, dataobj = load_gvp_vae() 
 
     # ENCODE: 
     tokenized_seqs = dataobj.tokenize_sequence([aa_seq])
     encoded_seqs = [dataobj.encode(seq).unsqueeze(0) for seq in tokenized_seqs]
-    from uniref_vae.data import collate_fn 
-    X = collate_fn(encoded_seqs)
-    import pdb 
-    pdb.set_trace() 
-    dict = vae(X.cuda(), encoding)
-
-    
-    # FOR GVP: *** TypeError: forward() missing 1 required positional argument: 'encodings'
+    X = collate_fn(encoded_seqs)  # torch.Size([1, 122])
+    gvp_encoding = aa_seq_to_gvp_encoding(aa_seq, if_model=None, if_alphabet=None, fold_model=None)
+    # print(gvp_encoding.shape) torch.Size([1, 123, 512]) 
+    avg_gvp_encoding = gvp_encoding.mean(-2) # torch.Size([1, 512])
+    dict = vae(X.cuda(), avg_gvp_encoding) # torch.Size([1, 122])
     vae_loss, z = dict['loss'], dict['z'] 
+    # print(z.shape) = torch.Size([1, 2, 512]) 
     dim = 1024 # ?? 
-    z = z.reshape(-1,dim)
+    z = z.reshape(-1,dim) # torch.Size([1, 1024])
 
 
     # DECODE: 
-
     # if type(z) is np.ndarray: 
     #     z = torch.from_numpy(z).float()
     z = z.cuda()
     # sample molecular string form VAE decoder
     sample = vae.sample(z=z.reshape(-1, 2, dim//2))
     # grab decoded aa strings
+    decoded_seqs = vae.sample(1, z=z, encodings=avg_gvp_encoding.cuda() ) 
     decoded_seqs = [dataobj.decode(sample[i]) for i in range(sample.size(-2))]
 
-    
     import pdb 
     pdb.set_trace() 

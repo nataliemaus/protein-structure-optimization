@@ -288,15 +288,25 @@ class InfoTransformerVAE(pl.LightningModule):
     def sample(
         self,
         n: int = -1,
+        encodings: Tensor = None,
         z: Tensor = None,
         differentiable: bool = False,
         return_logits: bool = False,
     ):
         model_state = self.training
         self.eval()
-        if z is None:
+
+        if z is None and encodings is None:
             z = self.sample_prior(n)
-        else:
+        elif z is not None and encodings is None:
+            n = z.shape[0]
+        elif z is None and encodings is not None:
+            z = self.sample_prior(n)
+            encodings = self.double_linear(encodings)
+            z = torch.cat([encodings.view(-1, 1, 512), z], dim=1)
+        elif z is not None and encodings is not None:
+            encodings = self.double_linear(encodings)
+            z = torch.cat([encodings.view(-1, 1, 512), z], dim=1)
             n = z.shape[0]
 
         tokens = torch.zeros(
@@ -338,6 +348,62 @@ class InfoTransformerVAE(pl.LightningModule):
             return sample, logits
         else:
             return sample
+
+    # OLD SAMPLE VERSION
+    # @torch.no_grad()
+    # def sample(
+    #     self,
+    #     n: int = -1,
+    #     z: Tensor = None,
+    #     differentiable: bool = False,
+    #     return_logits: bool = False,
+    # ):
+    #     model_state = self.training
+    #     self.eval()
+    #     if z is None:
+    #         z = self.sample_prior(n)
+    #     else:
+    #         n = z.shape[0]
+
+    #     tokens = torch.zeros(
+    #         n, 1, device=self.device
+    #     ).long()  # Start token is 0, stop token is 1
+    #     random_gumbels = torch.zeros(n, 0, self.vocab_size, device=self.device)
+    #     while True:  # Loop until every molecule hits a stop token
+    #         tgt = self.decoder_token_embedding(tokens)
+    #         tgt = self.decoder_position_encoding(tgt)
+    #         tgt_mask = nn.Transformer.generate_square_subsequent_mask(
+    #             sz=tokens.shape[-1]
+    #         ).to(self.device)
+
+    #         decoding = self.decoder(tgt=tgt, memory=z, tgt_mask=tgt_mask)
+    #         logits = decoding @ self.decoder_token_unembedding
+    #         sample, randoms = gumbel_softmax(
+    #             logits, dim=-1, hard=True, return_randoms=True
+    #         )
+
+    #         tokens = torch.cat(
+    #             [tokens, sample[:, -1, :].argmax(dim=-1)[:, None]], dim=-1
+    #         )
+    #         random_gumbels = torch.cat([random_gumbels, randoms], dim=1)
+
+    #         # 1 is the stop token. Check if all molecules have a stop token in them
+    #         if (
+    #             torch.all((tokens == 1).sum(dim=-1) > 0).item()
+    #             or tokens.shape[-1] > self.max_string_length
+    #         ):  # no longer break at 1024, instead variable max string length 
+    #             break
+
+    #     self.train(model_state)
+
+    #     # TODO: Put this back in
+    #     if not differentiable:
+    #         sample = tokens
+
+    #     if return_logits:
+    #         return sample, logits
+    #     else:
+    #         return sample
 
     def is_valid(self, x):
         raise NotImplementedError("This should not be used for in problems")
@@ -388,16 +454,17 @@ class InfoTransformerVAE(pl.LightningModule):
         return mu, sigma, z 
 
     def forward(self, tokens, encodings):
-        mu, sigma, z = self.sample_encoding(tokens)
+        mu, sigma, z = self.sample_encoding(tokens) # torch.Size([1, 2, 512])
+        # mu, sigma, z = self.sample_encoding(tokens[0]) # torch.Size([1, 2, 512])
         z_norm = torch.sum(z ** 2, dim=-1).mean() 
 
         # print(z.shape, encodings.view(-1, 1, 512).shape)
 
-        encodings = self.double_linear(encodings)
+        encodings = self.double_linear(encodings) # torch.Size([1, 123, 512]) ... NOT 2! 
 
         z_combined = torch.cat([encodings.view(-1, 1, 512), z], dim=1)
 
-        logits = self.decode(z_combined, tokens)
+        logits = self.decode(z_combined, tokens) 
 
         recon_loss = F.cross_entropy(
             logits.permute(0, 2, 1), tokens, reduction="none"
