@@ -36,6 +36,8 @@ class TMOptimization(Optimize):
         vae_tokens="uniref",
         vae_kmers_k=1,
         vae_kl_factor=0.0001,
+        gvp_vae=False,
+        gvp_vae_version_flag=1,
         **kwargs
     ):
         self.dim = dim 
@@ -48,6 +50,8 @@ class TMOptimization(Optimize):
         self.init_w_esmif = init_w_esmif # choose esmif or uniref 
         self.vae_kmers_k = vae_kmers_k
         self.vae_kl_factor = vae_kl_factor
+        self.gvp_vae = gvp_vae
+        self.gvp_vae_version_flag = gvp_vae_version_flag
         super().__init__(**kwargs) 
 
         # add args to method args dict to be logged by wandb
@@ -65,6 +69,8 @@ class TMOptimization(Optimize):
             vae_tokens=self.vae_tokens,
             vae_kmers_k=self.vae_kmers_k,
             vae_kl_factor=self.vae_kl_factor,
+            gvp_vae=self.gvp_vae,
+            gvp_vae_version_flag=self.gvp_vae_version_flag,
         )
         # if train zs have not been pre-computed for particular vae, compute them 
         #   by passing initialization selfies through vae 

@@ -33,6 +33,7 @@ class TMObjective(LatentSpaceObjective):
         vae_kmers_k=1,
         vae_kl_factor=0.0001,
         gvp_vae=False,
+        gvp_vae_version_flag=1,
     ):
         self.vae_tokens             = vae_tokens 
         assert vae_tokens in ["esm", "uniref"] 
@@ -43,6 +44,7 @@ class TMObjective(LatentSpaceObjective):
         self.vae_kmers_k            = vae_kmers_k
         self.vae_kl_factor          = vae_kl_factor
         self.gvp_vae                = gvp_vae
+        self.gvp_vae_version_flag   = gvp_vae_version_flag
         
         try: 
             self.target_pdb_path = f"../oracle/target_pdb_files/{target_pdb_id}.ent"
@@ -78,6 +80,9 @@ class TMObjective(LatentSpaceObjective):
         self.vae = self.vae.eval()
         self.vae = self.vae.cuda()
         # sample molecular string form VAE decoder
+        # if self.gvp_vae:
+        #     sample = self.vae.sample(1, z=z.reshape(-1, 2, self.dim//2), encodings=avg_gvp_encoding.cuda() ) 
+        # else:
         sample = self.vae.sample(z=z.reshape(-1, 2, self.dim//2))
         # grab decoded aa strings
         decoded_seqs = [self.dataobj.decode(sample[i]) for i in range(sample.size(-2))]
@@ -165,13 +170,13 @@ class TMObjective(LatentSpaceObjective):
         X = collate_fn(encoded_seqs)
 
         if self.gvp_vae:
-            gvp_encoding = aa_seqs_list_to_avg_gvp_encodings(
+            avg_gvp_encoding = aa_seqs_list_to_avg_gvp_encodings(
                 aa_seqs_list=xs_batch, 
                 if_model=self.if_model, 
                 if_alphabet=self.if_alphabet, 
                 fold_model=self.esm_model,
             )
-            dict = self.vae(X.cuda(), aa_seqs_list_to_avg_gvp_encodings) # torch.Size([1, 122])
+            dict = self.vae(X.cuda(), avg_gvp_encoding.cuda()) 
         else:
             dict = self.vae(X.cuda())
         # FOR GVP: *** TypeError: forward() missing 1 required positional argument: 'encodings'
