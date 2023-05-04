@@ -96,39 +96,45 @@ def test_gvp():
     from oracle.fold import aa_seq_to_gvp_encoding, aa_seqs_list_to_avg_gvp_encodings
     from uniref_vae.data import collate_fn 
     aa_seqs_list = [aa_seq, aa_seq2, aa_seq, aa_seq2]
-
-
     vae, dataobj = load_gvp_vae() 
 
-    # FOREWARD: 
-    tokenized_seqs = dataobj.tokenize_sequence(aa_seqs_list)
-    encoded_seqs = [dataobj.encode(seq).unsqueeze(0) for seq in tokenized_seqs]
-    X = collate_fn(encoded_seqs)  # torch.Size([1, 122])
-
-    avg_gvp_encodings = aa_seqs_list_to_avg_gvp_encodings(aa_seqs_list, if_model=None, if_alphabet=None, fold_model=None)
-
-    # gvp_encoding = aa_seq_to_gvp_encoding(aa_seq, if_model=None, if_alphabet=None, fold_model=None)
-    # print(gvp_encoding.shape) torch.Size([1, 123, 512]) 
-
-    # avg_gvp_encoding = gvp_encodings.nanmean(-2) # torch.Size([1, 512])
-
-    dict = vae(X.cuda(), avg_gvp_encodings) # torch.Size([1, 122])
-    vae_loss, z = dict['loss'], dict['z'] 
-    # print(z.shape) = torch.Size([1, 2, 512]) 
-    dim = 1024 # ?? 
-    
-    
-    # z = z.reshape(-1,dim) # torch.Size([1, 1024])
+    for seq in aa_seqs_list:
 
 
-    # DECODE: 
-    # if type(z) is np.ndarray: 
-    #     z = torch.from_numpy(z).float()
-    z = z.cuda()
-    # sample molecular string form VAE decoder
-    # sample = vae.sample(1, z=z.reshape(-1, 2, dim//2), encodings=avg_gvp_encodings.cuda() ) 
-    sample = vae.sample(1, z=z, encodings=avg_gvp_encodings.cuda() ) 
-    decoded_seqs = [dataobj.decode(sample[i]) for i in range(sample.size(-2))]
+        # FOREWARD: 
+        tokenized_seqs = dataobj.tokenize_sequence([seq])
+        encoded_seqs = [dataobj.encode(seq).unsqueeze(0) for seq in tokenized_seqs]
+        X = collate_fn(encoded_seqs)  # torch.Size([1, 122])
+
+        # avg_gvp_encodings = aa_seqs_list_to_avg_gvp_encodings(aa_seqs_list, if_model=None, if_alphabet=None, fold_model=None)
+
+        gvp_encoding = aa_seq_to_gvp_encoding(seq, if_model=None, if_alphabet=None, fold_model=None)
+        # print(gvp_encoding.shape) torch.Size([1, 123, 512]) 
+
+        avg_gvp_encoding = gvp_encoding.nanmean(-2) # torch.Size([1, 512])
+
+        dict = vae(X.cuda(), avg_gvp_encoding) # torch.Size([1, 122])
+        vae_loss, z = dict['loss'], dict['z'] 
+        # print(z.shape) = torch.Size([1, 2, 512]) 
+        dim = 1024 # ?? 
+
+        # dict = vae(X[0:1].cuda(), avg_gvp_encodings[0:1])
+        
+        
+        # z = z.reshape(-1,dim) # torch.Size([1, 1024])
+
+
+        # DECODE: 
+        # if type(z) is np.ndarray: 
+        #     z = torch.from_numpy(z).float() 
+        z = z.cuda()
+        # sample molecular string form VAE decoder
+        # sample = vae.sample(1, z=z.reshape(-1, 2, dim//2), encodings=avg_gvp_encodings.cuda() ) 
+        sample = vae.sample(1, z=z, encodings=avg_gvp_encoding.cuda() ) 
+        decoded_seqs = [dataobj.decode(sample[i]) for i in range(sample.size(-2))]
+        print("SEQ:", seq)
+        print("Dec Seq:", decoded_seqs)
+        print("")
 
     import pdb 
     pdb.set_trace() 
