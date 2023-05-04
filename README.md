@@ -132,10 +132,10 @@ YIMENG SET w/ NEW UNIREF VAE MODEL, IF BASELINE
 
 cd lolbo_scripts 
 
-CUDA_VISIBLE_DEVICES=4 python3 tm_optimization.py --task_id tm --track_with_wandb True --wandb_entity nmaus --num_initialization_points 1000 --max_n_oracle_calls 5000000000000 --bsz 10 --dim 1024 --max_string_length 150 --vae_tokens uniref --target_pdb_id sample25 --init_w_esmif True - run_lolbo - done 
+CUDA_VISIBLE_DEVICES=4 python3 tm_optimization.py --task_id tm --track_with_wandb True --wandb_entity nmaus --num_initialization_points 1000 --max_n_oracle_calls 5000000000000 --bsz 10 --dim 1024 --max_string_length 150 --vae_tokens uniref --target_pdb_id sample25 --init_w_esmif True --gvp_vae TRUE - run_lolbo - done 
 
 YIMENG SET w/ NEW UNIREF VAE MODEL 
-25 GAUSS IF0.70865 len34/102 X4     ALLEGROesmifinit X1   GAUSSesmifinit X4 
+25 GAUSS IF0.70865 len34/102 X4     ALLEGROesmifinit X1   GAUSSesmifinit X4 GAUSSesmifinitGVP X0
 286 GAUSS IF0.59618 len34/102 X5     ALLEGROesmifinit X1    GAUSSesmifinit X1 
 575 GAUSS IF0.82061 len44/132 X5    ALLEGROesmifinit X1     GAUSSesmifinit X1 
 587 GAUSS IF0.59744 len35/105 X5    ALLEGROesmifinit X2     GAUSSesmifinit X1 

@@ -10,7 +10,7 @@ import pytorch_lightning as pl
 import torch
 from torch import Tensor, nn
 from torch.nn import functional as F
-from data import DatasetKmers
+from data_gvp import DatasetKmers
 from torch.optim import Adam
 
 
