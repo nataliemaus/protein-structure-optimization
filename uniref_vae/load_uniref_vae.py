@@ -125,9 +125,12 @@ if __name__ == "__main__":
     #     z = torch.from_numpy(z).float()
     z = z.cuda()
     # sample molecular string form VAE decoder
-    sample = vae.sample(z=z.reshape(-1, 2, dim//2))
+    # sample_old = vae.sample(z=z.reshape(-1, 2, dim//2))
+
+    import pdb 
+    pdb.set_trace() 
     # grab decoded aa strings
-    decoded_seqs = vae.sample(1, z=z, encodings=avg_gvp_encoding.cuda() ) 
+    sample = vae.sample(1, z=z.reshape(-1, 2, dim//2), encodings=avg_gvp_encoding.cuda() ) 
     decoded_seqs = [dataobj.decode(sample[i]) for i in range(sample.size(-2))]
 
     import pdb 
