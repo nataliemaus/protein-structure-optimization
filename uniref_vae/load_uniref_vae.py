@@ -116,7 +116,9 @@ def test_gvp():
     vae_loss, z = dict['loss'], dict['z'] 
     # print(z.shape) = torch.Size([1, 2, 512]) 
     dim = 1024 # ?? 
-    z = z.reshape(-1,dim) # torch.Size([1, 1024])
+    
+    
+    # z = z.reshape(-1,dim) # torch.Size([1, 1024])
 
 
     # DECODE: 
@@ -124,7 +126,8 @@ def test_gvp():
     #     z = torch.from_numpy(z).float()
     z = z.cuda()
     # sample molecular string form VAE decoder
-    sample = vae.sample(1, z=z.reshape(-1, 2, dim//2), encodings=avg_gvp_encodings.cuda() ) 
+    # sample = vae.sample(1, z=z.reshape(-1, 2, dim//2), encodings=avg_gvp_encodings.cuda() ) 
+    sample = vae.sample(1, z=z, encodings=avg_gvp_encodings.cuda() ) 
     decoded_seqs = [dataobj.decode(sample[i]) for i in range(sample.size(-2))]
 
     import pdb 
