@@ -150,7 +150,7 @@ def aa_seqs_list_to_gvp_encoding(aa_seq_list, if_model=None, if_alphabet=None, f
     if fold_model is None: 
         fold_model = EsmForProteinFolding.from_pretrained("facebook/esmfold_v1").cuda() 
     folded_pdbs = [fold_aa_seq(aa_seq, esm_model=fold_model) for aa_seq in aa_seq_list]
-    encodings = get_gvp_encoding_batch(pdb_path=[], chain_id='A', model=if_model, alphabet=if_alphabet) 
+    encodings = get_gvp_encoding_batch(pdb_path=folded_pdbs, chain_id='A', model=if_model, alphabet=if_alphabet) 
     return encodings
 
 

@@ -140,5 +140,5 @@ if __name__ == "__main__":
     #     vae_kl_factor=0.001,
     #     max_string_length=150,
     # )
-    test_gvp()
+    test_gvp() 
      
