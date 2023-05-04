@@ -144,13 +144,16 @@ def aa_seq_to_gvp_encoding(aa_seq, if_model=None, if_alphabet=None, fold_model=N
     return encoding
 
 
-def aa_seqs_list_to_gvp_encoding(aa_seq_list, if_model=None, if_alphabet=None, fold_model=None):
+def aa_seqs_list_to_avg_gvp_encodings(aa_seq_list, if_model=None, if_alphabet=None, fold_model=None):
     if (if_model is None) or (if_alphabet is None):
         if_model, if_alphabet = load_esm_if_model()
     if fold_model is None: 
         fold_model = EsmForProteinFolding.from_pretrained("facebook/esmfold_v1").cuda() 
     folded_pdbs = [fold_aa_seq(aa_seq, esm_model=fold_model) for aa_seq in aa_seq_list]
-    encodings = get_gvp_encoding_batch(pdb_path=folded_pdbs, chain_id='A', model=if_model, alphabet=if_alphabet) 
+    encodings = [get_gvp_encoding(pdb_path=folded_pdb, model=if_model, alphabet=if_alphabet) for folded_pdb in folded_pdbs]
+    avg_encodings = [encoding.nanmean(-2) for encoding in encodings]
+    avg_encodings = torch.cat(avg_encodings, 0)
+    # encodings = get_gvp_encoding_batch(pdb_path=folded_pdbs, chain_id='A', model=if_model, alphabet=if_alphabet)  ## ** WEIRD BEHAVIOR WHERE IT FAILS TO PROPERLY ENCODE OFTEN :( 
     return encodings
 
 

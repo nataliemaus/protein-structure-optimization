@@ -93,7 +93,7 @@ def load_uniref_vae(
 def test_gvp():
     aa_seq = 'MEELLKKILEEVKKLEEELKKLEGLEPELKPLLEKLKEELEKLLEELEKLKEEGKEELPEELLEKLLEELEKLEEELEELLEELEELLEGLEELEELKELFEELKEKLEELKELLEELKEE'
     aa_seq2 = 'MEELLKKILEEVKKLEEELKKLLLEKLKEELEKLLEELEKLKEEGKEELPEELLEKLLEELEKLEEELEELLLLLEELEELLEGLEELEEL'
-    from oracle.fold import aa_seq_to_gvp_encoding, aa_seqs_list_to_gvp_encoding
+    from oracle.fold import aa_seq_to_gvp_encoding, aa_seqs_list_to_avg_gvp_encodings
     from uniref_vae.data import collate_fn 
     aa_seqs_list = [aa_seq, aa_seq2, aa_seq, aa_seq2]
 
@@ -105,12 +105,14 @@ def test_gvp():
     encoded_seqs = [dataobj.encode(seq).unsqueeze(0) for seq in tokenized_seqs]
     X = collate_fn(encoded_seqs)  # torch.Size([1, 122])
 
-    gvp_encodings = aa_seqs_list_to_gvp_encoding(aa_seqs_list, if_model=None, if_alphabet=None, fold_model=None)
+    avg_gvp_encodings = aa_seqs_list_to_avg_gvp_encodings(aa_seqs_list, if_model=None, if_alphabet=None, fold_model=None)
 
     # gvp_encoding = aa_seq_to_gvp_encoding(aa_seq, if_model=None, if_alphabet=None, fold_model=None)
     # print(gvp_encoding.shape) torch.Size([1, 123, 512]) 
-    avg_gvp_encoding = gvp_encodings.nanmean(-2) # torch.Size([1, 512])
-    dict = vae(X.cuda(), avg_gvp_encoding) # torch.Size([1, 122])
+
+    # avg_gvp_encoding = gvp_encodings.nanmean(-2) # torch.Size([1, 512])
+
+    dict = vae(X.cuda(), avg_gvp_encodings) # torch.Size([1, 122])
     vae_loss, z = dict['loss'], dict['z'] 
     # print(z.shape) = torch.Size([1, 2, 512]) 
     dim = 1024 # ?? 
@@ -122,7 +124,7 @@ def test_gvp():
     #     z = torch.from_numpy(z).float()
     z = z.cuda()
     # sample molecular string form VAE decoder
-    sample = vae.sample(1, z=z.reshape(-1, 2, dim//2), encodings=avg_gvp_encoding.cuda() ) 
+    sample = vae.sample(1, z=z.reshape(-1, 2, dim//2), encodings=avg_gvp_encodings.cuda() ) 
     decoded_seqs = [dataobj.decode(sample[i]) for i in range(sample.size(-2))]
 
     import pdb 
