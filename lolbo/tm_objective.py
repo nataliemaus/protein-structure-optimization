@@ -11,7 +11,7 @@ from transformers import EsmForProteinFolding
 from oracle.aa_seq_to_tm_score import aa_seq_to_tm_score
 import os 
 from uniref_vae.data import collate_fn
-from uniref_vae.load_uniref_vae import load_uniref_vae 
+from uniref_vae.load_uniref_vae import load_uniref_vae, load_gvp_vae 
 from oracle.fold import load_esm_if_model, aa_seqs_list_to_avg_gvp_encodings
 
 
@@ -136,7 +136,7 @@ class TMObjective(LatentSpaceObjective):
             sets self.dataobj to the corresponding data class 
             used to tokenize inputs, etc. '''
         if self.gvp_vae:
-            self.vae, self.dataobj = load_uniref_vae(
+            self.vae, self.dataobj = load_gvp_vae(
                 vae_tokens=self.vae_tokens,
                 vae_kmers_k=self.vae_kmers_k,
                 d_model=self.dim//2,
