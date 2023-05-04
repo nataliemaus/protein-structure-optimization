@@ -34,7 +34,6 @@ class DatasetKmers(Dataset): # asssuming train data
         # df = pd.read_csv(path_to_data ) 
         self.dataset = dataset
         self.k = k 
-
         if vocab is None or load_data:
             if data_path is None: 
                 # path_to_data = './datasets/seq_and_avg_encoding.pkl' 
