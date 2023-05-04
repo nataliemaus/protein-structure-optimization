@@ -152,11 +152,9 @@ def aa_seqs_list_to_avg_gvp_encodings(aa_seq_list, if_model=None, if_alphabet=No
     folded_pdbs = [fold_aa_seq(aa_seq, esm_model=fold_model) for aa_seq in aa_seq_list]
     encodings = [get_gvp_encoding(pdb_path=folded_pdb, model=if_model, alphabet=if_alphabet) for folded_pdb in folded_pdbs]
     avg_encodings = [encoding.nanmean(-2) for encoding in encodings]
-    import pdb 
-    pdb.set_trace() 
-    avg_encodings = torch.cat(avg_encodings, -1)
+    avg_encodings = torch.cat(avg_encodings, 0) 
     # encodings = get_gvp_encoding_batch(pdb_path=folded_pdbs, chain_id='A', model=if_model, alphabet=if_alphabet)  ## ** WEIRD BEHAVIOR WHERE IT FAILS TO PROPERLY ENCODE OFTEN :( 
-    return encodings
+    return avg_encodings
 
 
 def get_gvp_encoding_batch(pdb_path=[], chain_id='A', model=None, alphabet=None):
