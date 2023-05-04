@@ -170,9 +170,9 @@ def aa_seqs_list_to_avg_gvp_encodings(aa_seq_list, if_model=None, if_alphabet=No
 
 def get_gvp_encoding_batch(pdb_path=[], chain_id='A', model=None, alphabet=None, save_memory=True):
     if save_memory:
-        device = "cuda:0"
-    else:
         device = "cpu"
+    else:
+        device = "cuda:0"
     # This function is used to get the GVP encoding of a sequence
     if model is None:
         model, alphabet = esm.pretrained.esm_if1_gvp4_t16_142M_UR50()
