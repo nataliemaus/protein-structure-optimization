@@ -12,7 +12,7 @@ from oracle.aa_seq_to_tm_score import aa_seq_to_tm_score
 import os 
 from uniref_vae.data import collate_fn
 from uniref_vae.load_uniref_vae import load_uniref_vae 
-from oracle.fold import load_esm_if_model, aa_seqs_list_to_gvp_encoding 
+from oracle.fold import load_esm_if_model, aa_seqs_list_to_avg_gvp_encodings
 
 
 class TMObjective(LatentSpaceObjective):
@@ -165,14 +165,13 @@ class TMObjective(LatentSpaceObjective):
         X = collate_fn(encoded_seqs)
 
         if self.gvp_vae:
-            gvp_encoding = aa_seqs_list_to_gvp_encoding(
+            gvp_encoding = aa_seqs_list_to_avg_gvp_encodings(
                 aa_seqs_list=xs_batch, 
                 if_model=self.if_model, 
                 if_alphabet=self.if_alphabet, 
                 fold_model=self.esm_model,
             )
-            avg_gvp_encoding = gvp_encoding.nanmean(-2) # torch.Size([1, 512])
-            dict = self.vae(X.cuda(), avg_gvp_encoding) # torch.Size([1, 122])
+            dict = self.vae(X.cuda(), aa_seqs_list_to_avg_gvp_encodings) # torch.Size([1, 122])
         else:
             dict = self.vae(X.cuda())
         # FOR GVP: *** TypeError: forward() missing 1 required positional argument: 'encodings'
