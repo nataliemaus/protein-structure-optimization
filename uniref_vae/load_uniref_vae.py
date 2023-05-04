@@ -95,7 +95,7 @@ def test_gvp():
     aa_seq2 = 'MEELLKKILEEVKKLEEELKKLLLEKLKEELEKLLEELEKLKEEGKEELPEELLEKLLEELEKLEEELEELLLLLEELEELLEGLEELEEL'
     from oracle.fold import aa_seq_to_gvp_encoding, aa_seqs_list_to_gvp_encoding
     from uniref_vae.data import collate_fn 
-    aa_seqs_list = [aa_seq]
+    aa_seqs_list = [aa_seq, aa_seq2]
 
 
     vae, dataobj = load_gvp_vae() 
