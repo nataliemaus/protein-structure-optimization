@@ -170,12 +170,13 @@ class TMObjective(LatentSpaceObjective):
         X = collate_fn(encoded_seqs)
 
         if self.gvp_vae:
-            avg_gvp_encoding = aa_seqs_list_to_avg_gvp_encodings(
-                aa_seq_list=xs_batch, 
-                if_model=self.if_model, 
-                if_alphabet=self.if_alphabet, 
-                fold_model=self.esm_model,
-            )
+            with torch.no_grad():
+                avg_gvp_encoding = aa_seqs_list_to_avg_gvp_encodings(
+                    aa_seq_list=xs_batch, 
+                    if_model=self.if_model, 
+                    if_alphabet=self.if_alphabet, 
+                    fold_model=self.esm_model,
+                )
             dict = self.vae(X.cuda(), avg_gvp_encoding.cuda()) 
         else:
             dict = self.vae(X.cuda())
