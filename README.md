@@ -116,7 +116,7 @@ runai delete job test1
 
 # IF BASELINE! ... 
 CUDA_VISIBLE_DEVICES=0 
-python3 if_baseline.py --target_pdb_id sample228
+python3 if_baseline.py --target_pdb_id sample228 --save_freq 100000
 
 
 YIMENG SET w/ NEW UNIREF VAE MODEL, IF BASELINE
@@ -131,7 +131,7 @@ YIMENG SET w/ NEW UNIREF VAE MODEL, IF BASELINE
 # docker run --privileged --gpus all -it nmaus/fold2:latest
 
 # VIVANCE: -d to detach and run in background   -d  (before nmaus/fold2)
-docker run --privileged --gpus all -v /home/nmaus/protein-structure-optimization/:/workspace/protein-structure-optimization -w /workspace/protein-structure-optimization/lolbo_scripts -d nmaus/fold2:latest python3 tm_optimization.py --task_id tm --track_with_wandb True --wandb_entity nmaus --num_initialization_points 1000 --max_n_oracle_calls 5000000000000 --bsz 10 --dim 1024 --max_string_length 150 --vae_tokens uniref --target_pdb_id sample25 --cuda_device_number 3 --init_w_esmif True --gvp_vae True --vae_kl_factor 0.001 - run_lolbo - done 
+docker run --privileged --gpus all -v /home/nmaus/protein-structure-optimization/:/workspace/protein-structure-optimization -w /workspace/protein-structure-optimization/lolbo_scripts nmaus/fold2:latest python3 tm_optimization.py --task_id tm --track_with_wandb True --wandb_entity nmaus --num_initialization_points 1000 --max_n_oracle_calls 5000000000000 --bsz 10 --dim 1024 --max_string_length 150 --vae_tokens uniref --target_pdb_id sample25 --cuda_device_number 3 --init_w_esmif True --gvp_vae True --vae_kl_factor 0.001 - run_lolbo - done 
 
 
 # PRESTO: -d to detach and run in background   -d  (before nmaus/fold2)
@@ -141,27 +141,18 @@ docker run -v /home/nmaus/protein-structure-optimization/:/workspace/protein-str
 
 cd lolbo_scripts 
 
-CUDA_VISIBLE_DEVICES=4 python3 tm_optimization.py --task_id tm --track_with_wandb True --wandb_entity nmaus --num_initialization_points 1000 --max_n_oracle_calls 5000000000000 --bsz 10 --dim 1024 --max_string_length 150 --vae_tokens uniref --target_pdb_id sample575 --init_w_esmif True --gvp_vae True --vae_kl_factor 0.001 - run_lolbo - done 
+CUDA_VISIBLE_DEVICES=7 python3 tm_optimization.py --task_id tm --track_with_wandb True --wandb_entity nmaus --num_initialization_points 1000 --max_n_oracle_calls 5000000000000 --bsz 10 --dim 1024 --max_string_length 150 --vae_tokens uniref --target_pdb_id sample25 --init_w_esmif True --gvp_vae True --vae_kl_factor 0.001 - run_lolbo - done 
 
-YIMENG SET w/ NEW UNIREF VAE MODEL 
-25 GAUSS len34/102 X4     ALLEGROesmifinit X1   GAUSSesmifinit X4   PRESTOesmifinitGVP X1   VIVANCEesmifinitGVP X1 
-286 GAUSS len34/102 X5     ALLEGROesmifinit X1    GAUSSesmifinit X1 PRESTOesmifinitGVP X1     VIVANCEesmifinitGVP X0 
-575 GAUSS len44/132 X5    ALLEGROesmifinit X1     GAUSSesmifinit X1 PRESTOesmifinitGVP X1     VIVANCEesmifinitGVP X0
-587 GAUSS len35/105 X5    ALLEGROesmifinit X2     GAUSSesmifinit X1 
-359 LOCUST len34/102 X3   ALLEGROesmifinit X1     GAUSSesmifinit X4 PRESTOesmifinitGVP X1     VIVANCEesmifinitGVP X0
-455 LOCUST len40/120 X3   ALLEGROesmifinit X1     GAUSSesmifinit X1 
-228 LOCUST len41/126 X2   ALLEGROesmifinit X1     GAUSSesmifinit X4 PRESTOesmifinitGVP X1     VIVANCEesmifinitGVP X0 
 
-YIMENG SET (1k done)
-25 GAUSS IF0.70865 len34/102 uniref-X3 esm-X1
-286 GAUSS IF0.59618 len34/102 uniref-X3 esm-X0 
-575 GAUSS IF0.82061 len44/132 uniref-X3 esm-X3 
-587 GAUSS IF0.59744 len35/105 uniref-X3 esm-X3 
-359 LOCUST IF0.74537 len34/102 uniref-X2 esm-X2 
-455 LOCUST IF0.67958 len40/120 uniref-X0 esm-X2 
-228 LOCUST IF0.77884 len41/126 uniref-X0 esm-X2 
+YIMENG SET w/ NEW UNIREF VAE MODEL (esm if init only!)
+25 GAUSS len34/102 ALLEGRO X1  GAUSS X5 LOCUST-GVP X1 PRESTO-GVP X1  VIVANCE-GVP X1 
+286 GAUSS len34/102 ALLEGRO X1  GAUSS X1  PRESTO-GVP X1  VIVANCE-GVP X0 
+575 GAUSS len44/132 ALLEGRO X1  GAUSS X1  PRESTO-GVP X1  VIVANCE-GVP X0
+587 GAUSS len35/105 ALLEGRO X2  GAUSS X1 
+359 LOCUST len34/102 ALLEGRO X1 GAUSS X5  GAUSS-GVP X1  PRESTO-GVP X1  LOCUST-GVP X2
+455 LOCUST len40/120 ALLEGRO X1  GAUSS X1 
+228 LOCUST len41/126 ALLEGRO X1  GAUSS X5   GAUSS-GVP X3    PRESTO-GVP X1  VIVANCE-GVP X0 
 
-** LENGTH X 3 IF USING ESM TOKENS BC THEY AREN'T 3-MERS!!! 
 
 
 IF DOES VERY GOOD (0.95)

@@ -10,6 +10,8 @@ import esm
 import numpy as np 
 import argparse 
 import torch 
+import os 
+os.environ["CUDA_VISIBLE_DEVICES"]="3"
 
 
 def create_wandb_tracker(
@@ -86,7 +88,7 @@ def run_if_baseline(
             "n_oracle_calls":num_calls,
             "best_input_seen":best_seq,
         }) 
-        if steps % save_freq == 0:
+        if (steps % save_freq == 0) or (steps in [0, 10, 100, 1_000]):
             pd.DataFrame(np.array(scores)).to_csv(scores_filename, index=None, header=None) 
             pd.DataFrame(np.array(seqs)).to_csv(seqs_filename, index=None, header=None)
         steps += 1
@@ -99,7 +101,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser() 
     parser.add_argument('--max_n_oracle_calls', type=int, default=500_000_000 ) 
     parser.add_argument('--bsz', type=int, default=10 ) 
-    parser.add_argument('--save_freq', type=int, default=10 ) 
+    parser.add_argument('--save_freq', type=int, default=1_000_000_000 ) 
     parser.add_argument('--n_init', type=int, default=1_000 ) 
     parser.add_argument('--if_baseline', type=bool, default=True )
     parser.add_argument('--target_pdb_id', default="17_bp_sh3" ) 
