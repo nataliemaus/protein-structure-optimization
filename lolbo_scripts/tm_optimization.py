@@ -51,14 +51,14 @@ class TMOptimization(Optimize):
         self.data_v3_flag = data_v3_flag # inverse fold init data! 
         self.init_w_esmif = init_w_esmif # choose esmif or uniref 
         self.vae_kmers_k = vae_kmers_k
-        self.vae_kl_factor = vae_kl_factor
+        self.vae_kl_factor = vae_kl_factor 
         self.gvp_vae = gvp_vae
         self.gvp_vae_version_flag = gvp_vae_version_flag
         if cuda_device_number is not None:
             os.envirn["CUDA_VISIBLE_DEVICES"]=str(cuda_device_number)
         super().__init__(**kwargs) 
 
-        # add args to method args dict to be logged by wandb
+        # add args to method args dict to be logged by wandb 
         self.method_args['opt1'] = locals()
         del self.method_args['opt1']['self']
 
