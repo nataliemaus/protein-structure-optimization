@@ -131,7 +131,7 @@ YIMENG SET w/ NEW UNIREF VAE MODEL, IF BASELINE
 # docker run --privileged --gpus all -it nmaus/fold2:latest
 
 # VIVANCE: -d to detach and run in background   -d  (before nmaus/fold2)
-docker run --privileged --gpus "device=7" -v /home/nmaus/protein-structure-optimization/:/workspace/protein-structure-optimization -w /workspace/protein-structure-optimization/lolbo_scripts -d nmaus/fold2:latest python3 tm_optimization.py --task_id tm --track_with_wandb True --wandb_entity nmaus --num_initialization_points 1000 --max_n_oracle_calls 5000000000000 --bsz 10 --dim 1024 --max_string_length 150 --vae_tokens uniref --target_pdb_id sample25 --init_w_esmif True --gvp_vae True --vae_kl_factor 0.001 - run_lolbo - done 
+docker run --privileged --gpus all -v /home/nmaus/protein-structure-optimization/:/workspace/protein-structure-optimization -w /workspace/protein-structure-optimization/lolbo_scripts -d nmaus/fold2:latest python3 tm_optimization.py --task_id tm --track_with_wandb True --wandb_entity nmaus --num_initialization_points 1000 --max_n_oracle_calls 5000000000000 --bsz 10 --dim 1024 --max_string_length 150 --vae_tokens uniref --target_pdb_id sample25 --cuda_device_number 3 --init_w_esmif True --gvp_vae True --vae_kl_factor 0.001 - run_lolbo - done 
 
 
 # PRESTO: -d to detach and run in background   -d  (before nmaus/fold2)

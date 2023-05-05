@@ -55,7 +55,7 @@ class TMOptimization(Optimize):
         self.gvp_vae = gvp_vae
         self.gvp_vae_version_flag = gvp_vae_version_flag
         if cuda_device_number is not None:
-            os.envirn["CUDA_VISIBLE_DEVICES"]=str(cuda_device_number)
+            os.environ["CUDA_VISIBLE_DEVICES"]=str(cuda_device_number)
         super().__init__(**kwargs) 
 
         # add args to method args dict to be logged by wandb 
