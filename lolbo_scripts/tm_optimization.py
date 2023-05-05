@@ -6,6 +6,7 @@ from lolbo_scripts.optimize import Optimize
 from lolbo.tm_objective import TMObjective
 import math 
 import pandas as pd 
+import os 
 import torch 
 # from constants import (
 #     VAE_DIM_TO_STATE_DICT_PATH, 
@@ -38,6 +39,7 @@ class TMOptimization(Optimize):
         vae_kl_factor=0.0001,
         gvp_vae=False,
         gvp_vae_version_flag=1,
+        cuda_device_number=None,
         **kwargs
     ):
         self.dim = dim 
@@ -52,6 +54,8 @@ class TMOptimization(Optimize):
         self.vae_kl_factor = vae_kl_factor
         self.gvp_vae = gvp_vae
         self.gvp_vae_version_flag = gvp_vae_version_flag
+        if cuda_device_number is not None:
+            os.envirn["CUDA_VISIBLE_DEVICES"]=str(cuda_device_number)
         super().__init__(**kwargs) 
 
         # add args to method args dict to be logged by wandb

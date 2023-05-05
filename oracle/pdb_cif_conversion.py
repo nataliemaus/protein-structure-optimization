@@ -16,6 +16,7 @@ def convert_cif_to_pdb(pdb_file):
         pymol.cmd.load(pdb_file,'myprotein')
         pymol.cmd.save(pdb_file.replace('.cif', '.pdb'), selection='myprotein')
 
+
 if __name__ == "__main__":
     # conda activate pymol 
     # 170_44

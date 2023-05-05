@@ -128,24 +128,29 @@ YIMENG SET w/ NEW UNIREF VAE MODEL, IF BASELINE
 455 LOCUST if baseline X1 
 228 LOCUST if baseline X1 
 
+# docker run --privileged --gpus all -it nmaus/fold2:latest
+
+# VIVANCE: -d to detach and run in background   -d  (before nmaus/fold2)
+docker run --privileged --gpus "device=7" -v /home/nmaus/protein-structure-optimization/:/workspace/protein-structure-optimization -w /workspace/protein-structure-optimization/lolbo_scripts -d nmaus/fold2:latest python3 tm_optimization.py --task_id tm --track_with_wandb True --wandb_entity nmaus --num_initialization_points 1000 --max_n_oracle_calls 5000000000000 --bsz 10 --dim 1024 --max_string_length 150 --vae_tokens uniref --target_pdb_id sample25 --init_w_esmif True --gvp_vae True --vae_kl_factor 0.001 - run_lolbo - done 
+
 
 # PRESTO: -d to detach and run in background   -d  (before nmaus/fold2)
-docker run -v /home/nmaus/protein-structure-optimization/:/workspace/protein-structure-optimization -w /workspace/protein-structure-optimization/lolbo_scripts --gpus "device=1" nmaus/fold2 python3 tm_optimization.py --task_id tm --track_with_wandb True --wandb_entity nmaus --num_initialization_points 1000 --max_n_oracle_calls 5000000000000 --bsz 10 --dim 1024 --max_string_length 150 --vae_tokens uniref --target_pdb_id sample25 --init_w_esmif True --gvp_vae True --vae_kl_factor 0.001 - run_lolbo - done 
+docker run -v /home/nmaus/protein-structure-optimization/:/workspace/protein-structure-optimization -w /workspace/protein-structure-optimization/lolbo_scripts --gpus all nmaus/fold2 python3 tm_optimization.py --task_id tm --track_with_wandb True --wandb_entity nmaus --num_initialization_points 1000 --max_n_oracle_calls 5000000000000 --bsz 10 --dim 1024 --max_string_length 150 --vae_tokens uniref --target_pdb_id sample575 --init_w_esmif True --gvp_vae True --vae_kl_factor 0.001 - run_lolbo - done 
 
 # LOLBO OPTIMIZE TM... : 
 
 cd lolbo_scripts 
 
-CUDA_VISIBLE_DEVICES=4 python3 tm_optimization.py --task_id tm --track_with_wandb True --wandb_entity nmaus --num_initialization_points 1000 --max_n_oracle_calls 5000000000000 --bsz 10 --dim 1024 --max_string_length 150 --vae_tokens uniref --target_pdb_id sample25 --init_w_esmif True --gvp_vae True --vae_kl_factor 0.001 - run_lolbo - done 
+CUDA_VISIBLE_DEVICES=4 python3 tm_optimization.py --task_id tm --track_with_wandb True --wandb_entity nmaus --num_initialization_points 1000 --max_n_oracle_calls 5000000000000 --bsz 10 --dim 1024 --max_string_length 150 --vae_tokens uniref --target_pdb_id sample575 --init_w_esmif True --gvp_vae True --vae_kl_factor 0.001 - run_lolbo - done 
 
 YIMENG SET w/ NEW UNIREF VAE MODEL 
-25 GAUSS len34/102 X4     ALLEGROesmifinit X1   GAUSSesmifinit X4 PRESTOesmifinitGVP X0   VIVANCEesmifinitGVP X0
-286 GAUSS len34/102 X5     ALLEGROesmifinit X1    GAUSSesmifinit X1 PRESTOesmifinitGVP X0     VIVANCEesmifinitGVP X0 
-575 GAUSS len44/132 X5    ALLEGROesmifinit X1     GAUSSesmifinit X1 PRESTOesmifinitGVP X0     VIVANCEesmifinitGVP X0
-587 GAUSS len35/105 X5    ALLEGROesmifinit X2     GAUSSesmifinit X1 PRESTOesmifinitGVP X0     VIVANCEesmifinitGVP X0
-359 LOCUST len34/102 X3   ALLEGROesmifinit X1     GAUSSesmifinit X4 PRESTOesmifinitGVP X0     VIVANCEesmifinitGVP X0
-455 LOCUST len40/120 X3   ALLEGROesmifinit X1     GAUSSesmifinit X1 PRESTOesmifinitGVP X0     VIVANCEesmifinitGVP X0
-228 LOCUST len41/126 X2   ALLEGROesmifinit X1     GAUSSesmifinit X4 PRESTOesmifinitGVP X0     VIVANCEesmifinitGVP X0
+25 GAUSS len34/102 X4     ALLEGROesmifinit X1   GAUSSesmifinit X4   PRESTOesmifinitGVP X1   VIVANCEesmifinitGVP X1 
+286 GAUSS len34/102 X5     ALLEGROesmifinit X1    GAUSSesmifinit X1 PRESTOesmifinitGVP X1     VIVANCEesmifinitGVP X0 
+575 GAUSS len44/132 X5    ALLEGROesmifinit X1     GAUSSesmifinit X1 PRESTOesmifinitGVP X1     VIVANCEesmifinitGVP X0
+587 GAUSS len35/105 X5    ALLEGROesmifinit X2     GAUSSesmifinit X1 
+359 LOCUST len34/102 X3   ALLEGROesmifinit X1     GAUSSesmifinit X4 PRESTOesmifinitGVP X1     VIVANCEesmifinitGVP X0
+455 LOCUST len40/120 X3   ALLEGROesmifinit X1     GAUSSesmifinit X1 
+228 LOCUST len41/126 X2   ALLEGROesmifinit X1     GAUSSesmifinit X4 PRESTOesmifinitGVP X1     VIVANCEesmifinitGVP X0 
 
 YIMENG SET (1k done)
 25 GAUSS IF0.70865 len34/102 uniref-X3 esm-X1
