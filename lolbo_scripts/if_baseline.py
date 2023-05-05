@@ -11,7 +11,7 @@ import numpy as np
 import argparse 
 import torch 
 import os 
-os.environ["CUDA_VISIBLE_DEVICES"]="3"
+os.environ["CUDA_VISIBLE_DEVICES"]="5"
 
 
 def create_wandb_tracker(
