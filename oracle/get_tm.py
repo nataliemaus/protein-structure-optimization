@@ -15,7 +15,7 @@ def cal_tm_score(folded_pdb, target_pdb):
         tm_score2 = float(tm_score_matches[1])
         tm_score = min(tm_score1, tm_score2)
     else:
-        print("TM-score not found, there might be an error with the pdb file.")
+        # print("TM-score not found, there might be an error with the pdb file.")
         tm_score = np.nan 
 
     # if tm_score_match:
@@ -39,7 +39,7 @@ def cal_tm_score_and_normalized_rmsd(folded_pdb, target_pdb):
     if rmsd_matches:
         rmsd = float(rmsd_matches[0])
     else:
-        print("RMSD not found, there might be an error with the pdb file.")
+        # print("RMSD not found, there might be an error with the pdb file.")
         rmsd = np.nan
     
     # Extract the TM-score value using regular expressions
@@ -50,7 +50,7 @@ def cal_tm_score_and_normalized_rmsd(folded_pdb, target_pdb):
         tm_score2 = float(tm_score_matches[1])
         tm_score = min(tm_score1, tm_score2)
     else:
-        print("TM-score not found, there might be an error with the pdb file.")
+        # print("TM-score not found, there might be an error with the pdb file.")
         tm_score = np.nan
     return tm_score, rmsd
 

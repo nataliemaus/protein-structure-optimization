@@ -154,12 +154,18 @@ YIMENG SET w/ NEW UNIREF VAE MODEL (esm if init only!)
 228 LOCUST len41/126 ALLEGRO X1  GAUSS X5 PRESTO-GVP X1 VIVANCE-GVP X2 
 
 
-# python3 if_baseline.py --target_pdb_id sample359 
-253  running Vivance GPU 5 XXX   GAUSS GPU5! 
-494  running Vivance GPU 7 XXX   GAUSS 
+# python3 if_baseline.py --target_pdb_id sample337 
+253  
+494  GAUSS XXX 0.98 
 129  GAUSS 
 25  GAUSS 
 359 GAUSS 
+337
+215
+664
+668
+611
+375
 
 
 
