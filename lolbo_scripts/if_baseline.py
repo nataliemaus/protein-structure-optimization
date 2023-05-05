@@ -57,6 +57,8 @@ def run_if_baseline(
         sampled_seq = if_model.sample(coords, temperature=1) 
         seqs.append(sampled_seq)
         score = objective.query_oracle([sampled_seq])[0]
+        if np.isnan(score):
+            score = -1 
         scores.append(score) 
 
     best_idx = np.argmax(np.array(scores))
@@ -72,7 +74,13 @@ def run_if_baseline(
             seqs_batch.append(sampled_seq)
 
         scores_batch = objective.query_oracle(seqs_batch)
-        num_calls += len(scores_batch)
+
+        # catch nans and replace with -1 ... 
+        scores_batch = np.array(scores_batch)
+        scores_batch[np.isnan(scores_batch)] = -1 # replace nan w/ -1 
+        scores_batch = scores_batch.tolist() 
+
+        num_calls += len(scores_batch) 
         seqs = seqs + seqs_batch 
         scores = scores + scores_batch 
         best_idx_in_batch = np.argmax(np.array(scores_batch))

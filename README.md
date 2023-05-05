@@ -17,6 +17,9 @@ docker run -v /home/nmaus/protein-structure-optimization/:/workspace/protein-str
 
 docker run -v /home/nmaus/protein-structure-optimization/:/workspace/protein-structure-optimization --gpus "device=1" -it nmaus/fold2 
 
+# VIVANCE
+docker run --privileged --gpus all -v /home/nmaus/protein-structure-optimization/:/workspace/protein-structure-optimization -w /workspace/protein-structure-optimization/lolbo_scripts -it nmaus/fold2:latest 
+
 # PRESTO
 docker run -v /home/nmaus/protein-structure-optimization/:/workspace/protein-structure-optimization -w /workspace/protein-structure-optimization/lolbo_scripts --gpus "device=0" -it nmaus/fold2 
 
@@ -130,11 +133,6 @@ YIMENG SET w/ NEW UNIREF VAE MODEL, IF BASELINE
 
 # docker run --privileged --gpus all -it nmaus/fold2:latest
 
-# VIVANCE: -d to detach and run in background   -d  (before nmaus/fold2)
-docker run --privileged --gpus all -v /home/nmaus/protein-structure-optimization/:/workspace/protein-structure-optimization -w /workspace/protein-structure-optimization/lolbo_scripts nmaus/fold2:latest python3 tm_optimization.py --task_id tm --track_with_wandb True --wandb_entity nmaus --num_initialization_points 1000 --max_n_oracle_calls 5000000000000 --bsz 10 --dim 1024 --max_string_length 150 --vae_tokens uniref --target_pdb_id sample25 --cuda_device_number 3 --init_w_esmif True --gvp_vae True --vae_kl_factor 0.001 - run_lolbo - done 
-
-docker run --privileged --gpus all -v /home/nmaus/protein-structure-optimization/:/workspace/protein-structure-optimization -w /workspace/protein-structure-optimization/lolbo_scripts -d nmaus/fold2:latest python3 if_baseline.py --target_pdb_id sample129 
-
 
 # PRESTO: -d to detach and run in background   -d  (before nmaus/fold2)
 docker run -v /home/nmaus/protein-structure-optimization/:/workspace/protein-structure-optimization -w /workspace/protein-structure-optimization/lolbo_scripts --gpus all nmaus/fold2 python3 tm_optimization.py --task_id tm --track_with_wandb True --wandb_entity nmaus --num_initialization_points 1000 --max_n_oracle_calls 5000000000000 --bsz 10 --dim 1024 --max_string_length 150 --vae_tokens uniref --target_pdb_id sample575 --init_w_esmif True --gvp_vae True --vae_kl_factor 0.001 - run_lolbo - done 
@@ -143,7 +141,7 @@ docker run -v /home/nmaus/protein-structure-optimization/:/workspace/protein-str
 
 cd lolbo_scripts 
 
-CUDA_VISIBLE_DEVICES=7 python3 tm_optimization.py --task_id tm --track_with_wandb True --wandb_entity nmaus --num_initialization_points 1000 --max_n_oracle_calls 5000000000000 --bsz 10 --dim 1024 --max_string_length 150 --vae_tokens uniref --target_pdb_id sample25 --init_w_esmif True --gvp_vae True --vae_kl_factor 0.001 - run_lolbo - done 
+CUDA_VISIBLE_DEVICES=7 python3 tm_optimization.py --task_id tm --track_with_wandb True --wandb_entity nmaus --num_initialization_points 1000 --max_n_oracle_calls 5000000000000 --bsz 10 --dim 1024 --max_string_length 150 --vae_tokens uniref --target_pdb_id sample228 --init_w_esmif True --gvp_vae True --vae_kl_factor 0.001 - run_lolbo - done 
 
 
 YIMENG SET w/ NEW UNIREF VAE MODEL (esm if init only!)
@@ -151,9 +149,9 @@ YIMENG SET w/ NEW UNIREF VAE MODEL (esm if init only!)
 286 GAUSS len34/102 ALLEGRO X1  GAUSS X1  PRESTO-GVP X1  VIVANCE-GVP X0 
 575 GAUSS len44/132 ALLEGRO X1  GAUSS X1  PRESTO-GVP X1  VIVANCE-GVP X0
 587 GAUSS len35/105 ALLEGRO X2  GAUSS X1 
-359 LOCUST len34/102 ALLEGRO X1 GAUSS X5  GAUSS-GVP X1  PRESTO-GVP X1  LOCUST-GVP X2
+359 LOCUST len34/102 ALLEGRO X1 GAUSS X5  PRESTO-GVP X1  LOCUST-GVP X2 VIVANCE-GVP X1
 455 LOCUST len40/120 ALLEGRO X1  GAUSS X1 
-228 LOCUST len41/126 ALLEGRO X1  GAUSS X5   GAUSS-GVP X3    PRESTO-GVP X1  VIVANCE-GVP X0 
+228 LOCUST len41/126 ALLEGRO X1  GAUSS X5 PRESTO-GVP X1 VIVANCE-GVP X2 
 
 
 # python3 if_baseline.py --target_pdb_id sample359 
