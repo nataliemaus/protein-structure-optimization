@@ -164,7 +164,7 @@ def aa_seqs_list_to_avg_gvp_encodings(aa_seq_list, if_model=None, if_alphabet=No
             chain_id='A', 
             model=if_model, 
             alphabet=if_alphabet, 
-            save_memory=True # set to true to forward through GVP on cpu 
+            save_memory=False # set to true to forward through GVP on cpu 
         )  
         avg_encodings = encodings.nanmean(-2)
     return avg_encodings 

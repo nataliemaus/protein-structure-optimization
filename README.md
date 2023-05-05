@@ -133,7 +133,6 @@ YIMENG SET w/ NEW UNIREF VAE MODEL, IF BASELINE
 
 # docker run --privileged --gpus all -it nmaus/fold2:latest
 
-
 # PRESTO: -d to detach and run in background   -d  (before nmaus/fold2)
 docker run -v /home/nmaus/protein-structure-optimization/:/workspace/protein-structure-optimization -w /workspace/protein-structure-optimization/lolbo_scripts --gpus all nmaus/fold2 python3 tm_optimization.py --task_id tm --track_with_wandb True --wandb_entity nmaus --num_initialization_points 1000 --max_n_oracle_calls 5000000000000 --bsz 10 --dim 1024 --max_string_length 150 --vae_tokens uniref --target_pdb_id sample575 --init_w_esmif True --gvp_vae True --vae_kl_factor 0.001 - run_lolbo - done 
 
@@ -154,15 +153,14 @@ YIMENG SET w/ NEW UNIREF VAE MODEL (esm if init only!)
 228 LOCUST len41/126 ALLEGRO X1  GAUSS X5 PRESTO-GVP X1 VIVANCE-GVP X2 
 
 
-# python3 if_baseline.py --target_pdb_id sample337 
-253  
+# python3 if_baseline.py --target_pdb_id sample664 
 494  GAUSS XXX 0.98 
-129  GAUSS 
+129  GAUSS XXX 0.98 
 25  GAUSS 
 359 GAUSS 
-337
-215
-664
+337 GAUSS
+215 GAUSS 
+664 GAUSS 
 668
 611
 375
