@@ -154,7 +154,7 @@ YIMENG SET w/ NEW UNIREF VAE MODEL (esm if init only!)
 228 LOCUST len41/126 ALLEGRO X1  GAUSS X5 PRESTO-GVP X1 VIVANCE-GVP X3 (GPU2 == GVP ON GPU) 
 
 
-# python3 if_baseline.py --target_pdb_id sample101 
+# CUDA_VISIBLE_DEVICES=3 python3 if_baseline.py --target_pdb_id sample615
 yimeng latest if baselines... 
 494  GAUSS XXX 0.98 
 129  GAUSS XXX 0.98 
@@ -168,7 +168,7 @@ yimeng latest if baselines...
 375 GAUSS 
 117 GAUSS 
 101 GAUSS 
-615 VIVANCE
+615 VIVANCE 
 
 
 IF DOES VERY GOOD (0.95)

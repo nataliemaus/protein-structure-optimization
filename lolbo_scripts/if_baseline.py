@@ -63,11 +63,21 @@ def run_if_baseline(
     # import pdb 
     # pdb.set_trace()  
 
+    try: 
+        coords = coords.cuda() 
+    except:
+        import pdb 
+        pdb.set_trace() 
+
     # get n_init seqs and scores 
     seqs = []
     scores = []
     for _ in range(n_init):
-        sampled_seq = if_model.sample(coords, temperature=1) 
+        try:
+            sampled_seq = if_model.sample(coords, temperature=1) 
+        except:
+            import pdb 
+            pdb.set_trace() 
         seqs.append(sampled_seq)
         score = objective.query_oracle([sampled_seq])[0]
         if np.isnan(score):
