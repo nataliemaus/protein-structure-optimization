@@ -170,6 +170,7 @@ def aa_seqs_list_to_avg_gvp_encodings(aa_seq_list, if_model=None, if_alphabet=No
     return avg_encodings 
 
 
+
 def get_gvp_encoding_batch(pdb_path=[], chain_id='A', model=None, alphabet=None, save_memory=True):
     with torch.no_grad():
         if save_memory:

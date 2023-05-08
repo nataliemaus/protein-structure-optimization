@@ -38,7 +38,7 @@ class TMOptimization(Optimize):
         vae_kmers_k=1,
         vae_kl_factor=0.0001,
         gvp_vae=False,
-        gvp_vae_version_flag=1,
+        gvp_vae_version_flag=2,
         cuda_device_number=None,
         **kwargs
     ):

@@ -12,7 +12,7 @@ from oracle.aa_seq_to_tm_score import aa_seq_to_tm_score
 import os 
 from uniref_vae.data import collate_fn
 from uniref_vae.load_uniref_vae import load_uniref_vae, load_gvp_vae 
-from oracle.fold import load_esm_if_model, aa_seqs_list_to_avg_gvp_encodings
+from oracle.fold import load_esm_if_model, aa_seqs_list_to_avg_gvp_encodings, get_gvp_encoding
 
 
 class TMObjective(LatentSpaceObjective):
@@ -32,7 +32,7 @@ class TMObjective(LatentSpaceObjective):
         vae_kmers_k=1,
         vae_kl_factor=0.0001,
         gvp_vae=False,
-        gvp_vae_version_flag=1,
+        gvp_vae_version_flag=2,
     ):
         self.vae_tokens             = vae_tokens 
         assert vae_tokens in ["esm", "uniref"] 
@@ -57,7 +57,11 @@ class TMObjective(LatentSpaceObjective):
         self.esm_model = self.esm_model.cuda() 
 
         if self.gvp_vae:
-            self.if_model, self.if_alphabet = load_esm_if_model()
+            # self.if_model, self.if_alphabet = load_esm_if_model() # v1... 
+            target_gvp_encoding = get_gvp_encoding(self.target_pdb_path, chain_id='A', model=None, alphabet=None)
+            self.avg_target_gvp_encoding = target_gvp_encoding.nanmean(-2)
+            self.avg_target_gvp_encoding = self.avg_target_gvp_encoding.cuda()
+            # V2: just get GVP embedding for target (that's it)
 
         super().__init__(
             num_calls=num_calls,
@@ -78,10 +82,6 @@ class TMObjective(LatentSpaceObjective):
         z = z.cuda()
         self.vae = self.vae.eval()
         self.vae = self.vae.cuda()
-        # sample molecular string form VAE decoder
-        # if self.gvp_vae:
-        #     sample = self.vae.sample(1, z=z.reshape(-1, 2, self.dim//2), encodings=avg_gvp_encoding.cuda() ) 
-        # else:
         sample = self.vae.sample(z=z.reshape(-1, 2, self.dim//2))
         # grab decoded aa strings
         decoded_seqs = [self.dataobj.decode(sample[i]) for i in range(sample.size(-2))]
@@ -169,14 +169,16 @@ class TMObjective(LatentSpaceObjective):
         X = collate_fn(encoded_seqs)
 
         if self.gvp_vae:
-            with torch.no_grad():
-                avg_gvp_encoding = aa_seqs_list_to_avg_gvp_encodings(
-                    aa_seq_list=xs_batch, 
-                    if_model=self.if_model, 
-                    if_alphabet=self.if_alphabet, 
-                    fold_model=self.esm_model,
-                )
-            dict = self.vae(X.cuda(), avg_gvp_encoding.cuda()) 
+            # with torch.no_grad(): # V1... 
+            #     avg_gvp_encoding = aa_seqs_list_to_avg_gvp_encodings(
+            #         aa_seq_list=xs_batch, 
+            #         if_model=self.if_model, 
+            #         if_alphabet=self.if_alphabet, 
+            #         fold_model=self.esm_model,
+            #     )
+            import pdb 
+            pdb.set_trace() 
+            dict = self.vae(X.cuda(), self.avg_target_gvp_encoding.repeat(X.shape[0], 1)) 
         else:
             dict = self.vae(X.cuda())
         # FOR GVP: *** TypeError: forward() missing 1 required positional argument: 'encodings'

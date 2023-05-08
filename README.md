@@ -25,6 +25,9 @@ docker run -v /home/nmaus/protein-structure-optimization/:/workspace/protein-str
 
 docker run -v /home/nmaus/protein-structure-optimization/:/workspace/protein-structure-optimization -w /workspace/protein-structure-optimization/lolbo_scripts --gpus "device=0" -d nmaus/fold2 COMMAND
 
+# ggauss
+runai submit lolbo-opt1 -v /shared_data0/protein-structure-optimization/:/workspace/protein-structure-optimization/ --working-dir /workspace/protein-structure-optimization/lolbo_scripts -i nmaus/fold2:latest -g 1 --interactive --attach 
+
 
 
 
@@ -154,10 +157,11 @@ YIMENG SET w/ NEW UNIREF VAE MODEL (esm if init only!)
 228 LOCUST len41/126 ALLEGRO X1  GAUSS X5 PRESTO-GVP X1 VIVANCE-GVP X3 (GPU2 == GVP ON GPU) 
 
 
-# CUDA_VISIBLE_DEVICES=4 python3 if_baseline.py --target_pdb_id sample280
+# CUDA_VISIBLE_DEVICES=0 
+# python3 if_baseline.py --target_pdb_id sample479  
 yimeng latest if baselines... 
-494  GAUSS XXX 0.98 
-129  GAUSS XXX 0.98 
+494  GAUSS
+129  GAUSS 
 25  GAUSS 
 359 GAUSS 
 337 GAUSS
@@ -167,13 +171,21 @@ yimeng latest if baselines...
 611 GAUSS 
 375 GAUSS 
 117 GAUSS 
-101 GAUSS 
+575 GAUSS 
+386 GAUSS 
+583 GAUSS 
+363 GAUSS 
+458 GAUSS 
+1104 GAUSS 
+3106 GAUSS 
+479 GAUSS 
 615 VIVANCE 
 582 VIVANCE 
 459 VIVANCE 
 199 VIVANCE 
 41 VIVANCE 
 280 VIVANCE 
+
 
 
 
