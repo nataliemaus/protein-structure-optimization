@@ -11,6 +11,7 @@ import numpy as np
 import argparse 
 import torch 
 import os 
+import glob 
 # os.environ["CUDA_VISIBLE_DEVICES"]="7"
 
 
@@ -28,6 +29,48 @@ def create_wandb_tracker(
 
     
 # self.wandb_project_name = f"optimimze-{self.task_id}"
+
+def load_existing_esmif_data(
+    target_pdb_id, 
+):
+    ''' Loads data from inverse fold baseline seqs 
+    '''
+    scores_filename_ = f"../data/if_baseline_tmscores_{target_pdb_id}_*.csv"
+    possible_score_filenames = glob.glob(scores_filename_)
+
+    if len(possible_score_filenames) == 0: # if none computed yet 
+        return [], []
+
+    train_xs = []
+    train_ys = []
+    for filename_scores in possible_score_filenames:
+        df_scores = pd.read_csv(filename_scores, header=None)
+        train_ys = train_ys + df_scores.values.squeeze().tolist() 
+        wandb_run_name = filename_scores.split("/")[-1].split("_")[-1].split(".")[0]
+        filename_seqs = f"../data/if_baseline_seqs_{target_pdb_id}_{wandb_run_name}.csv"
+        df = pd.read_csv(filename_seqs, header=None)
+        train_xs = train_xs + df.values.squeeze().tolist() 
+    
+    # remove mask, etc. tokens occasionally output by ESM IF  
+    train_xs = [x.replace("<mask>", "X") for x in train_xs]
+    train_xs = [x.replace("<cls>", "X") for x in train_xs]
+    train_xs = [x.replace("<sep>", "X") for x in train_xs]
+    train_xs = [x.replace("<pad>", "X") for x in train_xs]
+    train_xs = [x.replace("<eos>", "X") for x in train_xs] 
+
+    # filter out nan scores... 
+    train_xs = np.array(train_xs)
+    train_ys = np.array(train_ys)
+    bool_arr = np.logical_not(np.isnan(train_ys))
+    train_xs = train_xs[bool_arr]
+    train_ys = train_ys[bool_arr]
+
+    seqs = train_xs.tolist() 
+    scores = train_ys.tolist() 
+    
+     
+    return seqs, scores 
+
 
 @torch.no_grad()
 def run_if_baseline(
@@ -53,44 +96,30 @@ def run_if_baseline(
     pdb_path = f"../oracle/target_cif_files/{target_pdb_id}.cif" 
     structure = esm.inverse_folding.util.load_structure(pdb_path, "A")
     coords, _ = esm.inverse_folding.util.extract_coords_from_structure(structure)
-    # if_model = if_model.cuda() 
-
-    
-    # try:
-    #     seqs = if_model.sample(coords, temperature=1, num_seqs=10)
-    #           num_seqs is an unrecognized argument... 
-    #     scores = objective.query_oracle(seqs)
-    # except:
-    #     import pdb 
-    #     pdb.set_trace()  
-    
-    # print('SUCCESS!!!')
-    # import pdb 
-    # pdb.set_trace()  
-
-    # try: 
-    #     coords2 = torch.from_numpy(coords).cuda() 
-    # except:
-    #     import pdb 
-    #     pdb.set_trace() 
 
     # get n_init seqs and scores 
-    seqs = []
-    scores = []
-    for _ in range(n_init):
-        sampled_seq = if_model.sample(coords, temperature=1, device=device) 
-        seqs.append(sampled_seq)
-        score = objective.query_oracle([sampled_seq])[0]
-        if np.isnan(score):
-            score = -1 
-        scores.append(score) 
+    seqs, scores = load_existing_esmif_data(target_pdb_id)
+    # seqs = []
+    # scores = []
+    n_precomputed = len(scores)
+    if n_precomputed < n_init:
+        for _ in range(n_init - n_precomputed):
+            sampled_seq = if_model.sample(coords, temperature=1, device=device) 
+            seqs.append(sampled_seq)
+            score = objective.query_oracle([sampled_seq])[0]
+            if np.isnan(score):
+                score = -1 
+            scores.append(score) 
 
     best_idx = np.argmax(np.array(scores))
     best_score = scores[best_idx]
     best_seq = seqs[best_idx] 
 
     steps = 0 
-    num_calls = 0
+    if n_precomputed > n_init:
+        num_calls = n_precomputed - n_init # might start at higher num calls (continue prev runs...)
+    else:
+        num_calls = 0 
     while num_calls < max_n_oracle_calls:
         seqs_batch = []
         for _ in range(bsz):

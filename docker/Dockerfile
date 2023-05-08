@@ -46,6 +46,8 @@ RUN pip install torch-spline-conv
 RUN pip install torch-geometric
 
 # RUN pip uninstall fair-esm
+# RUN pip install git+https://github.com/facebookresearch/esm.git
+# CUDA_VISIBLE_DEVICES=5 python3 if_baseline.py --target_pdb_id sample615
 
 RUN pip install biotite
 RUN pip install gpytorch 
