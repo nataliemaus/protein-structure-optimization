@@ -120,9 +120,9 @@ def run_if_baseline(
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser() 
-    parser.add_argument('--max_n_oracle_calls', type=int, default=500_000_000 ) 
+    parser.add_argument('--max_n_oracle_calls', type=int, default=150_000 ) 
     parser.add_argument('--bsz', type=int, default=10 ) 
-    parser.add_argument('--save_freq', type=int, default=1_000_000_000 ) 
+    parser.add_argument('--save_freq', type=int, default=1_000_000_000_000 ) 
     parser.add_argument('--n_init', type=int, default=1_000 ) 
     parser.add_argument('--if_baseline', type=bool, default=True )
     parser.add_argument('--target_pdb_id', default="17_bp_sh3" ) 
