@@ -50,25 +50,24 @@ def run_if_baseline(
     pdb_path = f"../oracle/target_cif_files/{target_pdb_id}.cif" 
     structure = esm.inverse_folding.util.load_structure(pdb_path, "A")
     coords, _ = esm.inverse_folding.util.extract_coords_from_structure(structure)
-
-
+    if_model = if_model.cuda() 
     
-    try:
-        seqs = if_model.sample(coords, temperature=1, num_seqs=n_init)
-        scores = objective.query_oracle(seqs)
-    except:
-        import pdb 
-        pdb.set_trace()  
+    # try:
+    #     seqs = if_model.sample(coords, temperature=1, num_seqs=n_init)
+    #     scores = objective.query_oracle(seqs)
+    # except:
+    #     import pdb 
+    #     pdb.set_trace()  
     
-    print('SUCCESS!!!')
-    import pdb 
-    pdb.set_trace()  
+    # print('SUCCESS!!!')
+    # import pdb 
+    # pdb.set_trace()  
 
     # get n_init seqs and scores 
     seqs = []
     scores = []
     for _ in range(n_init):
-        sampled_seq = if_model.sample(coords, temperature=1) 
+        sampled_seq = if_model.sample(coords, temperature=1, device="cuda:0") 
         seqs.append(sampled_seq)
         score = objective.query_oracle([sampled_seq])[0]
         if np.isnan(score):
@@ -84,7 +83,7 @@ def run_if_baseline(
     while num_calls < max_n_oracle_calls:
         seqs_batch = []
         for _ in range(bsz):
-            sampled_seq = if_model.sample(coords, temperature=1) 
+            sampled_seq = if_model.sample(coords, temperature=1, device="cuda:0") 
             seqs_batch.append(sampled_seq)
 
         scores_batch = objective.query_oracle(seqs_batch)

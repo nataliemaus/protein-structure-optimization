@@ -155,6 +155,7 @@ YIMENG SET w/ NEW UNIREF VAE MODEL (esm if init only!)
 
 
 # python3 if_baseline.py --target_pdb_id sample101 
+yimeng latest if baselines... 
 494  GAUSS XXX 0.98 
 129  GAUSS XXX 0.98 
 25  GAUSS 
@@ -167,7 +168,7 @@ YIMENG SET w/ NEW UNIREF VAE MODEL (esm if init only!)
 375 GAUSS 
 117 GAUSS 
 101 GAUSS 
-
+615 VIVANCE
 
 
 IF DOES VERY GOOD (0.95)
