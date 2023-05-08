@@ -140,20 +140,21 @@ docker run -v /home/nmaus/protein-structure-optimization/:/workspace/protein-str
 
 cd lolbo_scripts 
 
-CUDA_VISIBLE_DEVICES=7 python3 tm_optimization.py --task_id tm --track_with_wandb True --wandb_entity nmaus --num_initialization_points 1000 --max_n_oracle_calls 5000000000000 --bsz 10 --dim 1024 --max_string_length 150 --vae_tokens uniref --target_pdb_id sample228 --init_w_esmif True --gvp_vae True --vae_kl_factor 0.001 - run_lolbo - done 
+CUDA_VISIBLE_DEVICES=7 python3 tm_optimization.py --task_id tm --track_with_wandb True --wandb_entity nmaus --num_initialization_points 1000 --max_n_oracle_calls 150000 --bsz 10 --dim 1024 --max_string_length 150 --vae_tokens uniref --init_w_esmif True --target_pdb_id sample575 - run_lolbo - done 
 
+--gvp_vae True --vae_kl_factor 0.001 
 
 YIMENG SET w/ NEW UNIREF VAE MODEL (esm if init only!)
-25 GAUSS len34/102 ALLEGRO X1  GAUSS X5 LOCUST-GVP X1 PRESTO-GVP X1  VIVANCE-GVP X1 
-286 GAUSS len34/102 ALLEGRO X1  GAUSS X1  PRESTO-GVP X1  VIVANCE-GVP X0 
-575 GAUSS len44/132 ALLEGRO X1  GAUSS X1  PRESTO-GVP X1  VIVANCE-GVP X0
-587 GAUSS len35/105 ALLEGRO X2  GAUSS X1 
+25 GAUSS len34/102 ALLEGRO X1  GAUSS X5   LOCUST-GVP X1 PRESTO-GVP X1  VIVANCE-GVP X1 
+286 GAUSS len34/102 ALLEGRO X1  GAUSS X1  LOCUST X3 PRESTO-GVP X1  VIVANCE-GVP X0 
+575 GAUSS len44/132 ALLEGRO X1  GAUSS X1  LOCUST X1 PRESTO-GVP X1  VIVANCE-GVP X0
+587 GAUSS len35/105 ALLEGRO X2  GAUSS X1  LOCUST X2 
 359 LOCUST len34/102 ALLEGRO X1 GAUSS X5  PRESTO-GVP X1  LOCUST-GVP X2 VIVANCE-GVP X1
-455 LOCUST len40/120 ALLEGRO X1  GAUSS X1 
-228 LOCUST len41/126 ALLEGRO X1  GAUSS X5 PRESTO-GVP X1 VIVANCE-GVP X2 
+455 LOCUST len40/120 ALLEGRO X1  GAUSS X1 LOCUST X2 
+228 LOCUST len41/126 ALLEGRO X1  GAUSS X5 PRESTO-GVP X1 VIVANCE-GVP X3 (GPU2 == GVP ON GPU) 
 
 
-# python3 if_baseline.py --target_pdb_id sample664 
+# python3 if_baseline.py --target_pdb_id sample101 
 494  GAUSS XXX 0.98 
 129  GAUSS XXX 0.98 
 25  GAUSS 
@@ -161,9 +162,11 @@ YIMENG SET w/ NEW UNIREF VAE MODEL (esm if init only!)
 337 GAUSS
 215 GAUSS 
 664 GAUSS 
-668
-611
-375
+668 GAUSS 
+611 GAUSS 
+375 GAUSS 
+117 GAUSS 
+101 GAUSS 
 
 
 

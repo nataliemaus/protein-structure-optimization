@@ -19,7 +19,6 @@ class TMObjective(LatentSpaceObjective):
     '''Objective class supports all antibody protein
          optimization tasks and uses the UNIREF VAE by default 
     '''
-
     def __init__(
         self,
         task_id='tm',

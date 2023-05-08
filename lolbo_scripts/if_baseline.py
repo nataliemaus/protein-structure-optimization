@@ -29,6 +29,7 @@ def create_wandb_tracker(
     
 # self.wandb_project_name = f"optimimze-{self.task_id}"
 
+@torch.no_grad()
 def run_if_baseline(
     max_n_oracle_calls=500_000_000,
     bsz=10,
@@ -49,6 +50,19 @@ def run_if_baseline(
     pdb_path = f"../oracle/target_cif_files/{target_pdb_id}.cif" 
     structure = esm.inverse_folding.util.load_structure(pdb_path, "A")
     coords, _ = esm.inverse_folding.util.extract_coords_from_structure(structure)
+
+
+    
+    try:
+        seqs = if_model.sample(coords, temperature=1, num_seqs=n_init)
+        scores = objective.query_oracle(seqs)
+    except:
+        import pdb 
+        pdb.set_trace()  
+    
+    print('SUCCESS!!!')
+    import pdb 
+    pdb.set_trace()  
 
     # get n_init seqs and scores 
     seqs = []
