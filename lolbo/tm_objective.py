@@ -176,8 +176,6 @@ class TMObjective(LatentSpaceObjective):
             #         if_alphabet=self.if_alphabet, 
             #         fold_model=self.esm_model,
             #     )
-            import pdb 
-            pdb.set_trace() 
             dict = self.vae(X.cuda(), self.avg_target_gvp_encoding.repeat(X.shape[0], 1)) 
         else:
             dict = self.vae(X.cuda())
