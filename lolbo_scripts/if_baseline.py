@@ -38,6 +38,7 @@ def run_if_baseline(
     tracker=None,
     n_init=1_000,
 ): 
+    device = "cuda:0"
     wandb_run_name = wandb.run.name 
     scores_filename = f"../data/if_baseline_tmscores_{target_pdb_id}_{wandb_run_name}.csv"
     seqs_filename = f"../data/if_baseline_seqs_{target_pdb_id}_{wandb_run_name}.csv"
@@ -46,14 +47,18 @@ def run_if_baseline(
         init_vae=False,
     ) 
     if_model, _ = esm.pretrained.esm_if1_gvp4_t16_142M_UR50()
-    if_model = if_model.eval()
+    if_model = if_model.eval().to(device)
+    
+    # if_model = if_model.eval()
     pdb_path = f"../oracle/target_cif_files/{target_pdb_id}.cif" 
     structure = esm.inverse_folding.util.load_structure(pdb_path, "A")
     coords, _ = esm.inverse_folding.util.extract_coords_from_structure(structure)
-    if_model = if_model.cuda() 
+    # if_model = if_model.cuda() 
+
     
     # try:
-    #     seqs = if_model.sample(coords, temperature=1, num_seqs=n_init)
+    #     seqs = if_model.sample(coords, temperature=1, num_seqs=10)
+    #           num_seqs is an unrecognized argument... 
     #     scores = objective.query_oracle(seqs)
     # except:
     #     import pdb 
@@ -63,21 +68,17 @@ def run_if_baseline(
     # import pdb 
     # pdb.set_trace()  
 
-    try: 
-        coords = coords.cuda() 
-    except:
-        import pdb 
-        pdb.set_trace() 
+    # try: 
+    #     coords2 = torch.from_numpy(coords).cuda() 
+    # except:
+    #     import pdb 
+    #     pdb.set_trace() 
 
     # get n_init seqs and scores 
     seqs = []
     scores = []
     for _ in range(n_init):
-        try:
-            sampled_seq = if_model.sample(coords, temperature=1) 
-        except:
-            import pdb 
-            pdb.set_trace() 
+        sampled_seq = if_model.sample(coords, temperature=1, device=device) 
         seqs.append(sampled_seq)
         score = objective.query_oracle([sampled_seq])[0]
         if np.isnan(score):
@@ -93,7 +94,7 @@ def run_if_baseline(
     while num_calls < max_n_oracle_calls:
         seqs_batch = []
         for _ in range(bsz):
-            sampled_seq = if_model.sample(coords, temperature=1) 
+            sampled_seq = if_model.sample(coords, temperature=1, device=device) 
             seqs_batch.append(sampled_seq)
 
         scores_batch = objective.query_oracle(seqs_batch)

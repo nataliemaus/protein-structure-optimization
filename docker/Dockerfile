@@ -6,11 +6,11 @@ RUN apt-get update && apt-get install -y wget libxml2 git
 RUN pip install fire 
 RUN pip install rdkit-pypi==2022.3.1
 
-RUN pip install "fair-esm[esmfold]"
+# RUN pip install "fair-esm[esmfold]"
+RUN pip install git+https://github.com/facebookresearch/esm.git
 # OpenFold and its remaining dependency
 RUN pip install 'dllogger @ git+https://github.com/NVIDIA/dllogger.git'
 RUN pip install 'openfold @ git+https://github.com/aqlaboratory/openfold.git@4b41059694619831a7db195b7e0988fc4ff3a307'
-
 
 RUN pip install wandb
 
@@ -45,12 +45,13 @@ RUN pip install torch-cluster
 RUN pip install torch-spline-conv
 RUN pip install torch-geometric
 
+# RUN pip uninstall fair-esm
+
 RUN pip install biotite
 RUN pip install gpytorch 
 RUN pip install botorch
 ENV WANDB_API_KEY=dfa956c5bfb9fa492ebf9adede99093772919518
 WORKDIR /workspace
-
 
 
 # docker build -t yimengzeng/inverse_folding .
