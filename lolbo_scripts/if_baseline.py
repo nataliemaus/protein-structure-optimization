@@ -67,7 +67,7 @@ def run_if_baseline(
     seqs = []
     scores = []
     for _ in range(n_init):
-        sampled_seq = if_model.sample(coords, temperature=1, device="cuda:0") 
+        sampled_seq = if_model.sample(coords, temperature=1) 
         seqs.append(sampled_seq)
         score = objective.query_oracle([sampled_seq])[0]
         if np.isnan(score):
@@ -83,7 +83,7 @@ def run_if_baseline(
     while num_calls < max_n_oracle_calls:
         seqs_batch = []
         for _ in range(bsz):
-            sampled_seq = if_model.sample(coords, temperature=1, device="cuda:0") 
+            sampled_seq = if_model.sample(coords, temperature=1) 
             seqs_batch.append(sampled_seq)
 
         scores_batch = objective.query_oracle(seqs_batch)
