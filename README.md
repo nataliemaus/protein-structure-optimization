@@ -10,7 +10,7 @@ chmod 701 TMalign
 docker run -v /home1/n/nmaus/protein-structure-optimization/:/workspace/protein-structure-optimization --gpus all -it nmaus/fold2
 
 # Allegro: 
-docker run -v /home/nmaus/protein-structure-optimization/:/workspace/protein-structure-optimization -e NVIDIA_VISIBLE_DEVICES=1 -it nmaus/fold2:latest 
+docker run -v /home/nmaus/protein-structure-optimization/:/workspace/protein-structure-optimization -e NVIDIA_VISIBLE_DEVICES=0 -it nmaus/fold2:latest 
 
 # OTHER
 docker run -v /home/nmaus/protein-structure-optimization/:/workspace/protein-structure-optimization --gpus all -it nmaus/fold2 
@@ -85,6 +85,8 @@ runai delete job test1
 CUDA_VISIBLE_DEVICES=0 
 python3 if_baseline.py --target_pdb_id sample228 --save_freq 100000
 
+python3 if_baseline.py --compute_probs_h True 
+
 # docker run --privileged --gpus all -it nmaus/fold2:latest
 
 # LOLBO OPTIMIZE TM... : 
@@ -98,13 +100,13 @@ docker run -v /home/nmaus/protein-structure-optimization/:/workspace/protein-str
 # --gvp_vae True --vae_kl_factor 0.001
 
 YIMENG SET w/ NEW UNIREF VAE MODEL (esm if init only!)
-25 GAUSS len34/102 ALLEGRO X1  GAUSS X5   ALLEGRO-GVP X3
-286 GAUSS len34/102 ALLEGRO X1  GAUSS X1  LOCUST X3 ALLEGRO-GVP X0 (2?)
-575 GAUSS len44/132 ALLEGRO X1  GAUSS X1  LOCUST X1 
-587 GAUSS len35/105 ALLEGRO X2  GAUSS X1  LOCUST X2 PRESTO-GVP X3 
-359 LOCUST len34/102 ALLEGRO X1 GAUSS X5  ALLEGRO-GVP X3 
-455 LOCUST len40/120 ALLEGRO X1  GAUSS X1 LOCUST X2 
-228 LOCUST len41/126 ALLEGRO X1  GAUSS X5 PRESTO-GVP X3  
+25 GAUSS len34/102 DONE X6   
+286 GAUSS len34/102 DONE X5 
+575 GAUSS len44/132 DONE X3
+587 GAUSS len35/105 DONE X5 PRESTO-GVP X3 
+359 LOCUST len34/102 DONE X6
+455 LOCUST len40/120 DONE X4 
+228 LOCUST len41/126 DONE X6 PRESTO-GVP X3  
 615 LOCUST X1 
 582 LOCUST X1
 459 LOCUST X1
@@ -114,10 +116,10 @@ YIMENG SET w/ NEW UNIREF VAE MODEL (esm if init only!)
 
 
 # CUDA_VISIBLE_DEVICES=0 
-# python3 if_baseline.py --target_pdb_id sample479  
+# python3 if_baseline.py --target_pdb_id sample228  
 yimeng latest if baselines... 
-494  GAUSS
-129  GAUSS 
+494 GAUSS
+129 GAUSS 
 25  GAUSS 
 359 GAUSS 
 337 GAUSS
@@ -135,6 +137,10 @@ yimeng latest if baselines...
 1104 GAUSS 
 3106 GAUSS 
 479 GAUSS 
+286 ALLEGRO
+587 ALLEGRO
+455 ALLEGRO
+228 ALLEGRO 
 615 VIVANCE 
 582 VIVANCE 
 459 VIVANCE 
@@ -142,7 +148,7 @@ yimeng latest if baselines...
 41 VIVANCE 
 280 VIVANCE 
 
-# total: 25 
+# total: 29 
 
 
 

@@ -69,8 +69,6 @@ def load_existing_esmif_data(
 
     seqs = train_xs.tolist() 
     scores = train_ys.tolist() 
-    
-     
     return seqs, scores 
 
 
@@ -89,9 +87,6 @@ def compute_and_save_if_baseline_human_probs():
                 human_model=human_classifier_model,
             )
             probs_h.append(probh)
-        # df = {}
-        # df["seq"] = np.array(seqs)
-        # df["prob_human"] = np.array(probs_h) 
         max_prob_h = np.array(probs_h).max() 
         print(f"for target {target_pdb_id}, max prob human = {max_prob_h}")
         probs_filename = f"../data/if_baseline_probs_human_{target_pdb_id}.csv"
@@ -99,9 +94,41 @@ def compute_and_save_if_baseline_human_probs():
             "seq":seqs, 
             "tm_score":scores,
             "prob_human":probs_h
-        }
+        } 
         df = pd.DataFrame.from_dict(data)
         df.to_csv(probs_filename, index=None) 
+
+
+def analyze_probs_human():
+    thresholds = [
+        0.999, 0.998, 0.997, 0.996, 
+        0.995, 0.994, 0.993, 0.992, 0.991, 0.990, 
+        0.989, 0.988, 0.987, 0.986, 
+        0.985, 0.984, 0.983, 0.982, 0.981, 0.980, 
+        0.98, 0.97, 0.96, 0.95, 0.94, 0.93, 0.92, 0.91, 
+        0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1
+    ] 
+    # sample228: 0.990 
+    # sample479: 0.4, 0.95=NONE 
+    # just pick a couple good example proteins and set threshold to 
+    # where ESM IF GETS LITERALLY NONE... Or does abysmally 
+    target_pdb_ids = glob.glob("../data/if_baseline_probs_human_*.csv")
+    target_pdb_ids = [filename.split("/")[-1].split("_")[-1].split(".")[0] for filename in target_pdb_ids]
+    print("Target pdb ids:", target_pdb_ids) 
+    for target_pdb_id in target_pdb_ids:
+        print(f"\ntarget_pdb_id: {target_pdb_id}")
+        probs_filename = f"../data/if_baseline_probs_human_{target_pdb_id}.csv"
+        df = pd.read_csv(probs_filename)
+        # seqs = df["seq"] 
+        scores = df["tm_score"]
+        probs_h = df["prob_human"]
+        print(f"max score: {scores.max()}") 
+        for threshold in thresholds:
+            thresholded_scores = scores[probs_h >= threshold]
+            print(f"max score w/ threshold prob human {threshold}: {thresholded_scores.max()}")
+
+        import pdb 
+        pdb.set_trace() 
 
 
 @torch.no_grad()
@@ -227,24 +254,27 @@ if __name__ == "__main__":
     parser.add_argument('--if_baseline', type=bool, default=True )
     parser.add_argument('--target_pdb_id', default="17_bp_sh3" ) 
     parser.add_argument('--compute_probs_h', type=bool, default=False )
+    parser.add_argument('--analyze_probs_human', type=bool, default=False )
 
     args = parser.parse_args() 
 
     if args.compute_probs_h:
         compute_and_save_if_baseline_human_probs()
-
-    tracker = create_wandb_tracker(
-        config_dict=vars(args),
-        wandb_project_name="optimimze-tm",
-        wandb_entity="nmaus",
-    )
-    run_if_baseline(
-        max_n_oracle_calls=args.max_n_oracle_calls,
-        bsz=args.bsz,
-        target_pdb_id=args.target_pdb_id,
-        save_freq=args.save_freq,
-        tracker=tracker,
-        n_init=args.n_init,
-    )
+    elif args.analyze_probs_human:
+        analyze_probs_human() 
+    else:
+        tracker = create_wandb_tracker(
+            config_dict=vars(args),
+            wandb_project_name="optimimze-tm",
+            wandb_entity="nmaus",
+        )
+        run_if_baseline(
+            max_n_oracle_calls=args.max_n_oracle_calls,
+            bsz=args.bsz,
+            target_pdb_id=args.target_pdb_id,
+            save_freq=args.save_freq,
+            tracker=tracker,
+            n_init=args.n_init,
+        )
 
     # CUDA_VISIBLE_DEVICES=0 python3 if_baseline.py --target_pdb_id sample587 
