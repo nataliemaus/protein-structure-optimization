@@ -13,6 +13,7 @@ import os
 from uniref_vae.data import collate_fn
 from uniref_vae.load_uniref_vae import load_uniref_vae, load_gvp_vae 
 from oracle.fold import load_esm_if_model, aa_seqs_list_to_avg_gvp_encodings, get_gvp_encoding
+from oracle.get_prob_human import load_human_classier_model, get_prob_human
 
 
 class TMObjective(LatentSpaceObjective):
@@ -33,6 +34,7 @@ class TMObjective(LatentSpaceObjective):
         vae_kl_factor=0.0001,
         gvp_vae=False,
         gvp_vae_version_flag=2,
+        min_prob_human=-1,
     ):
         self.vae_tokens             = vae_tokens 
         assert vae_tokens in ["esm", "uniref"] 
@@ -44,7 +46,11 @@ class TMObjective(LatentSpaceObjective):
         self.vae_kl_factor          = vae_kl_factor
         self.gvp_vae                = gvp_vae
         self.gvp_vae_version_flag   = gvp_vae_version_flag
-        
+        self.min_prob_human         = min_prob_human 
+
+        if self.min_prob_human != -1:
+            self.human_classifier_tokenizer, self.human_classifier_model = load_human_classier_model() 
+
         try: 
             self.target_pdb_path = f"../oracle/target_pdb_files/{target_pdb_id}.ent"
             assert os.path.exists(self.target_pdb_path)
@@ -87,7 +93,7 @@ class TMObjective(LatentSpaceObjective):
         decoded_seqs = [self.dataobj.decode(sample[i]) for i in range(sample.size(-2))]
 
         # decoded_seqs = [dataobj.decode(sample[i]) for i in range(sample.size(-2))]
-        # get rid of X's (deletion)
+        # get rid of X's (deletion) 
         temp = [] 
         for seq in decoded_seqs:
             seq = seq.replace("X", "")
@@ -195,7 +201,21 @@ class TMObjective(LatentSpaceObjective):
                     None of problem is unconstrained
                     Note: constraints, must be of form c(x) <= 0!
         '''
-        return None 
+        if self.min_prob_human == -1:
+            return None 
+
+        c_vals = []
+        for x in xs_batch:
+            probh = get_prob_human(
+                seq=x, 
+                human_tokenizer=self.human_classifier_tokenizer, 
+                human_model=self.human_classifier_model, 
+            )
+            c_val = (probh*-1) + self.min_prob_human
+            c_vals.append(c_val)
+        
+        c_vals = torch.tensor(c_vals).float() 
+        return c_vals.unsqueeze(-1) 
 
 
 if __name__ == "__main__":

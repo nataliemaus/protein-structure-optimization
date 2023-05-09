@@ -13,6 +13,7 @@ import torch
 import os 
 import glob 
 # os.environ["CUDA_VISIBLE_DEVICES"]="7"
+import time 
 
 
 def create_wandb_tracker(
@@ -92,7 +93,7 @@ def run_if_baseline(
     if_model, _ = esm.pretrained.esm_if1_gvp4_t16_142M_UR50()
     if_model = if_model.eval().to(device)
     
-    # if_model = if_model.eval()
+    # if_model = if_model.eval() 
     pdb_path = f"../oracle/target_cif_files/{target_pdb_id}.cif" 
     structure = esm.inverse_folding.util.load_structure(pdb_path, "A")
     coords, _ = esm.inverse_folding.util.extract_coords_from_structure(structure)

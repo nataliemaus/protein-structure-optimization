@@ -7,3 +7,5 @@
 *.pkl filter=lfs diff=lfs merge=lfs -text
 *.cif filter=lfs diff=lfs merge=lfs -text
 oracle/TMalign filter=lfs diff=lfs merge=lfs -text
+*.bin filter=lfs diff=lfs merge=lfs -text
+*.json filter=lfs diff=lfs merge=lfs -text

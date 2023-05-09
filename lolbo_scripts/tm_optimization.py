@@ -38,7 +38,7 @@ class TMOptimization(Optimize):
         vae_kmers_k=1,
         vae_kl_factor=0.0001,
         gvp_vae=False,
-        gvp_vae_version_flag=2,
+        gvp_vae_version_flag=3,
         cuda_device_number=None,
         **kwargs
     ):
@@ -99,7 +99,7 @@ class TMOptimization(Optimize):
         init_zs = torch.cat(init_zs, dim=0)
         # now save the zs so we don't have to recompute them in the future:
         # state_dict_file_type = self.objective.path_to_vae_statedict.split('.')[-1] # usually .pt or .ckpt
-        # path_to_init_train_zs = self.objective.path_to_vae_statedict.replace(f".{state_dict_file_type}", '-train-zs.csv')
+        # path_to_init_train_zs = self.objectivse.path_to_vae_statedict.replace(f".{state_dict_file_type}", '-train-zs.csv')
         # zs_arr = init_zs.cpu().detach().numpy()
         # pd.DataFrame(zs_arr).to_csv(path_to_init_train_zs, header=None, index=None) 
 

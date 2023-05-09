@@ -11,6 +11,8 @@ ALL_AMINO_ACIDS = ['A', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L', 'M', 'N', '
 # GVP_VAE_STATE_DICT_PATH = "../uniref_vae/gvp/efficient-water-79_epoch_36.pkl"
 GVP_VAE_STATE_DICT_PATH = "../uniref_vae/gvp/efficient-water-79_epoch_84.pkl"
 
+CLASSIFIER_PATH = "../oracle/esm_classification_large/checkpoint-1120/"
+
 # UNIREF VAE 
 VAE_DIM_TO_STATE_DICT_PATH = {}
 # seperate by type of tokens used to train (uniref 3-mers or esm token
