@@ -77,6 +77,7 @@ def load_existing_esmif_data(
 def compute_and_save_if_baseline_human_probs():
     human_classifier_tokenizer,  human_classifier_model  = load_human_classier_model()
     target_pdb_ids = glob.glob("../data/if_baseline_tmscores_*sample*.csv")
+    target_pdb_ids = [filename.split("/")[-1].split("_")[-2] for filename in target_pdb_ids]
     print("Target pdb ids:", target_pdb_ids) 
     for target_pdb_id in target_pdb_ids:
         seqs, _ = load_existing_esmif_data(target_pdb_id)
@@ -222,7 +223,7 @@ if __name__ == "__main__":
     parser.add_argument('--n_init', type=int, default=1_000 ) 
     parser.add_argument('--if_baseline', type=bool, default=True )
     parser.add_argument('--target_pdb_id', default="17_bp_sh3" ) 
-    parser.add_argument('--compute_probs_h', type=bool, default=True )
+    parser.add_argument('--compute_probs_h', type=bool, default=False )
 
     args = parser.parse_args() 
 
