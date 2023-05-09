@@ -14,6 +14,7 @@ import os
 import glob 
 # os.environ["CUDA_VISIBLE_DEVICES"]="7"
 import time 
+from oracle.get_prob_human import get_prob_human, load_human_classier_model
 
 
 def create_wandb_tracker(
@@ -71,6 +72,32 @@ def load_existing_esmif_data(
     
      
     return seqs, scores 
+
+
+def compute_and_save_if_baseline_human_probs():
+    human_classifier_tokenizer,  human_classifier_model  = load_human_classier_model()
+    target_pdb_ids = glob.glob("../data/if_baseline_tmscores_*sample*.csv")
+    print("Target pdb ids:", target_pdb_ids) 
+    for target_pdb_id in target_pdb_ids:
+        seqs, _ = load_existing_esmif_data(target_pdb_id)
+        probs_h = []
+        for seq in seqs:
+            probh = get_prob_human(
+                seq=seq, 
+                human_tokenizer=human_classifier_tokenizer, 
+                human_model=human_classifier_model,
+            )
+            probh = get_prob_human(seq) 
+            probs_h.append(probh)
+        # df = {}
+        # df["seq"] = np.array(seqs)
+        # df["prob_human"] = np.array(probs_h) 
+        max_prob_h = np.array(probs_h).max() 
+        print(f"for target {target_pdb_id}, max prob human = {max_prob_h}")
+        probs_filename = f"../data/if_baseline_probs_human_{target_pdb_id}.csv"
+        data = {"seq":seqs, "prob_human":probs_h}
+        df = pd.DataFrame.from_dict(data)
+        df.to_csv(probs_filename, index=None) 
 
 
 @torch.no_grad()
@@ -195,8 +222,13 @@ if __name__ == "__main__":
     parser.add_argument('--n_init', type=int, default=1_000 ) 
     parser.add_argument('--if_baseline', type=bool, default=True )
     parser.add_argument('--target_pdb_id', default="17_bp_sh3" ) 
+    parser.add_argument('--compute_probs_h', type=bool, default=True )
 
     args = parser.parse_args() 
+
+    if args.compute_probs_h:
+        compute_and_save_if_baseline_human_probs()
+
     tracker = create_wandb_tracker(
         config_dict=vars(args),
         wandb_project_name="optimimze-tm",
