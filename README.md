@@ -10,6 +10,7 @@ chmod 701 TMalign
 docker run -v /home1/n/nmaus/protein-structure-optimization/:/workspace/protein-structure-optimization --gpus all -it nmaus/fold2
 
 # Allegro: 
+docker pull docker.io/nmaus/fold2:latest
 docker run -v /home/nmaus/protein-structure-optimization/:/workspace/protein-structure-optimization -e NVIDIA_VISIBLE_DEVICES=0 -it nmaus/fold2:latest 
 
 # OTHER
@@ -98,6 +99,7 @@ CUDA_VISIBLE_DEVICES=1
 docker run -v /home/nmaus/protein-structure-optimization/:/workspace/protein-structure-optimization -w /workspace/protein-structure-optimization/lolbo_scripts --gpus "device=0" -d nmaus/fold2:latest python3 tm_optimization.py --task_id tm --track_with_wandb True --wandb_entity nmaus --num_initialization_points 1000 --max_n_oracle_calls 150000 --bsz 10 --dim 1024 --max_string_length 150 --vae_tokens uniref --init_w_esmif True --gvp_vae True --vae_kl_factor 0.001 --target_pdb_id sample228 - run_lolbo - done  
 
 # --gvp_vae True --vae_kl_factor 0.001
+# constrained: 
 
 YIMENG SET w/ NEW UNIREF VAE MODEL (esm if init only!)
 25 GAUSS len34/102 DONE X6   
@@ -116,7 +118,7 @@ YIMENG SET w/ NEW UNIREF VAE MODEL (esm if init only!)
 
 
 # CUDA_VISIBLE_DEVICES=0 
-# python3 if_baseline.py --target_pdb_id sample228  
+# python3 if_baseline.py --target_pdb_id sample167  
 yimeng latest if baselines... 
 494 GAUSS
 129 GAUSS 
@@ -141,6 +143,7 @@ yimeng latest if baselines...
 587 ALLEGRO
 455 ALLEGRO
 228 ALLEGRO 
+167 ALLEGRO 
 615 VIVANCE 
 582 VIVANCE 
 459 VIVANCE 
@@ -148,7 +151,7 @@ yimeng latest if baselines...
 41 VIVANCE 
 280 VIVANCE 
 
-# total: 29 
+# total: 30 
 
 
 

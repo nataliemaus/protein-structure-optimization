@@ -122,13 +122,18 @@ def analyze_probs_human():
         # seqs = df["seq"] 
         scores = df["tm_score"]
         probs_h = df["prob_human"]
-        print(f"max score: {scores.max()}") 
+        print(f"total n scores: {len(scores)}, max score: {scores.max()}") 
         for threshold in thresholds:
             thresholded_scores = scores[probs_h >= threshold]
             print(f"max score w/ threshold prob human {threshold}: {thresholded_scores.max()}")
 
-        import pdb 
-        pdb.set_trace() 
+        # import pdb 
+        # pdb.set_trace() 
+
+# Threshold 0.9 Poor Preformers
+# 1. 587 
+# 2. 611 
+# 3. 286
 
 
 @torch.no_grad()
