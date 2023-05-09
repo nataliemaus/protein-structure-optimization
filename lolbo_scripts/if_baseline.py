@@ -80,8 +80,8 @@ def compute_and_save_if_baseline_human_probs():
     target_pdb_ids = [filename.split("/")[-1].split("_")[-2] for filename in target_pdb_ids]
     print("Target pdb ids:", target_pdb_ids) 
     for target_pdb_id in target_pdb_ids:
-        seqs, _ = load_existing_esmif_data(target_pdb_id)
-        probs_h = []
+        seqs, scores = load_existing_esmif_data(target_pdb_id)
+        probs_h = [] 
         for seq in seqs:
             probh = get_prob_human(
                 seq=seq, 
@@ -95,7 +95,11 @@ def compute_and_save_if_baseline_human_probs():
         max_prob_h = np.array(probs_h).max() 
         print(f"for target {target_pdb_id}, max prob human = {max_prob_h}")
         probs_filename = f"../data/if_baseline_probs_human_{target_pdb_id}.csv"
-        data = {"seq":seqs, "prob_human":probs_h}
+        data = {
+            "seq":seqs, 
+            "tm_score":scores,
+            "prob_human":probs_h
+        }
         df = pd.DataFrame.from_dict(data)
         df.to_csv(probs_filename, index=None) 
 
