@@ -40,6 +40,7 @@ class TMOptimization(Optimize):
         gvp_vae=False,
         gvp_vae_version_flag=3,
         cuda_device_number=None,
+        min_prob_human=-1,
         **kwargs
     ):
         self.dim = dim 
@@ -54,6 +55,7 @@ class TMOptimization(Optimize):
         self.vae_kl_factor = vae_kl_factor 
         self.gvp_vae = gvp_vae
         self.gvp_vae_version_flag = gvp_vae_version_flag
+        self.min_prob_human = min_prob_human
         if cuda_device_number is not None:
             os.environ["CUDA_VISIBLE_DEVICES"]=str(cuda_device_number)
         super().__init__(**kwargs) 
@@ -64,7 +66,7 @@ class TMOptimization(Optimize):
 
 
     def initialize_objective(self):
-        # initialize objective
+        # initialize objective 
         self.objective = TMObjective(
             task_id=self.task_id,
             dim=self.dim,
@@ -75,6 +77,7 @@ class TMOptimization(Optimize):
             vae_kl_factor=self.vae_kl_factor,
             gvp_vae=self.gvp_vae,
             gvp_vae_version_flag=self.gvp_vae_version_flag,
+            min_prob_human=self.min_prob_human,
         )
         # if train zs have not been pre-computed for particular vae, compute them 
         #   by passing initialization selfies through vae 
@@ -83,7 +86,7 @@ class TMOptimization(Optimize):
         self.init_train_c = self.objective.compute_constraints(self.init_train_x)
 
         return self
-    
+
     def compute_train_zs(
         self,
         bsz=64

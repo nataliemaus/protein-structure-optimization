@@ -102,12 +102,28 @@ def run_if_baseline(
     seqs, scores = load_existing_esmif_data(target_pdb_id)
     # seqs = []
     # scores = []
+    if_time_sum = 0.0 
+    if_n_timed = 0 
+    query_time_sum = 0.0 
+    query_n_timed = 0 
     n_precomputed = len(scores)
     if n_precomputed < n_init:
         for _ in range(n_init - n_precomputed):
+            start = time.time() 
             sampled_seq = if_model.sample(coords, temperature=1, device=device) 
+            if_time = time.time() - start 
+            tracker.log({"if_time":if_time})
+            if_time_sum += if_time 
+            if_n_timed += 1 
+            tracker.log({"if_time_running_avg":if_time_sum/if_n_timed})
             seqs.append(sampled_seq)
+            start = time.time() 
             score = objective.query_oracle([sampled_seq])[0]
+            query_time = time.time() - start 
+            tracker.log({"query_time":query_time})
+            query_time_sum += query_time 
+            query_n_timed += 1 
+            tracker.log({"query_time_running_avg":query_time_sum/query_n_timed})
             if np.isnan(score):
                 score = -1 
             scores.append(score) 
@@ -124,10 +140,22 @@ def run_if_baseline(
     while num_calls < max_n_oracle_calls:
         seqs_batch = []
         for _ in range(bsz):
+            start = time.time() 
             sampled_seq = if_model.sample(coords, temperature=1, device=device) 
+            if_time = time.time() - start 
+            tracker.log({"if_time":if_time})
+            if_time_sum += if_time 
+            if_n_timed += 1 
+            tracker.log({"if_time_running_avg":if_time_sum/if_n_timed})
             seqs_batch.append(sampled_seq)
 
+        start = time.time() 
         scores_batch = objective.query_oracle(seqs_batch)
+        query_time = (time.time() - start)/len(seqs_batch) 
+        tracker.log({"query_time":query_time}) 
+        query_time_sum += query_time 
+        query_n_timed += 1 
+        tracker.log({"query_time_running_avg":query_time_sum/query_n_timed})
 
         # catch nans and replace with -1 ... 
         scores_batch = np.array(scores_batch)
