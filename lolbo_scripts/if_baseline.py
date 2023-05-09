@@ -88,7 +88,6 @@ def compute_and_save_if_baseline_human_probs():
                 human_tokenizer=human_classifier_tokenizer, 
                 human_model=human_classifier_model,
             )
-            probh = get_prob_human(seq) 
             probs_h.append(probh)
         # df = {}
         # df["seq"] = np.array(seqs)
