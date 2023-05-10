@@ -96,10 +96,10 @@ class TMObjective(LatentSpaceObjective):
         self.vae = self.vae.cuda()
 
         if self.gvp_vae:
-            # z = (bsz, 2048) 
+            # z =  (bsz, 1536) = (bsz, 1024 + 512)
             try:
                 latent_z = z[:,0:1024].reshape(-1, 2, 512)
-                avg_gvp_embedding = z[:,1024:].reshape(-1, 2, 512) 
+                avg_gvp_embedding = z[:,1024:] 
                 sample = self.vae.sample(n=1, z=latent_z, encodings=avg_gvp_embedding) 
             except:
                 import pdb 
@@ -158,7 +158,7 @@ class TMObjective(LatentSpaceObjective):
             sets self.dataobj to the corresponding data class 
             used to tokenize inputs, etc. '''
         if self.gvp_vae:
-            assert self.dim == 1024*2 # 1024 for z and 1024 for gvp embeddingg 
+            assert self.dim == 1536 # 1024 for z + 512 for gvp embeddingg 
             self.vae, self.dataobj = load_gvp_vae(
                 vae_tokens=self.vae_tokens,
                 vae_kmers_k=self.vae_kmers_k,
@@ -201,7 +201,7 @@ class TMObjective(LatentSpaceObjective):
                     if_model=self.if_model, 
                     if_alphabet=self.if_alphabet, 
                     fold_model=self.esm_model,
-                )
+                ) # torch.Size([bsz, 512])
             dict = self.vae(X.cuda(), avg_gvp_encoding) 
 
             # V2: 
@@ -212,11 +212,10 @@ class TMObjective(LatentSpaceObjective):
         vae_loss, z = dict['loss'], dict['z'] 
         
         if self.gvp_vae:
-            import pdb 
-            pdb.set_trace() 
-            z = torch.cat((z, avg_gvp_encoding), -1)
-
-        z = z.reshape(-1,self.dim)
+            z = z.reshape(-1, 1024) # (bsz, 2, 512)
+            z = torch.cat((z, avg_gvp_encoding), -1) # (bsz, 1536)
+        else:
+            z = z.reshape(-1,self.dim)
 
         return z, vae_loss
 
