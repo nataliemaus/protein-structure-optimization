@@ -48,8 +48,8 @@ class LOLBOState:
 
         self.progress_fails_since_last_e2e = 0
         self.tot_num_e2e_updates = 0
-        self.best_score_seen = torch.max(train_y)
-        self.best_x_seen = train_x[torch.argmax(train_y.squeeze())]
+        # self.best_score_seen = torch.max(train_y)
+        # self.best_x_seen = train_x[torch.argmax(train_y.squeeze())]
         self.initial_model_training_complete = False # initial training of surrogate model uses all data for more epochs
         self.new_best_found = False
 
@@ -78,7 +78,12 @@ class LOLBOState:
         else:
             vaid_train_y = self.train_y
             valid_train_z = self.train_z
-            valid_train_x = self.train_x
+            valid_train_x = self.train_x 
+        
+        # Update! 5/10/23
+        self.best_score_seen = torch.max(vaid_train_y)
+        self.best_x_seen = valid_train_x[torch.argmax(vaid_train_y.squeeze())]
+
         # track top k scores found
         # import pdb 
         # pdb.set_trace() 
