@@ -96,19 +96,19 @@ cd lolbo_scripts
 
 CUDA_VISIBLE_DEVICES=1 
 
-docker run -v /home/nmaus/protein-structure-optimization/:/workspace/protein-structure-optimization -w /workspace/protein-structure-optimization/lolbo_scripts --gpus "device=0" -d nmaus/fold2:latest python3 tm_optimization.py --task_id tm --track_with_wandb True --wandb_entity nmaus --num_initialization_points 1000 --max_n_oracle_calls 150000 --bsz 10 --dim 1024 --max_string_length 150 --vae_tokens uniref --init_w_esmif True --gvp_vae True --vae_kl_factor 0.001 --target_pdb_id sample228 - run_lolbo - done  
+docker run -v /home/nmaus/protein-structure-optimization/:/workspace/protein-structure-optimization -w /workspace/protein-structure-optimization/lolbo_scripts --gpus "device=5" -d nmaus/fold2:latest python3 tm_optimization.py --task_id tm --track_with_wandb True --wandb_entity nmaus --num_initialization_points 1000 --max_n_oracle_calls 150000 --bsz 10 --dim 1024 --max_string_length 150 --vae_tokens uniref --init_w_esmif True --target_pdb_id sample286 --min_prob_human 0.9 - run_lolbo - done  
 
 # --gvp_vae True --vae_kl_factor 0.001
-# constrained: 
+# constrained: --min_prob_human 0.9 
 
 YIMENG SET w/ NEW UNIREF VAE MODEL (esm if init only!)
 25 GAUSS len34/102 DONE X6   
-286 GAUSS len34/102 DONE X5 
+286 GAUSS len34/102 DONE X2 constr0.9-ALLEGRO X2 constr0.9-PRESTO X3 
 575 GAUSS len44/132 DONE X3
-587 GAUSS len35/105 DONE X5 PRESTO-GVP X3 
+587 GAUSS len35/105 DONE X0 PRESTO-X3 
 359 LOCUST len34/102 DONE X6
 455 LOCUST len40/120 DONE X4 
-228 LOCUST len41/126 DONE X6 PRESTO-GVP X3  
+228 LOCUST len41/126 DONE X6   
 615 LOCUST X1 
 582 LOCUST X1
 459 LOCUST X1

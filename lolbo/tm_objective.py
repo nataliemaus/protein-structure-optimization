@@ -33,7 +33,7 @@ class TMObjective(LatentSpaceObjective):
         vae_kmers_k=1,
         vae_kl_factor=0.0001,
         gvp_vae=False,
-        gvp_vae_version_flag=2,
+        gvp_vae_version_flag=3,
         min_prob_human=-1,
     ):
         self.vae_tokens             = vae_tokens 
@@ -62,12 +62,12 @@ class TMObjective(LatentSpaceObjective):
         self.esm_model = self.esm_model.eval() 
         self.esm_model = self.esm_model.cuda() 
 
-        if self.gvp_vae:
+        # if self.gvp_vae:
             # self.if_model, self.if_alphabet = load_esm_if_model() # v1... 
-            target_gvp_encoding = get_gvp_encoding(self.target_pdb_path, chain_id='A', model=None, alphabet=None)
-            self.avg_target_gvp_encoding = target_gvp_encoding.nanmean(-2)
-            self.avg_target_gvp_encoding = self.avg_target_gvp_encoding.cuda()
             # V2: just get GVP embedding for target (that's it)
+            # target_gvp_encoding = get_gvp_encoding(self.target_pdb_path, chain_id='A', model=None, alphabet=None)
+            # self.avg_target_gvp_encoding = target_gvp_encoding.nanmean(-2)
+            # self.avg_target_gvp_encoding = self.avg_target_gvp_encoding.cuda()
 
         super().__init__(
             num_calls=num_calls,
@@ -88,7 +88,18 @@ class TMObjective(LatentSpaceObjective):
         z = z.cuda()
         self.vae = self.vae.eval()
         self.vae = self.vae.cuda()
-        sample = self.vae.sample(z=z.reshape(-1, 2, self.dim//2))
+
+        if self.gvp_vae:
+            # z = (bsz, 2048) 
+            try:
+                latent_z = z[:,0:1024].reshape(-1, 2, 512)
+                avg_gvp_embedding = z[:,1024:].reshape(-1, 2, 512) 
+                sample = self.vae.sample(n=1, z=latent_z, encodings=avg_gvp_embedding) 
+            except:
+                import pdb 
+                pdb.set_trace() 
+        else:
+            sample = self.vae.sample(z=z.reshape(-1, 2, self.dim//2))
         # grab decoded aa strings
         decoded_seqs = [self.dataobj.decode(sample[i]) for i in range(sample.size(-2))]
 
@@ -141,10 +152,12 @@ class TMObjective(LatentSpaceObjective):
             sets self.dataobj to the corresponding data class 
             used to tokenize inputs, etc. '''
         if self.gvp_vae:
+            assert self.dim == 1024*2 # 1024 for z and 1024 for gvp embeddingg 
             self.vae, self.dataobj = load_gvp_vae(
                 vae_tokens=self.vae_tokens,
                 vae_kmers_k=self.vae_kmers_k,
-                d_model=self.dim//2,
+                # d_model=self.dim//2,
+                d_model=512,
                 vae_kl_factor=self.vae_kl_factor,
                 max_string_length=self.max_string_length,
             ) 
@@ -182,8 +195,10 @@ class TMObjective(LatentSpaceObjective):
             #         if_alphabet=self.if_alphabet, 
             #         fold_model=self.esm_model,
             #     )
+            print("Can only run GVP-VAE Version 3 with TuRBO (non LOL-BO)!")
             assert 0 # fix !! 
-            dict = self.vae(X.cuda(), self.avg_target_gvp_encoding.repeat(X.shape[0], 1)) 
+            # V2: 
+            # dict = self.vae(X.cuda(), self.avg_target_gvp_encoding.repeat(X.shape[0], 1)) 
         else:
             dict = self.vae(X.cuda())
         # FOR GVP: *** TypeError: forward() missing 1 required positional argument: 'encodings'
