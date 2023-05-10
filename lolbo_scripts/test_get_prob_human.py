@@ -5,7 +5,7 @@ from oracle.get_prob_human import load_human_classier_model, get_prob_human
 human_classifier_tokenizer, human_classifier_model = load_human_classier_model()
 
 
-seq = "GAMAARAVAEQAAELLVLDDRLMAHMAEDKLSVAQALTNAAAGDTATTEMLQTFAKGLDMPAAERRRSRRATQEAWMQRHGGEELARVQAGLSAILARYLA"
+seq = "GKVFQLTVHRMVGPWRGWLNREEFRVTGRWMTEKASRRMLAARKEEREKDAEARKLYRELDADAAAIYEALKKDHQNLFKKMPRVRVTVEDHLHVLELDYVKNYFVKAAISRWRRWLIRKT"
 xs_batch = [seq]
 
 min_prob_human = 0.9 
