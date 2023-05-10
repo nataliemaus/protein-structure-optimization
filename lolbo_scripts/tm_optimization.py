@@ -91,6 +91,8 @@ class TMOptimization(Optimize):
         bsz=64
     ):
         init_zs = []
+        if self.objective.gvp_vae:
+            bsz = 2
         # make sure vae is in eval mode 
         self.objective.vae.eval() 
         n_batches = math.ceil(len(self.init_train_x)/bsz)
