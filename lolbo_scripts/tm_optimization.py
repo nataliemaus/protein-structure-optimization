@@ -44,9 +44,6 @@ class TMOptimization(Optimize):
         **kwargs
     ):
         self.dim = dim 
-        if gvp_vae:
-            assert not self.update_e2e 
-        # self.path_to_vae_statedict = VAE_DIM_TO_STATE_DICT_PATH[self.dim] 
         self.max_string_length = max_string_length
         self.vae_tokens = vae_tokens
         self.target_pdb_id = target_pdb_id
