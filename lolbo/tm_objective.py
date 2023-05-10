@@ -6,6 +6,7 @@ from lolbo.latent_space_objective import LatentSpaceObjective
 from constants import (
     DEBUG_MODE,
     VAE_DIM_TO_STATE_DICT_PATH,
+    GVP_VAE_STATE_DICT_PATH,
 )
 from transformers import EsmForProteinFolding
 from oracle.aa_seq_to_tm_score import aa_seq_to_tm_score
@@ -39,7 +40,6 @@ class TMObjective(LatentSpaceObjective):
         self.vae_tokens             = vae_tokens 
         assert vae_tokens in ["esm", "uniref"] 
         self.dim                    = dim # SELFIES VAE DEFAULT LATENT SPACE DIM 
-        self.path_to_vae_statedict  = VAE_DIM_TO_STATE_DICT_PATH[vae_tokens][self.dim] # path to trained vae stat dict
         self.max_string_length      = max_string_length # max string length that VAE can generate
         self.target_pdb_id          = target_pdb_id 
         self.vae_kmers_k            = vae_kmers_k
@@ -60,7 +60,13 @@ class TMObjective(LatentSpaceObjective):
 
         self.esm_model = EsmForProteinFolding.from_pretrained("facebook/esmfold_v1")
         self.esm_model = self.esm_model.eval() 
-        self.esm_model = self.esm_model.cuda() 
+        self.esm_model = self.esm_model.cuda()
+
+        # V3: 
+        if self.gvp_vae:
+            self.path_to_vae_statedict = GVP_VAE_STATE_DICT_PATH
+        else:
+            self.path_to_vae_statedict  = VAE_DIM_TO_STATE_DICT_PATH[vae_tokens][self.dim] # path to trained vae stat dict 
 
         # if self.gvp_vae:
             # self.if_model, self.if_alphabet = load_esm_if_model() # v1... 

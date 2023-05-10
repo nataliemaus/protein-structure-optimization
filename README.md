@@ -96,9 +96,11 @@ cd lolbo_scripts
 
 CUDA_VISIBLE_DEVICES=1 
 
-docker run -v /home/nmaus/protein-structure-optimization/:/workspace/protein-structure-optimization -w /workspace/protein-structure-optimization/lolbo_scripts --gpus "device=5" -d nmaus/fold2:latest python3 tm_optimization.py --task_id tm --track_with_wandb True --wandb_entity nmaus --num_initialization_points 1000 --max_n_oracle_calls 150000 --bsz 10 --dim 1024 --max_string_length 150 --vae_tokens uniref --init_w_esmif True --target_pdb_id sample286 --min_prob_human 0.9 - run_lolbo - done  
+docker run -v /home/nmaus/protein-structure-optimization/:/workspace/protein-structure-optimization -w /workspace/protein-structure-optimization/lolbo_scripts --gpus "device=5" -d nmaus/fold2:latest 
 
-# --gvp_vae True --vae_kl_factor 0.001
+python3 tm_optimization.py --task_id tm --track_with_wandb True --wandb_entity nmaus --num_initialization_points 1000 --max_n_oracle_calls 150000 --bsz 10 --dim 1024 --max_string_length 150 --vae_tokens uniref --init_w_esmif True --target_pdb_id sample25 --gvp_vae True --vae_kl_factor 0.001 --dim 2048 --update_e2e False - run_lolbo - done  
+
+# --gvp_vae True --vae_kl_factor 0.001 --dim 2048 --update_e2e False
 # constrained: --min_prob_human 0.9 
 
 YIMENG SET w/ NEW UNIREF VAE MODEL (esm if init only!)
