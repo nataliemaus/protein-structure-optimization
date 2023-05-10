@@ -212,7 +212,7 @@ class TMObjective(LatentSpaceObjective):
         vae_loss, z = dict['loss'], dict['z'] 
         
         if self.gvp_vae:
-            z = torch.cat(z, avg_gvp_encoding, -1)
+            z = torch.cat((z, avg_gvp_encoding), -1)
 
         z = z.reshape(-1,self.dim)
 
