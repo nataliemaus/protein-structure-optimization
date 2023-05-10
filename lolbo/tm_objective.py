@@ -68,8 +68,8 @@ class TMObjective(LatentSpaceObjective):
         else:
             self.path_to_vae_statedict  = VAE_DIM_TO_STATE_DICT_PATH[vae_tokens][self.dim] # path to trained vae stat dict 
 
-        # if self.gvp_vae:
-            # self.if_model, self.if_alphabet = load_esm_if_model() # v1... 
+        if self.gvp_vae:
+            self.if_model, self.if_alphabet = load_esm_if_model() # v1... 
             # V2: just get GVP embedding for target (that's it)
             # target_gvp_encoding = get_gvp_encoding(self.target_pdb_path, chain_id='A', model=None, alphabet=None)
             # self.avg_target_gvp_encoding = target_gvp_encoding.nanmean(-2)
@@ -194,15 +194,16 @@ class TMObjective(LatentSpaceObjective):
         X = collate_fn(encoded_seqs)
 
         if self.gvp_vae:
-            # with torch.no_grad(): # V1... 
-            #     avg_gvp_encoding = aa_seqs_list_to_avg_gvp_encodings(
-            #         aa_seq_list=xs_batch, 
-            #         if_model=self.if_model, 
-            #         if_alphabet=self.if_alphabet, 
-            #         fold_model=self.esm_model,
-            #     )
-            print("Can only run GVP-VAE Version 3 with TuRBO (non LOL-BO)!")
-            assert 0 # fix !! 
+            # V1/V3 
+            with torch.no_grad(): # V1/V3
+                avg_gvp_encoding = aa_seqs_list_to_avg_gvp_encodings(
+                    aa_seq_list=xs_batch, 
+                    if_model=self.if_model, 
+                    if_alphabet=self.if_alphabet, 
+                    fold_model=self.esm_model,
+                )
+            dict = self.vae(X.cuda(), avg_gvp_encoding) 
+
             # V2: 
             # dict = self.vae(X.cuda(), self.avg_target_gvp_encoding.repeat(X.shape[0], 1)) 
         else:
