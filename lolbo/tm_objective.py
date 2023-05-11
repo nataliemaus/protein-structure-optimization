@@ -239,13 +239,11 @@ class TMObjective(LatentSpaceObjective):
         all_c_vals = []
         for i in range(n_sub_batches):
             sub_batch_xs = xs_batch[i*self.constraint_model_bsz : (i+1)*self.constraint_model_bsz]
-            import pdb 
-            pdb.set_trace() 
-            probs_human_tensor = get_probs_human(
-                seqs_list=sub_batch_xs, 
-                human_tokenizer=self.human_classifier_tokenizer, 
-                human_model=self.human_classifier_model,
-            )
+            try:
+                probs_human_tensor = get_probs_human(seqs_list=sub_batch_xs, human_tokenizer=self.human_classifier_tokenizer, human_model=self.human_classifier_model)
+            except:
+                import pdb 
+                pdb.set_trace() 
             c_vals_batch = probs_human_tensor*-1 + self.min_prob_human
             all_c_vals = all_c_vals + c_vals_batch.tolist() 
         
