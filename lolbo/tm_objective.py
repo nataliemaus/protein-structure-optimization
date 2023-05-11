@@ -238,7 +238,9 @@ class TMObjective(LatentSpaceObjective):
         n_sub_batches = math.ceil(len(xs_batch)/self.constraint_model_bsz)
         all_c_vals = []
         for i in range(n_sub_batches):
-            sub_batch_xs = xs_batch[i*self.constraint_model_bsz:(i+1)*self.constraint_model_bsz]
+            sub_batch_xs = xs_batch[i*self.constraint_model_bsz : (i+1)*self.constraint_model_bsz]
+            import pdb 
+            pdb.set_trace() 
             probs_human_tensor = get_probs_human(
                 seqs_list=sub_batch_xs, 
                 human_tokenizer=self.human_classifier_tokenizer, 

@@ -178,18 +178,18 @@ yimeng latest if baselines... - == DONE
 # total: 30 (all running for both baseline + regular)
 
 # ROBOT: 
-CUDA_VISIBLE_DEVICES=7 python3 diverse_tm_optimization.py --task_id tm --max_n_oracle_calls 5000000000000000000 --bsz 10 --save_csv_frequency 10 --track_with_wandb True --wandb_entity nmaus --num_initialization_points 1000 --dim 1024 --vae_tokens uniref --max_string_length 150 --init_w_esmif True --M 20 --tau 5 --target_pdb_id sample25 - run_robot - done 
+CUDA_VISIBLE_DEVICES=3 python3 diverse_tm_optimization.py --task_id tm --max_n_oracle_calls 5000000000000000000 --bsz 10 --save_csv_frequency 10 --track_with_wandb True --wandb_entity nmaus --num_initialization_points 1000 --dim 1024 --vae_tokens uniref --max_string_length 150 --init_w_esmif True --M 20 --tau 5 --target_pdb_id sample199 - run_robot - done 
 
 YIMENG SET w/ NEW UNIREF VAE MODEL (esm if init only!)
-25 M10t5-X3 (Gauss 0, 11, 12)
-25 M5t10-X3 (LOCUST 0,1,2)
-25 M5t20-X3 (LOCUST 3,4,5) 
-25 M20t5-X3 (LOCUST 6,7) 
+25 m10t5-X3 (Gauss 0, 11, 12)
+25 m5t10-X3 (LOCUST 0,1,2)
+25 m5t20-X3 (LOCUST 3,4,5) 
+25 m20t5-X3 (LOCUST 6,7) 
+
+199 m10t5-X3 (EC2-13, EC2-20, EC2-21)
+199 m20t5-X2 (EC2-22, EC2-23)
 
 
- EC2-13
- EC2-20
- EC2-21
  EC2-22
  EC2-23
 
