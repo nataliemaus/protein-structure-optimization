@@ -356,21 +356,13 @@ class LOLBOState:
                         scores_arr = scores_arr * -1
                     pred = self.model(valid_zs)
                     loss = -self.mll(pred, scores_arr.cuda())
-                    # valid_zs = copy.deepcopy(valid_zs)
-                    # constraints_tensor = copy.deepcopy(constraints_tensor)
-
                     if self.train_c is not None: 
                         for ix, c_model in enumerate(self.c_models):
                             pred2 = c_model(valid_zs.cuda())
                             loss += -self.c_mlls[ix](pred2, constraints_tensor[:,ix].cuda())
                     optimizer1.zero_grad()
-                    try:
-                        # surr_loss.backward() 
-                        loss.backward() 
-                    except: 
-                        import pdb 
-                        pdb.set_trace() 
-                    # torch.nn.utils.clip_grad_norm_(self.model.parameters(), max_norm=1.0)
+                    loss.backward() 
+                    torch.nn.utils.clip_grad_norm_(self.model.parameters(), max_norm=1.0)
                     optimizer1.step() 
                     with torch.no_grad(): 
                         z = z.detach().cpu()
