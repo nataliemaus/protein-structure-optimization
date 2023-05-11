@@ -328,30 +328,32 @@ class LOLBOState:
         num_batches = math.ceil(len(train_x) / bsz) 
         for _ in range(self.num_update_epochs):
             for batch_ix in range(num_batches):
-                start_idx, stop_idx = batch_ix*bsz, (batch_ix+1)*bsz
-                batch_list = train_x[start_idx:stop_idx] 
-                z, _ = self.objective.vae_forward(batch_list)
-                out_dict = self.objective(z)
-                scores_arr = out_dict['scores'] 
-                constraints_tensor = out_dict['constr_vals']
-                valid_zs = out_dict['valid_zs']
-                xs_list = out_dict['decoded_xs']
+                with torch.no_grad(): 
+                    start_idx, stop_idx = batch_ix*bsz, (batch_ix+1)*bsz
+                    batch_list = train_x[start_idx:stop_idx] 
+                    z, _ = self.objective.vae_forward(batch_list)
+                    out_dict = self.objective(z)
+                    scores_arr = out_dict['scores'] 
+                    constraints_tensor = out_dict['constr_vals']
+                    valid_zs = out_dict['valid_zs']
+                    xs_list = out_dict['decoded_xs']
                 if len(scores_arr) > 0: # if some valid scores
                     scores_arr = torch.from_numpy(scores_arr)
                     if self.minimize:
                         scores_arr = scores_arr * -1
                     pred = self.model(valid_zs)
-                    loss = -self.mll(pred, scores_arr.cuda())
+                    surr_loss = -self.mll(pred, scores_arr.cuda())
                     c_loss = 0
                     if self.train_c is not None: 
                         for ix, c_model in enumerate(self.c_models):
                             pred2 = c_model(valid_zs)
                             c_loss += -self.c_mlls[ix](pred2, constraints_tensor[:,ix].cuda())
-                    loss = loss + c_loss 
+                    loss = surr_loss + c_loss 
                     optimizer1.zero_grad()
                     try:
-                        loss.backward()
-                    except:
+                        # surr_loss.backward() 
+                        loss.backward() 
+                    except: 
                         import pdb 
                         pdb.set_trace() 
                     torch.nn.utils.clip_grad_norm_(self.model.parameters(), max_norm=1.0)
