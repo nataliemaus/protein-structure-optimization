@@ -349,7 +349,11 @@ class LOLBOState:
                             c_loss += -self.c_mlls[ix](pred, constraints_tensor[:,ix].cuda())
                     loss = loss + c_loss 
                     optimizer1.zero_grad()
-                    loss.backward()
+                    try:
+                        loss.backward()
+                    except:
+                        import pdb 
+                        pdb.set_trace() 
                     torch.nn.utils.clip_grad_norm_(self.model.parameters(), max_norm=1.0)
                     optimizer1.step() 
                     with torch.no_grad(): 
