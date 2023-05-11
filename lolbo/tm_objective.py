@@ -248,6 +248,7 @@ class TMObjective(LatentSpaceObjective):
             all_c_vals = all_c_vals + c_vals_batch.tolist() 
         
         c_vals = torch.tensor(all_c_vals).float()
+        c_vals = c_vals.detach() 
 
         # probs_human_tensor = get_probs_human(
         #     seqs_list=xs_batch, 

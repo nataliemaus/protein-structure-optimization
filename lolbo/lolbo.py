@@ -345,8 +345,8 @@ class LOLBOState:
                     c_loss = 0
                     if self.train_c is not None: 
                         for ix, c_model in enumerate(self.c_models):
-                            pred = c_model(valid_zs)
-                            c_loss += -self.c_mlls[ix](pred, constraints_tensor[:,ix].cuda())
+                            pred2 = c_model(valid_zs)
+                            c_loss += -self.c_mlls[ix](pred2, constraints_tensor[:,ix].cuda())
                     loss = loss + c_loss 
                     optimizer1.zero_grad()
                     try:
