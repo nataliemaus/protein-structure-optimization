@@ -241,7 +241,7 @@ def run_if_baseline(
             "n_oracle_calls":num_calls,
             "best_input_seen":best_seq,
         }) 
-        if (steps % save_freq == 0) or (steps in [0, 10, 100, 1_000]):
+        if (steps % save_freq == 0) or (steps in [0, 10, 100, 1_000, 10_000]):
             pd.DataFrame(np.array(scores)).to_csv(scores_filename, index=None, header=None) 
             pd.DataFrame(np.array(seqs)).to_csv(seqs_filename, index=None, header=None)
         steps += 1

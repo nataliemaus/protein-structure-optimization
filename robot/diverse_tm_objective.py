@@ -47,6 +47,8 @@ class DiverseTMObjective(LatentSpaceObjective):
             self.target_pdb_path = f"../oracle/target_pdb_files/{target_pdb_id}.pdb"
             assert os.path.exists(self.target_pdb_path)
         self.esm_model              = EsmForProteinFolding.from_pretrained("facebook/esmfold_v1")
+        self.esm_model = self.esm_model.eval() 
+        self.esm_model = self.esm_model.cuda() 
         
         super().__init__(
             num_calls=num_calls,
@@ -77,7 +79,7 @@ class DiverseTMObjective(LatentSpaceObjective):
         # get rid of X's (deletion)
         temp = [] 
         for seq in decoded_seqs:
-            seq = seq.replace("X", "A")
+            seq = seq.replace("X", "")
             if len(seq) == 0:
                 seq = "AAA" # catch empty string case too... 
             temp.append(seq)
