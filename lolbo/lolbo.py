@@ -315,11 +315,22 @@ class LOLBOState:
         '''
         self.objective.vae.eval()
         self.model.train()
-        optimizer1 = torch.optim.Adam([{'params': self.model.parameters(),'lr': self.learning_rte} ], lr=self.learning_rte)
-        if self.train_c is not None: # if constrainted, update constraint models as well
-            c_model_params = [{'params': c_model.parameters(),'lr': self.learning_rte} for c_model in self.c_models]
-            params_list = c_model_params + [{'params': self.model.parameters(),'lr': self.learning_rte}]
-            optimizer1 = torch.optim.Adam(params_list, lr=self.learning_rte)
+
+        optimize_list = [
+            {'params': self.model.parameters(), 'lr': self.learning_rte} 
+        ]
+        if self.train_c is not None:
+            for c_model in self.c_models:
+                c_model.train() 
+                optimize_list.append({f"params": c_model.parameters(), 'lr': self.learning_rte})
+        optimizer1 = torch.optim.Adam(optimize_list, lr=self.learning_rte) 
+
+
+        # optimizer1 = torch.optim.Adam([{'params': self.model.parameters(),'lr': self.learning_rte} ], lr=self.learning_rte)
+        # if self.train_c is not None: # if constrainted, update constraint models as well
+        #     c_model_params = [{'params': c_model.parameters(),'lr': self.learning_rte} for c_model in self.c_models]
+        #     params_list = c_model_params + [{'params': self.model.parameters(),'lr': self.learning_rte}]
+        #     optimizer1 = torch.optim.Adam(params_list, lr=self.learning_rte)
         new_xs = self.train_x[-self.bsz:]
         train_x = new_xs + self.top_k_xs
         max_string_len = len(max(train_x, key=len))
@@ -345,8 +356,8 @@ class LOLBOState:
                         scores_arr = scores_arr * -1
                     pred = self.model(valid_zs)
                     loss = -self.mll(pred, scores_arr.cuda())
-                    valid_zs = copy.deepcopy(valid_zs)
-                    constraints_tensor = copy.deepcopy(constraints_tensor)
+                    # valid_zs = copy.deepcopy(valid_zs)
+                    # constraints_tensor = copy.deepcopy(constraints_tensor)
 
                     if self.train_c is not None: 
                         for ix, c_model in enumerate(self.c_models):
@@ -371,6 +382,9 @@ class LOLBOState:
                         )
             torch.cuda.empty_cache()
         self.model.eval() 
+        if self.train_c is not None:
+            for c_model in self.c_models:
+                c_model.eval() 
 
         return self
 
