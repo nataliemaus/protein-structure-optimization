@@ -99,7 +99,7 @@ CUDA_VISIBLE_DEVICES=2
 
 docker run -v /home/nmaus/protein-structure-optimization/:/workspace/protein-structure-optimization -w /workspace/protein-structure-optimization/lolbo_scripts --gpus "device=3" -d nmaus/fold2:latest 
 
-python3 tm_optimization.py --task_id tm --track_with_wandb True --wandb_entity nmaus --num_initialization_points 1000 --max_n_oracle_calls 150000 --bsz 10 --dim 1024 --max_string_length 150 --vae_tokens uniref --init_w_esmif True --target_pdb_id sample117 - run_lolbo - done 
+python3 tm_optimization.py --task_id tm --track_with_wandb True --wandb_entity nmaus --num_initialization_points 1000 --max_n_oracle_calls 150000 --bsz 10 --dim 1024 --max_string_length 150 --vae_tokens uniref --init_w_esmif True --target_pdb_id sample286 --min_prob_human 0.8 - run_lolbo - done 
 
 # --gvp_vae True --vae_kl_factor 0.001 --dim 1536 --update_e2e False   XXX never again XXX 
 # constrained: --min_prob_human 0.8   
@@ -108,14 +108,15 @@ python3 tm_optimization.py --task_id tm --track_with_wandb True --wandb_entity n
 
 YIMENG SET w/ NEW UNIREF VAE MODEL (esm if init only!)
 - == done, above hline == averaged over many  
-25 GAUSS len34/102 DONE X6   ALLEGRO-GVP-LOLBO X1         100k solid W, baseline run there
-286 GAUSS len34/102 DONE X2  W tbd, if baseline needs time 
-286-constr 0.9-ALLEGRO-X1 0.9-PRESTO-old-X3 0.8-ALLEGRO-X1  
+286-constr ALLEGRO-0.9-X1 PRESTO-0.9oldV-X3 
+
+286 GAUSS len34/102 DONE X2  W tbd, if baseline needs time   
 587 GAUSS len35/105 DONE X0 PRESTO-X3      All need time 
 359 LOCUST len34/102 DONE X6               if baseline needs time 
 455 LOCUST len40/120 DONE X4               if baseline needs time
 228 -- 
 199 -- 
+25 -- 
 ________________________________________________
 575 - :( 
 615 -

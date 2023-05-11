@@ -70,7 +70,7 @@ def update_models_end_to_end_with_constraints(
         {'params': model.parameters(), 'lr': learning_rte} 
     ]
     if train_c_scores is not None:
-        for c_model in enumerate(c_models):
+        for c_model in c_models:
             c_model.train() 
             optimize_list.append({f"params": c_model.parameters(), 'lr': learning_rte})
     optimizer = torch.optim.Adam(optimize_list, lr=learning_rte) 
@@ -107,7 +107,7 @@ def update_models_end_to_end_with_constraints(
     objective.vae.eval()
     model.eval()
     if train_c_scores is not None:
-        for c_model in enumerate(c_models):
+        for c_model in c_models:
             c_model.eval() 
 
     return objective, model
