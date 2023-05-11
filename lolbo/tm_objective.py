@@ -13,8 +13,8 @@ from oracle.aa_seq_to_tm_score import aa_seq_to_tm_score
 import os 
 from uniref_vae.data import collate_fn
 from uniref_vae.load_uniref_vae import load_uniref_vae, load_gvp_vae 
-from oracle.fold import load_esm_if_model, aa_seqs_list_to_avg_gvp_encodings, get_gvp_encoding
-from oracle.get_prob_human import load_human_classier_model, get_prob_human
+from oracle.fold import load_esm_if_model, aa_seqs_list_to_avg_gvp_encodings # , get_gvp_encoding
+from oracle.get_prob_human import load_human_classier_model, get_probs_human
 
 
 class TMObjective(LatentSpaceObjective):
@@ -231,18 +231,26 @@ class TMObjective(LatentSpaceObjective):
         '''
         if self.min_prob_human == -1:
             return None 
-
-        c_vals = []
-        for x in xs_batch:
-            probh = get_prob_human(
-                seq=x, 
-                human_tokenizer=self.human_classifier_tokenizer, 
-                human_model=self.human_classifier_model, 
-            )
-            c_val = (probh*-1) + self.min_prob_human
-            c_vals.append(c_val)
         
-        c_vals = torch.tensor(c_vals).float() 
+        probs_human_tensor = get_probs_human(
+            seqs_list=xs_batch, 
+            human_tokenizer=self.human_classifier_tokenizer, 
+            human_model=self.human_classifier_model,
+        )
+        c_vals = probs_human_tensor*-1 + self.min_prob_human
+
+        # Old version (non-batched)
+        # c_vals = []
+        # for x in xs_batch:
+        #     probh = get_prob_human(
+        #         seq=x, 
+        #         human_tokenizer=self.human_classifier_tokenizer, 
+        #         human_model=self.human_classifier_model, 
+        #     )
+        #     c_val = (probh*-1) + self.min_prob_human
+        #     c_vals.append(c_val)
+        
+        # c_vals = torch.tensor(c_vals).float() 
         return c_vals.unsqueeze(-1) 
 
 

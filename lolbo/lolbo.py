@@ -5,7 +5,11 @@ from gpytorch.mlls import PredictiveLogLikelihood
 import sys 
 sys.path.append("../")
 from lolbo.utils.bo_utils.turbo import TurboState, update_state, generate_batch
-from lolbo.utils.utils import update_models_end_to_end, update_surr_model, update_constraint_surr_models
+from lolbo.utils.utils import (
+    update_surr_model, 
+    update_constraint_surr_models,
+    update_models_end_to_end_with_constraints,
+)
 from lolbo.utils.bo_utils.ppgpr import GPModelDKL
 import numpy as np
 
@@ -75,12 +79,13 @@ class LOLBOState:
             vaid_train_y = self.train_y[bool_arr]
             valid_train_z = self.train_z[bool_arr]
             valid_train_x = np.array(self.train_x)[bool_arr]
+            valid_train_c = self.train_c[bool_arr] 
         else:
             vaid_train_y = self.train_y
             valid_train_z = self.train_z
             valid_train_x = self.train_x 
         
-        # Update! 5/10/23
+        # Update! 5/10/23 
         self.best_score_seen = torch.max(vaid_train_y)
         self.best_x_seen = valid_train_x[torch.argmax(vaid_train_y.squeeze())]
 
@@ -92,6 +97,8 @@ class LOLBOState:
         top_k_idxs = top_k_idxs.tolist()
         self.top_k_xs = [valid_train_x[i] for i in top_k_idxs]
         self.top_k_zs = [valid_train_z[i].unsqueeze(-2) for i in top_k_idxs]
+        if self.train_c is not None: 
+            self.top_k_cs = [valid_train_c[i].unsqueeze(-2) for i in top_k_idxs]
 
 
     def initialize_tr_state(self):
@@ -189,6 +196,8 @@ class LOLBOState:
                     self.top_k_scores.append(score.item())
                     self.top_k_xs.append(x_next_[i])
                     self.top_k_zs.append(z_next_[i].unsqueeze(-2))
+                    if self.train_c is not None: # if constrained, update best constraints too
+                        self.top_k_cs.append(c_next_[i].unsqueeze(-2))
                 elif score.item() > min(self.top_k_scores) and (x_next_[i] not in self.top_k_xs):
                     # if the score is better than the worst score in the top k list, upate the list
                     min_score = min(self.top_k_scores)
@@ -196,7 +205,9 @@ class LOLBOState:
                     self.top_k_scores[min_idx] = score.item()
                     self.top_k_xs[min_idx] = x_next_[i]
                     self.top_k_zs[min_idx] = z_next_[i].unsqueeze(-2) # .cuda()
-                #if we imporve
+                    if self.train_c is not None: # if constrained, update best constraints too
+                        self.top_k_cs[min_idx] = c_next_[i].unsqueeze(-2)
+                #if we imporve 
                 if score.item() > self.best_score_seen:
                     self.progress_fails_since_last_e2e = 0
                     progress = True
@@ -267,14 +278,31 @@ class LOLBOState:
         new_ys = self.train_y[-self.bsz:].squeeze(-1).tolist()
         train_x = new_xs + self.top_k_xs
         train_y = torch.tensor(new_ys + self.top_k_scores).float()
-        self.objective, self.model = update_models_end_to_end(
-            train_x,
-            train_y,
-            self.objective,
-            self.model,
-            self.mll,
-            self.learning_rte,
-            self.num_update_epochs
+        
+
+        c_models = []
+        c_mlls = []
+        train_c = None 
+        if self.train_c is not None:
+            c_models = self.c_models 
+            c_mlls = self.c_mlls
+            new_cs = self.train_c[-self.bsz:] 
+            # Note: self.top_k_cs is a list of (1, n_cons) tensors 
+            top_k_cs_tensor = torch.cat(self.top_k_cs, -2).float() 
+            train_c = torch.cat((new_cs, top_k_cs_tensor), -2).float() 
+            # train_c = torch.tensor(new_cs + self.top_k_cs).float() 
+
+        self.objective, self.model = update_models_end_to_end_with_constraints(
+            train_x=train_x,
+            train_y_scores=train_y,
+            objective=self.objective,
+            model=self.model,
+            mll=self.mll,
+            learning_rte=self.learning_rte,
+            num_update_epochs=self.num_update_epochs,
+            train_c_scores=train_c,
+            c_models=c_models,
+            c_mlls=c_mlls,
         )
         self.tot_num_e2e_updates += 1
 

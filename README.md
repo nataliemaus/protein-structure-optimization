@@ -98,50 +98,65 @@ CUDA_VISIBLE_DEVICES=1
 
 docker run -v /home/nmaus/protein-structure-optimization/:/workspace/protein-structure-optimization -w /workspace/protein-structure-optimization/lolbo_scripts --gpus "device=3" -d nmaus/fold2:latest 
 
-python3 tm_optimization.py --task_id tm --track_with_wandb True --wandb_entity nmaus --num_initialization_points 1000 --max_n_oracle_calls 150000 --bsz 10 --dim 1024 --max_string_length 150 --vae_tokens uniref --init_w_esmif True --target_pdb_id sample494 - run_lolbo - done 
+python3 tm_optimization.py --task_id tm --track_with_wandb True --wandb_entity nmaus --num_initialization_points 1000 --max_n_oracle_calls 150000 --bsz 10 --dim 1024 --max_string_length 150 --vae_tokens uniref --init_w_esmif True --target_pdb_id sample286 --min_prob_human 0.8 - run_lolbo - done 
 
 # --gvp_vae True --vae_kl_factor 0.001 --dim 1536 --update_e2e False   XXX never again XXX 
-# constrained: --min_prob_human 0.9 
+# constrained: --min_prob_human 0.8   (Note: no constraints on locust (too little storage...))
 
 YIMENG SET w/ NEW UNIREF VAE MODEL (esm if init only!)
+- == done, above hline == averaged over many  
 25 GAUSS len34/102 DONE X6   ALLEGRO-GVP-LOLBO X1         100k solid W, baseline run there
-286 GAUSS len34/102 DONE X2 constr0.9-ALLEGRO X1 constr0.9-PRESTO X3         W tbd, if baseline needs time 
-575 GAUSS len44/132 DONE X3                                                     Offficial L, kill 
-587 GAUSS len35/105 DONE X0 PRESTO-X3                                           All need time 
-359 LOCUST len34/102 DONE X6                                                    if baseline needs time 
-455 LOCUST len40/120 DONE X4                                                    if baseline needs time
-228 LOCUST len41/126 DONE X6                                                    solid W, kill early 
-615 LOCUST X1                                                                   kill baseline only 
-582 LOCUST X1                                                                   solid W, kill both 
-459 LOCUST X1                                                                   kill baseline only 
-199 LOCUST X3                                                                   almost not yet 
-41 LOCUST X1                                                                    tragic L kill all 
-280 LOCUST X1                                                                   solid W kill both 
-494 GAUSS1                                                                    solid W kill both 
+286 GAUSS len34/102 DONE X2                                 W tbd, if baseline needs time 
+286-constr        0.9-ALLEGRO-X1 0.9-PRESTO-X3 0.8-PRESTO-X3 0.8-LOCUST-X1  
+587 GAUSS len35/105 DONE X0 PRESTO-X3      All need time 
+359 LOCUST len34/102 DONE X6               if baseline needs time 
+455 LOCUST len40/120 DONE X4               if baseline needs time
+228 LOCUST len41/126 DONE X6               solid W, kill early 
+199 --
+________________________________________________
+575 - :( 
+615 -
+582 -
+459 -
+41 - :( 
+280 - 
+494 GAUSS1      
+129 GAUSS2     
+668 GAUSS8  
+611 GAUSS9    
+375 GAUSS10  
+65 GAUSS13
+583 GAUSS14  
+363 GAUSS15   
+458 GAUSS17    
+3106 GAUSS18   
+479 GAUSS19 
+215 GAUSS6  
+664 GAUSS7  
 
 
 # CUDA_VISIBLE_DEVICES=0 
 # python3 if_baseline.py --target_pdb_id sample167  
 yimeng latest if baselines... - == DONE 
 494 -
-129 GAUSS2
+129 -
 25  GAUSS3 
 359 GAUSS4
-337 GAUSS5
-215 GAUSS6 
-664 GAUSS7 
-668 GAUSS8
-611 GAUSS9
-375 GAUSS10
+337 GAUSS5 (killable...)
+215 -
+664 -
+668 -
+611 -
+375 -
 117 -  
 575 -
-65 GAUSS13
-583 GAUSS14
-363 GAUSS15 
-458 GAUSS16 
-1104 GAUSS17 
-3106 GAUSS18 
-479 GAUSS19 
+65 -
+583 -
+363 -
+1104 GAUSS16 (killable...)
+458 -
+3106 -
+479 -
 286 ALLEGRO
 587 ALLEGRO
 455 ALLEGRO
@@ -157,13 +172,20 @@ yimeng latest if baselines... - == DONE
 # total: 30 
 
 # ROBOT: 
-python3 diverse_tm_optimization.py --task_id tm --max_n_oracle_calls 5000000000000000000 --bsz 10 --save_csv_frequency 10 --track_with_wandb True --wandb_entity nmaus --num_initialization_points 1000 --dim 1024 --vae_tokens uniref --max_string_length 150 --init_w_esmif True --M 10 --tau 5 --target_pdb_id sample25 - run_robot - done 
+CUDA_VISIBLE_DEVICES=7 python3 diverse_tm_optimization.py --task_id tm --max_n_oracle_calls 5000000000000000000 --bsz 10 --save_csv_frequency 10 --track_with_wandb True --wandb_entity nmaus --num_initialization_points 1000 --dim 1024 --vae_tokens uniref --max_string_length 150 --init_w_esmif True --M 20 --tau 5 --target_pdb_id sample25 - run_robot - done 
 
 YIMENG SET w/ NEW UNIREF VAE MODEL (esm if init only!)
 25 M10t5-X3 (Gauss 0, 11, 12)
+25 M5t10-X3 (LOCUST 0,1,2)
+25 M5t20-X3 (LOCUST 3,4,5) 
+25 M20t5-X3 (LOCUST 6,7) 
 
 
 
+
+_______________________________________
+_______________________________________
+_______________________________________
 
 IF DOES VERY GOOD (0.95)
 350 GAUSS X2
