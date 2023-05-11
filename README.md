@@ -101,18 +101,20 @@ docker run -v /home/nmaus/protein-structure-optimization/:/workspace/protein-str
 python3 tm_optimization.py --task_id tm --track_with_wandb True --wandb_entity nmaus --num_initialization_points 1000 --max_n_oracle_calls 150000 --bsz 10 --dim 1024 --max_string_length 150 --vae_tokens uniref --init_w_esmif True --target_pdb_id sample286 --min_prob_human 0.8 - run_lolbo - done 
 
 # --gvp_vae True --vae_kl_factor 0.001 --dim 1536 --update_e2e False   XXX never again XXX 
-# constrained: --min_prob_human 0.8   (Note: no constraints on locust (too little storage...))
+# constrained: --min_prob_human 0.8   
+#       (Note: no constraints on locust (too little storage...))
+#       only constrs on ones where baseline will finish (need saved data)
 
 YIMENG SET w/ NEW UNIREF VAE MODEL (esm if init only!)
 - == done, above hline == averaged over many  
 25 GAUSS len34/102 DONE X6   ALLEGRO-GVP-LOLBO X1         100k solid W, baseline run there
 286 GAUSS len34/102 DONE X2                                 W tbd, if baseline needs time 
-286-constr        0.9-ALLEGRO-X1 0.9-PRESTO-X3 0.8-PRESTO-X3 0.8-LOCUST-X1  
+286-constr 0.9-ALLEGRO-X1 0.9-PRESTO-X3 0.8-ALLEGRO-X1  
 587 GAUSS len35/105 DONE X0 PRESTO-X3      All need time 
 359 LOCUST len34/102 DONE X6               if baseline needs time 
 455 LOCUST len40/120 DONE X4               if baseline needs time
-228 LOCUST len41/126 DONE X6               solid W, kill early 
-199 --
+228 -- 
+199 -- 
 ________________________________________________
 575 - :( 
 615 -
@@ -160,7 +162,7 @@ yimeng latest if baselines... - == DONE
 286 ALLEGRO
 587 ALLEGRO
 455 ALLEGRO
-228 ALLEGRO 
+228 -
 167 ALLEGRO 
 615 VIVANCE 
 582 VIVANCE 

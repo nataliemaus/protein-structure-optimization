@@ -39,10 +39,12 @@ class TMOptimization(Optimize):
         vae_kl_factor=0.0001,
         gvp_vae=False,
         gvp_vae_version_flag=3,
+        constr_models_updated_e2e_flag=True,
         cuda_device_number=None,
         min_prob_human=-1,
         **kwargs
     ):
+        self.constr_models_updated_e2e_flag = constr_models_updated_e2e_flag
         self.dim = dim 
         self.max_string_length = max_string_length
         self.vae_tokens = vae_tokens
