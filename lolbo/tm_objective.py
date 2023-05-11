@@ -222,7 +222,8 @@ class TMObjective(LatentSpaceObjective):
 
         return z, vae_loss
 
-
+    # black box constraint, treat as oracle 
+    @torch.no_grad()
     def compute_constraints(self, xs_batch):
         ''' Input: 
                 a list xs 
