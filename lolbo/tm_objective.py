@@ -1,6 +1,7 @@
 import numpy as np
 import torch 
 import sys 
+import math 
 sys.path.append("../")
 from lolbo.latent_space_objective import LatentSpaceObjective
 from constants import (
@@ -36,6 +37,7 @@ class TMObjective(LatentSpaceObjective):
         gvp_vae=False,
         gvp_vae_version_flag=3,
         min_prob_human=-1,
+        constraint_model_bsz=64,
     ):
         self.vae_tokens             = vae_tokens 
         assert vae_tokens in ["esm", "uniref"] 
@@ -47,6 +49,7 @@ class TMObjective(LatentSpaceObjective):
         self.gvp_vae                = gvp_vae
         self.gvp_vae_version_flag   = gvp_vae_version_flag
         self.min_prob_human         = min_prob_human 
+        self.constraint_model_bsz   = constraint_model_bsz
 
         if self.min_prob_human != -1:
             self.human_classifier_tokenizer, self.human_classifier_model = load_human_classier_model() 
@@ -232,12 +235,26 @@ class TMObjective(LatentSpaceObjective):
         if self.min_prob_human == -1:
             return None 
         
-        probs_human_tensor = get_probs_human(
-            seqs_list=xs_batch, 
-            human_tokenizer=self.human_classifier_tokenizer, 
-            human_model=self.human_classifier_model,
-        )
-        c_vals = probs_human_tensor*-1 + self.min_prob_human
+        n_sub_batches = math.ceil(len(xs_batch)/self.constraint_model_bsz)
+        all_c_vals = []
+        for i in range(n_sub_batches):
+            sub_batch_xs = xs_batch[i*self.constraint_model_bsz:(i+1)*self.constraint_model_bsz]
+            probs_human_tensor = get_probs_human(
+                seqs_list=sub_batch_xs, 
+                human_tokenizer=self.human_classifier_tokenizer, 
+                human_model=self.human_classifier_model,
+            )
+            c_vals_batch = probs_human_tensor*-1 + self.min_prob_human
+            all_c_vals = all_c_vals + c_vals_batch.tolist() 
+        
+        c_vals = torch.tensor(all_c_vals).float()
+
+        # probs_human_tensor = get_probs_human(
+        #     seqs_list=xs_batch, 
+        #     human_tokenizer=self.human_classifier_tokenizer, 
+        #     human_model=self.human_classifier_model,
+        # )
+        # c_vals = probs_human_tensor*-1 + self.min_prob_human
 
         # Old version (non-batched)
         # c_vals = []

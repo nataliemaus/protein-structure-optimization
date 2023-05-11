@@ -42,6 +42,7 @@ class TMOptimization(Optimize):
         constr_models_updated_e2e_flag=True,
         cuda_device_number=None,
         min_prob_human=-1,
+        constraint_model_bsz=64,
         **kwargs
     ):
         self.constr_models_updated_e2e_flag = constr_models_updated_e2e_flag
@@ -57,6 +58,7 @@ class TMOptimization(Optimize):
         self.gvp_vae = gvp_vae
         self.gvp_vae_version_flag = gvp_vae_version_flag
         self.min_prob_human = min_prob_human
+        self.constraint_model_bsz = constraint_model_bsz
         if cuda_device_number is not None:
             os.environ["CUDA_VISIBLE_DEVICES"]=str(cuda_device_number)
         super().__init__(**kwargs) 
@@ -79,6 +81,7 @@ class TMOptimization(Optimize):
             gvp_vae=self.gvp_vae,
             gvp_vae_version_flag=self.gvp_vae_version_flag,
             min_prob_human=self.min_prob_human,
+            constraint_model_bsz=self.constraint_model_bsz,
         )
         # if train zs have not been pre-computed for particular vae, compute them 
         #   by passing initialization selfies through vae 
