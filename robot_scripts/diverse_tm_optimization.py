@@ -63,7 +63,7 @@ class DiverseTMOptimization(Optimize):
 
     def compute_train_zs(
         self,
-        bsz=64
+        bsz=32,
     ):
         init_zs = []
         # make sure vae is in eval mode 
