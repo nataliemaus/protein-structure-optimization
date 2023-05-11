@@ -90,8 +90,6 @@ class LOLBOState:
         self.best_x_seen = valid_train_x[torch.argmax(vaid_train_y.squeeze())]
 
         # track top k scores found
-        # import pdb 
-        # pdb.set_trace() 
         self.top_k_scores, top_k_idxs = torch.topk(vaid_train_y.squeeze(), min(self.k, vaid_train_y.shape[0]))
         self.top_k_scores = self.top_k_scores.tolist() 
         top_k_idxs = top_k_idxs.tolist()
