@@ -343,13 +343,11 @@ class LOLBOState:
                     if self.minimize:
                         scores_arr = scores_arr * -1
                     pred = self.model(valid_zs)
-                    surr_loss = -self.mll(pred, scores_arr.cuda())
-                    c_loss = 0
+                    loss = -self.mll(pred, scores_arr.cuda())
                     if self.train_c is not None: 
                         for ix, c_model in enumerate(self.c_models):
                             pred2 = c_model(valid_zs)
-                            c_loss += -self.c_mlls[ix](pred2, constraints_tensor[:,ix].cuda())
-                    loss = surr_loss # + c_loss 
+                            loss += -self.c_mlls[ix](pred2, constraints_tensor[:,ix].cuda())
                     optimizer1.zero_grad()
                     try:
                         # surr_loss.backward() 
