@@ -120,9 +120,9 @@ def compute_and_save_if_baseline_human_probs(
 def log_if_baseline_constrained(target_pdb_id, min_prob_human):
         probs_filename = f"../data/if_baseline_probs_human_{target_pdb_id}.csv"
         df = pd.read_csv(probs_filename)
-        tm_scores = df["tm_score"]
-        probsh = df["prob_human"]
-        seqs = df["seq"]
+        tm_scores = df["tm_score"].values 
+        probsh = df["prob_human"].values 
+        seqs = df["seq"].values 
 
         args_dict = {
             "max_n_oracle_calls":150_000,
@@ -149,8 +149,6 @@ def log_if_baseline_constrained(target_pdb_id, min_prob_human):
             best_found = 0.0
             best_input_seen = "" 
         
-        import pdb 
-        pdb.set_trace() 
         remaining_scores = tm_scores[1_000:]
         remaining_seqs = seqs[1_000:]
         remaining_probsh = probsh[1_000:] 
