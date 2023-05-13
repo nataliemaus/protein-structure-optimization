@@ -16,6 +16,7 @@ import glob
 import time 
 from oracle.get_prob_human import get_probs_human, load_human_classier_model
 import math 
+from oracle.edit_distance import compute_edit_distance
 
 
 def create_wandb_tracker(
@@ -169,6 +170,87 @@ def log_if_baseline_constrained(target_pdb_id, min_prob_human):
 
             
 
+def log_if_baseline_robot(
+    target_pdb_id, 
+    M,
+    tau,
+    step_size=100,
+):
+        probs_filename = f"../data/if_baseline_probs_human_{target_pdb_id}.csv"
+        df = pd.read_csv(probs_filename)
+        tm_scores = df["tm_score"].values 
+        # probsh = df["prob_human"].values 
+        seqs = df["seq"].values 
+
+        args_dict = {
+            "M":M,
+            "tau":tau,
+            "max_n_oracle_calls":150_000,
+            "num_initialization_points":1_000,
+            "if_baseline":True, 
+            "target_pdb_id":target_pdb_id,
+        } 
+        # compute_edit_distance 
+
+        tracker = create_wandb_tracker(
+            config_dict=args_dict,
+            wandb_project_name="ROBOT-tm",
+            wandb_entity="nmaus",
+        )
+
+
+        def is_feasible(x, higher_ranked_xs): 
+            for higher_ranked_x in higher_ranked_xs:
+                if compute_edit_distance(x, higher_ranked_x) < tau:
+                    return False 
+            return True 
+
+        def get_top_m_scores_and_seqs(scores_tensor, seqs_list_):
+            M_diverse_scores = []
+            tr_center_xs = []
+            idx_num = 0
+            _, top_t_idxs = torch.topk(scores_tensor, len(scores_tensor))
+            for i in M:
+                while True: 
+                    # if we run out of feasible points in dataset
+                    if idx_num >= len(scores_tensor): 
+                        print("out of feasible points")
+                        assert 0 
+                    # otherwise, finding highest scoring feassible point in remaining dataset for tr center
+                    center_idx = top_t_idxs[idx_num]
+                    center_score = scores_tensor[center_idx].item()
+                    center_x = seqs_list_[center_idx]
+                    idx_num += 1
+                    if is_feasible(center_x, higher_ranked_xs=tr_center_xs):
+                        break 
+
+                tr_center_xs.append(center_x) 
+                M_diverse_scores.append(center_score)
+
+            M_diverse_scores = np.array(M_diverse_scores)
+            M_diverse_xs = tr_center_xs
+            return M_diverse_scores, M_diverse_xs
+
+        
+        # remaining_scores = tm_scores[1_000:]
+        # remaining_seqs = seqs[1_000:]
+        n_oracle_calls = 0
+        # for ix, tm_score in enumerate(remaining_scores):
+        for i in range(1_000, len(tm_scores), step_size):
+            M_diverse_scores, M_diverse_xs = get_top_m_scores_and_seqs(
+                scores_tensor=torch.tensor(tm_scores[0:i]).float(), 
+                seqs_list_=seqs[0:i],
+            ) 
+            tracker.log({
+                "mean_score_diverse_set":M_diverse_scores.mean(),
+                "min_score_diverse_set":M_diverse_scores.min(),
+                "max_score_diverse_set":M_diverse_scores.max(),
+                "n_oracle_calls":n_oracle_calls
+            }) 
+            n_oracle_calls += step_size
+
+        tracker.log({"M_diverse_xs":M_diverse_xs})
+        tracker.finish() 
 
 
 
@@ -338,14 +420,36 @@ if __name__ == "__main__":
     parser.add_argument('--compute_probs_h', type=bool, default=False )
     parser.add_argument('--log_if_baseline_constrained', type=bool, default=False )
     parser.add_argument('--min_prob_human', type=float, default=0.8 ) 
-    
+
+    parser.add_argument('--M', type=int, default=10 ) 
+    parser.add_argument('--tau', type=int, default=10 ) 
+    parser.add_argument('--step_size', type=int, default=100 ) 
+    parser.add_argument('--log_if_baseline_robot', type=bool, default=False )
 
     args = parser.parse_args() 
 
-    # python3 if_baseline.py --target_pdb_id sample25 --compute_probs_h True  (ON gauss17)
-    # python3 if_baseline.py --target_pdb_id sample25 --log_if_baseline_constrained True --min_prob_human 0.8 
-    # python3 if_baseline.py --target_pdb_id sample25 --log_if_baseline_constrained True --min_prob_human 0.9 
+    # python3 if_baseline.py --target_pdb_id sample25 --log_if_baseline_robot True --M 10 --tau 5
+    # python3 if_baseline.py --target_pdb_id sample25 --log_if_baseline_robot True --M 5 --tau 10
+    # python3 if_baseline.py --target_pdb_id sample25 --log_if_baseline_robot True --M 5 --tau 20
+    # python3 if_baseline.py --target_pdb_id sample25 --log_if_baseline_robot True --M 20 --tau 5
 
+    # python3 if_baseline.py --target_pdb_id sample199 --log_if_baseline_robot True --M 10 --tau 5
+    # python3 if_baseline.py --target_pdb_id sample199 --log_if_baseline_robot True --M 5 --tau 10
+    # python3 if_baseline.py --target_pdb_id sample199 --log_if_baseline_robot True --M 5 --tau 20
+    # python3 if_baseline.py --target_pdb_id sample199 --log_if_baseline_robot True --M 20 --tau 5
+
+
+
+    # python3 if_baseline.py --target_pdb_id sample25 --compute_probs_h True  (done)
+    # python3 if_baseline.py --target_pdb_id sample25 --log_if_baseline_constrained True --min_prob_human 0.8  (gauss17)
+    # python3 if_baseline.py --target_pdb_id sample25 --log_if_baseline_constrained True --min_prob_human 0.9  (gauss18)
+
+    # python3 if_baseline.py --target_pdb_id sample199 --compute_probs_h True  (done)
+    # TODO: 
+    # python3 if_baseline.py --target_pdb_id sample199 --log_if_baseline_constrained True --min_prob_human 0.8 (ON gauss19)
+    # python3 if_baseline.py --target_pdb_id sample199 --log_if_baseline_constrained True --min_prob_human 0.9  (ON gauss3)
+
+    # python3 if_baseline.py --target_pdb_id sample228 --min_prob_human -1 (running on gauss)
 
     if args.compute_probs_h:
         compute_and_save_if_baseline_human_probs(the_target_pdb_id=args.target_pdb_id)
@@ -355,6 +459,13 @@ if __name__ == "__main__":
         log_if_baseline_constrained(
             target_pdb_id=args.target_pdb_id, 
             min_prob_human=args.min_prob_human,
+        )
+    elif args.log_if_baseline_robot:
+        log_if_baseline_robot(
+            target_pdb_id=args.target_pdb_id, 
+            M=args.M,
+            tau=args.tau,
+            step_size=args.step_size,
         )
     else:
         tracker = create_wandb_tracker(

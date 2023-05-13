@@ -28,10 +28,9 @@ docker run -v /home/nmaus/protein-structure-optimization/:/workspace/protein-str
 
 docker run -v /home/nmaus/protein-structure-optimization/:/workspace/protein-structure-optimization -w /workspace/protein-structure-optimization/lolbo_scripts --gpus "device=5" -d nmaus/fold2:latest python3 ... 
 
-# Gauss
-runai submit lolbo-opt0 -v /shared_data0/protein-structure-optimization/:/workspace/protein-structure-optimization/ --working-dir /workspace/protein-structure-optimization/lolbo_scripts -i nmaus/fold2:latest -g 1 --interactive --attach 
-
-runai submit lolbo-opt0 -v /shared_data0/protein-structure-optimization/:/workspace/protein-structure-optimization/ --working-dir /workspace/protein-structure-optimization/lolbo_scripts -i nmaus/fold2:latest -g 1 --interactive --attach 
+# Gauss 
+runai delete job lolbo-opt19
+runai submit lolbo-opt19 -v /shared_data0/protein-structure-optimization/:/workspace/protein-structure-optimization/ --working-dir /workspace/protein-structure-optimization/lolbo_scripts -i nmaus/fold2:latest -g 1 --interactive --attach 
 
 # EC2 
 docker run --privileged --gpus all -v /home/ec2-user/protein-structure-optimization/:/workspace/protein-structure-optimization -w /workspace/protein-structure-optimization/lolbo_scripts -it nmaus/fold2:latest 
@@ -99,21 +98,23 @@ CUDA_VISIBLE_DEVICES=2
 
 docker run -v /home/nmaus/protein-structure-optimization/:/workspace/protein-structure-optimization -w /workspace/protein-structure-optimization/lolbo_scripts --gpus "device=2" -d nmaus/fold2:latest 
 
-python3 tm_optimization.py --task_id tm --track_with_wandb True --wandb_entity nmaus --num_initialization_points 1000 --max_n_oracle_calls 150000 --bsz 10 --dim 1024 --max_string_length 150 --vae_tokens uniref --init_w_esmif True --target_pdb_id sample359 --min_prob_human 0.8 - run_lolbo - done 
+python3 tm_optimization.py --task_id tm --track_with_wandb True --wandb_entity nmaus --num_initialization_points 1000 --max_n_oracle_calls 150000 --bsz 10 --dim 1024 --max_string_length 150 --vae_tokens uniref --init_w_esmif True --target_pdb_id sample337 --min_prob_human 0.9 - run_lolbo - done 
 
 # --gvp_vae True --vae_kl_factor 0.001 --dim 1536 --update_e2e False   XXX never again XXX 
 # constrained: --min_prob_human 0.8   
 #       (Note: no constraints on locust (too little storage...))
 #       only constrs on ones where baseline will finish (need saved data)
 
+TODO: See if_baseline.py notes !! 
+
 YIMENG SET w/ NEW UNIREF VAE MODEL (esm if init only!)
 - == done, above hline == averaged over many  
 _________________constrained_______________________________
-286 ALLEGRO-0.9-X2 PRESTO-0.8-X3   BAD BAD
-25 VIVANCE-0.8-X3-0.9-X3 GAUSS-0.9-X2
-199 VIVANCE-0.8-X3-0.9-X0 
-228 GAUSS-0.8-X1-0.9-X0 ALLEGRO-0.8-X2-0.9-X0  FIAL SO FAR
-359 PRESTO-0.8-X1-0.9-X0 ALLEGRO-0.8-X1-0.9-X0
+286 ALLEGRO-0.9-X2 PRESTO-0.8-X3   (BAD BAD)
+25 VIVANCE-0.8-X3-0.9-X3 GAUSS-0.9-X2   (GGOOD)
+199 VIVANCE-0.8-X3 GAUSS151413-0.9-X3   (GGOOD maybe)
+228 GAUSS-0.8-X1-0.9-X3 ALLEGRO-0.8-X2  
+359 PRESTO-0.8-X1-0.9-X0 ALLEGRO-0.8-X1-0.9-X0 (MEH WE'LL SEE) 
 ________________________________________________
 286 --   
 587 -- (barerly win) 
@@ -129,23 +130,23 @@ ________________________________________________
 459 -
 41 - :( 
 280 - 
-494 GAUSS1      
-129 GAUSS2     
-668 GAUSS8  
-611 GAUSS9    
-375 GAUSS10  
-65 GAUSS13
-583 GAUSS14  
-363 GAUSS15   
+494 -       
+129 -
+668 GAUSS8  :(likely 
+611 - 
+375 GAUSS10   NEEDS TIME 
+65 - 
+583 -
+363 - 
 458 - 
-3106 GAUSS18   
-479 GAUSS19 
-215 GAUSS6  
-664 GAUSS7  
-337 GAUSS3
-167 EC2-10
-1104 EC2-11
-117 EC2-12
+3106 - :(   
+479 - 
+215 -
+664 - 
+337 - 
+167 EC2-10 :( likely 
+1104 EC2-11  W
+117 EC2-12 W ish 
 
 # CUDA_VISIBLE_DEVICES=0 (DO NOT KILL MORE! NEED SAVED DATA!)
 # python3 if_baseline.py --target_pdb_id sample167  
@@ -185,7 +186,7 @@ yimeng latest if baselines... - == DONE
 # total: 30 (all running for both baseline + regular)
 
 # ROBOT: 
-CUDA_VISIBLE_DEVICES=3 python3 diverse_tm_optimization.py --task_id tm --max_n_oracle_calls 5000000000000000000 --bsz 10 --save_csv_frequency 10 --track_with_wandb True --wandb_entity nmaus --num_initialization_points 1000 --dim 1024 --vae_tokens uniref --max_string_length 150 --init_w_esmif True --M 20 --tau 5 --target_pdb_id sample199 - run_robot - done 
+CUDA_VISIBLE_DEVICES=3 python3 diverse_tm_optimization.py --task_id tm --max_n_oracle_calls 5000000000000000000 --bsz 10 --save_csv_frequency 10 --track_with_wandb True --wandb_entity nmaus --num_initialization_points 1000 --dim 1024 --vae_tokens uniref --max_string_length 150 --init_w_esmif True --M 5 --tau 20 --target_pdb_id sample199 - run_robot - done 
 
 YIMENG SET w/ NEW UNIREF VAE MODEL (esm if init only!)
 25 m10t5-X3 (Gauss 0, 11, 12)
@@ -194,6 +195,9 @@ YIMENG SET w/ NEW UNIREF VAE MODEL (esm if init only!)
 25 m20t5-X3 (LOCUST 6,7) 
 199 m10t5-X3 (EC2-13, EC2-20, EC2-21)
 199 m20t5-X2 (EC2-22, EC2-23)
+199 m5t10-X2 (Gauss 1, 2)
+199 m5t20-X0 (Gauss 17, 19, 3)
+
 
 
 
