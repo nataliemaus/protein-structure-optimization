@@ -176,11 +176,13 @@ def log_if_baseline_robot(
     tau,
     step_size=100,
 ):
-        probs_filename = f"../data/if_baseline_probs_human_{target_pdb_id}.csv"
-        df = pd.read_csv(probs_filename)
-        tm_scores = df["tm_score"].values 
-        # probsh = df["prob_human"].values 
-        seqs = df["seq"].values 
+        # probs_filename = f"../data/if_baseline_probs_human_{target_pdb_id}.csv"
+        # df = pd.read_csv(probs_filename)
+        # tm_scores = df["tm_score"].values 
+        # # probsh = df["prob_human"].values 
+        # seqs = df["seq"].values 
+
+        seqs, tm_scores = load_existing_esmif_data(target_pdb_id) 
 
         args_dict = {
             "M":M,
@@ -433,7 +435,7 @@ if __name__ == "__main__":
     # python3 if_baseline.py --target_pdb_id sample25 --log_if_baseline_robot True --M 5 --tau 20
     # python3 if_baseline.py --target_pdb_id sample25 --log_if_baseline_robot True --M 20 --tau 5
 
-    # python3 if_baseline.py --target_pdb_id sample199 --log_if_baseline_robot True --M 10 --tau 5
+    # CUDA_VISIBLE_DEVICES=1 python3 if_baseline.py --target_pdb_id sample199 --log_if_baseline_robot True --M 10 --tau 5
     # python3 if_baseline.py --target_pdb_id sample199 --log_if_baseline_robot True --M 5 --tau 10
     # python3 if_baseline.py --target_pdb_id sample199 --log_if_baseline_robot True --M 5 --tau 20
     # python3 if_baseline.py --target_pdb_id sample199 --log_if_baseline_robot True --M 20 --tau 5
