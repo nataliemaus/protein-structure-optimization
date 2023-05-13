@@ -212,7 +212,7 @@ def log_if_baseline_robot(
             tr_center_xs = []
             idx_num = 0
             _, top_t_idxs = torch.topk(scores_tensor, len(scores_tensor))
-            for i in M:
+            for _ in range(M):
                 while True: 
                     # if we run out of feasible points in dataset
                     if idx_num >= len(scores_tensor): 
