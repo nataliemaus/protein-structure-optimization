@@ -149,6 +149,8 @@ def log_if_baseline_constrained(target_pdb_id, min_prob_human):
             best_found = 0.0
             best_input_seen = "" 
         
+        import pdb 
+        pdb.set_trace() 
         remaining_scores = tm_scores[1_000:]
         remaining_seqs = seqs[1_000:]
         remaining_probsh = probsh[1_000:] 
