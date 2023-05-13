@@ -76,7 +76,7 @@ def load_existing_esmif_data(
 def compute_and_save_if_baseline_human_probs(
     the_target_pdb_id="all"
 ):
-    BSZ = 64 
+    BSZ = 32 
     human_classifier_tokenizer,  human_classifier_model  = load_human_classier_model()
     if the_target_pdb_id == "all":
         target_pdb_ids = glob.glob("../data/if_baseline_tmscores_*sample*.csv")
@@ -342,7 +342,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args() 
 
-    # python3 if_baseline.py --target_pdb_id sample25 --compute_probs_h True 
+    # python3 if_baseline.py --target_pdb_id sample25 --compute_probs_h True  (ON gauss17)
     # python3 if_baseline.py --target_pdb_id sample25 --log_if_baseline_constrained True --min_prob_human 0.8 
     # python3 if_baseline.py --target_pdb_id sample25 --log_if_baseline_constrained True --min_prob_human 0.9 
 
