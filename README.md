@@ -97,9 +97,9 @@ cd lolbo_scripts
 
 CUDA_VISIBLE_DEVICES=2 
 
-docker run -v /home/nmaus/protein-structure-optimization/:/workspace/protein-structure-optimization -w /workspace/protein-structure-optimization/lolbo_scripts --gpus "device=5" -d nmaus/fold2:latest 
+docker run -v /home/nmaus/protein-structure-optimization/:/workspace/protein-structure-optimization -w /workspace/protein-structure-optimization/lolbo_scripts --gpus "device=2" -d nmaus/fold2:latest 
 
-python3 tm_optimization.py --task_id tm --track_with_wandb True --wandb_entity nmaus --num_initialization_points 1000 --max_n_oracle_calls 150000 --bsz 10 --dim 1024 --max_string_length 150 --vae_tokens uniref --init_w_esmif True --target_pdb_id sample25 --min_prob_human 0.8 - run_lolbo - done 
+python3 tm_optimization.py --task_id tm --track_with_wandb True --wandb_entity nmaus --num_initialization_points 1000 --max_n_oracle_calls 150000 --bsz 10 --dim 1024 --max_string_length 150 --vae_tokens uniref --init_w_esmif True --target_pdb_id sample359 --min_prob_human 0.8 - run_lolbo - done 
 
 # --gvp_vae True --vae_kl_factor 0.001 --dim 1536 --update_e2e False   XXX never again XXX 
 # constrained: --min_prob_human 0.8   
@@ -109,13 +109,16 @@ python3 tm_optimization.py --task_id tm --track_with_wandb True --wandb_entity n
 YIMENG SET w/ NEW UNIREF VAE MODEL (esm if init only!)
 - == done, above hline == averaged over many  
 _________________constrained_______________________________
-286 ALLEGRO-0.9-X1 PRESTO-0.8-X3 
-25 VIVANCE-0.8-X1 
+286 ALLEGRO-0.9-X2 PRESTO-0.8-X3   BAD BAD
+25 VIVANCE-0.8-X3-0.9-X3 GAUSS-0.9-X2
+199 VIVANCE-0.8-X3-0.9-X0 
+228 GAUSS-0.8-X1-0.9-X0 ALLEGRO-0.8-X2-0.9-X0  FIAL SO FAR
+359 PRESTO-0.8-X1-0.9-X0 ALLEGRO-0.8-X1-0.9-X0
 ________________________________________________
-286 GAUSS len34/102 DONE X2  W tbd, if baseline needs time   
-587 GAUSS len35/105 DONE X0 PRESTO-X3      All need time 
-359 LOCUST len34/102 DONE X6               if baseline needs time 
-455 LOCUST len40/120 DONE X4               if baseline needs time
+286 --   
+587 -- (barerly win) 
+359 -- 
+455         if baseline needs time
 228 -- 
 199 -- 
 25 -- 
@@ -134,7 +137,7 @@ ________________________________________________
 65 GAUSS13
 583 GAUSS14  
 363 GAUSS15   
-458 GAUSS17    
+458 - 
 3106 GAUSS18   
 479 GAUSS19 
 215 GAUSS6  
@@ -151,7 +154,7 @@ yimeng latest if baselines... - == DONE
 129 -
 25  GAUSS3 
 359 GAUSS4
-337 GAUSS5 
+337 -
 215 -
 664 -
 668 -
@@ -178,6 +181,7 @@ yimeng latest if baselines... - == DONE
 41 VIVANCE 
 280 VIVANCE 
 
+
 # total: 30 (all running for both baseline + regular)
 
 # ROBOT: 
@@ -188,29 +192,21 @@ YIMENG SET w/ NEW UNIREF VAE MODEL (esm if init only!)
 25 m5t10-X3 (LOCUST 0,1,2)
 25 m5t20-X3 (LOCUST 3,4,5) 
 25 m20t5-X3 (LOCUST 6,7) 
-
 199 m10t5-X3 (EC2-13, EC2-20, EC2-21)
 199 m20t5-X2 (EC2-22, EC2-23)
 
 
- EC2-22
- EC2-23
-
 
 
 
 _______________________________________
-_______________________________________
-_______________________________________
 
-IF DOES VERY GOOD (0.95)
-350 GAUSS X2
-253 GAUSS X
-494 GAUSS X
-129 GAUSS X
-537 LOCUST X
-174 LOCUST X
-582
+Could Add: 
+IF DOES VERY GOOD (0.95):
+350 
+253   
+537 
+174 
 647
 292
 486
@@ -219,55 +215,30 @@ IF DOES VERY GOOD (0.95)
 591
 216
 126
-
-IF DOES VERY MEDIUM (0.8)
-575 GAUSS X
-199 GAUSS X
-386 GAUSS X
-479 GAUSS X
-437 LOCUST X
-459 LOCUST X
-101
-
-(0.7)
-117 GAUSS X
-499 GAUSS X
-25 GAUSS X
-1104 GAUSS X
-615 GAUSS X
-254 LOCUST X
-363 LOCUST X
-651 LOCUST X
-
-
----gauss 
-215
-664
-668
-611
-375
-65
-280
+IF DOES VERY MEDIUM (0.7-0.8)
+386 
+437 
+499 
+254 
+651 
+DO BAD:
 424
 121
-458
-585
-41
-583
-283
-286 
-587
+585 
 616
 579
 4107   
-___ locust 
-167
 135
-3106
 374
 527
 213
 569
+
+
+_______________________________________
+_______________________________________
+
+
 
 
 # new harder ones 

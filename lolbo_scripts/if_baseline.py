@@ -14,7 +14,8 @@ import os
 import glob 
 # os.environ["CUDA_VISIBLE_DEVICES"]="7"
 import time 
-from oracle.get_prob_human import get_prob_human, load_human_classier_model
+from oracle.get_prob_human import get_probs_human, load_human_classier_model
+import math 
 
 
 def create_wandb_tracker(
@@ -72,21 +73,38 @@ def load_existing_esmif_data(
     return seqs, scores 
 
 
-def compute_and_save_if_baseline_human_probs():
+def compute_and_save_if_baseline_human_probs(
+    the_target_pdb_id="all"
+):
+    BSZ = 64 
     human_classifier_tokenizer,  human_classifier_model  = load_human_classier_model()
-    target_pdb_ids = glob.glob("../data/if_baseline_tmscores_*sample*.csv")
-    target_pdb_ids = [filename.split("/")[-1].split("_")[-2] for filename in target_pdb_ids]
-    print("Target pdb ids:", target_pdb_ids) 
+    if the_target_pdb_id == "all":
+        target_pdb_ids = glob.glob("../data/if_baseline_tmscores_*sample*.csv")
+        target_pdb_ids = [filename.split("/")[-1].split("_")[-2] for filename in target_pdb_ids]
+        print("Target pdb ids:", target_pdb_ids) 
+    else:
+        target_pdb_ids = [the_target_pdb_id] 
     for target_pdb_id in target_pdb_ids:
-        seqs, scores = load_existing_esmif_data(target_pdb_id)
+        seqs, scores = load_existing_esmif_data(target_pdb_id) 
+        n_sub_batches = math.ceil(len(seqs)/BSZ)
         probs_h = [] 
-        for seq in seqs:
-            probh = get_prob_human(
-                seq=seq, 
+        for i in range(n_sub_batches):
+            probsh_tensor = get_probs_human(
+                seqs_list=seqs[i*BSZ : (i+1)*BSZ], 
                 human_tokenizer=human_classifier_tokenizer, 
-                human_model=human_classifier_model,
+                human_model=human_classifier_model
             )
-            probs_h.append(probh)
+            probs_h = probs_h + probsh_tensor.tolist() 
+
+
+        # probs_h = [] 
+        # for seq in seqs:
+            # probh = get_probs_human(
+            #     seq=seq, 
+            #     human_tokenizer=human_classifier_tokenizer, 
+            #     human_model=human_classifier_model,
+            # )
+            # probs_h.append(probh)
         max_prob_h = np.array(probs_h).max() 
         print(f"for target {target_pdb_id}, max prob human = {max_prob_h}")
         probs_filename = f"../data/if_baseline_probs_human_{target_pdb_id}.csv"
@@ -97,6 +115,64 @@ def compute_and_save_if_baseline_human_probs():
         } 
         df = pd.DataFrame.from_dict(data)
         df.to_csv(probs_filename, index=None) 
+
+
+def log_if_baseline_constrained(target_pdb_id, min_prob_human):
+        probs_filename = f"../data/if_baseline_probs_human_{target_pdb_id}.csv"
+        df = pd.read_csv(probs_filename)
+        tm_scores = df["tm_score"]
+        probsh = df["prob_human"]
+        seqs = df["seq"]
+
+        args_dict = {
+            "max_n_oracle_calls":150_000,
+            "n_init":1_000,
+            "if_baseline":True,
+            "target_pdb_id":target_pdb_id,
+            "min_prob_human":min_prob_human,
+        }
+
+        tracker = create_wandb_tracker(
+            config_dict=args_dict,
+            wandb_project_name="optimimze-tm",
+            wandb_entity="nmaus",
+        )
+        init_scores = tm_scores[0:1_000]
+        init_seqs = seqs[0:1_000]
+        init_probsh = probsh[0:1_000]
+        valid_init_scores = init_scores[init_probsh >= min_prob_human]
+        valid_init_seqs = init_seqs[init_probsh >= min_prob_human]
+        if len(valid_init_scores) > 0: # if any number of valid init scores 
+            best_found =  valid_init_scores.max() 
+            best_input_seen = valid_init_seqs[valid_init_scores.argmax()] 
+        else:
+            best_found = 0.0
+            best_input_seen = "" 
+        
+        remaining_scores = tm_scores[1_000:]
+        remaining_seqs = seqs[1_000:]
+        remaining_probsh = probsh[1_000:] 
+        n_oracle_calls = 0
+        for ix, tm_score in enumerate(remaining_scores):
+            if best_found > 0:
+                tracker.log({
+                    "best_found":best_found,
+                    "best_input_seen":best_input_seen,
+                    "n_oracle_calls":n_oracle_calls
+                }) 
+            if (remaining_probsh[ix] >= min_prob_human) and (tm_score > best_found):
+                best_found = tm_score 
+                best_input_seen = remaining_seqs[ix]
+            n_oracle_calls += 1
+        
+        tracker.finish() 
+
+            
+
+
+
+
+
 
 
 def analyze_probs_human():
@@ -236,7 +312,7 @@ def run_if_baseline(
         if best_score_in_batch > best_score: 
             best_score = best_score_in_batch
             best_seq = best_seq_in_batch
-        tracker.log({
+        tracker.log({ 
             "best_found":best_score,
             "n_oracle_calls":num_calls,
             "best_input_seen":best_seq,
@@ -258,15 +334,28 @@ if __name__ == "__main__":
     parser.add_argument('--n_init', type=int, default=1_000 ) 
     parser.add_argument('--if_baseline', type=bool, default=True )
     parser.add_argument('--target_pdb_id', default="17_bp_sh3" ) 
+    parser.add_argument('--analyze_probs_human', type=bool, default=False ) # meh 
     parser.add_argument('--compute_probs_h', type=bool, default=False )
-    parser.add_argument('--analyze_probs_human', type=bool, default=False )
+    parser.add_argument('--log_if_baseline_constrained', type=bool, default=False )
+    parser.add_argument('--min_prob_human', type=float, default=0.8 ) 
+    
 
     args = parser.parse_args() 
 
+    # python3 if_baseline.py --target_pdb_id sample25 --compute_probs_h True 
+    # python3 if_baseline.py --target_pdb_id sample25 --log_if_baseline_constrained True --min_prob_human 0.8 
+    # python3 if_baseline.py --target_pdb_id sample25 --log_if_baseline_constrained True --min_prob_human 0.9 
+
+
     if args.compute_probs_h:
-        compute_and_save_if_baseline_human_probs()
+        compute_and_save_if_baseline_human_probs(the_target_pdb_id=args.target_pdb_id)
     elif args.analyze_probs_human:
         analyze_probs_human() 
+    elif args.log_if_baseline_constrained:
+        log_if_baseline_constrained(
+            target_pdb_id=args.target_pdb_id, 
+            min_prob_human=args.min_prob_human,
+        )
     else:
         tracker = create_wandb_tracker(
             config_dict=vars(args),
