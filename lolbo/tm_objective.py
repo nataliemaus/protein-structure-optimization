@@ -116,6 +116,12 @@ class TMObjective(LatentSpaceObjective):
         temp = [] 
         for seq in decoded_seqs:
             seq = seq.replace("X", "")
+            seq = seq.replace("-", "") 
+            seq = seq.replace("U", "") 
+            seq = seq.replace("X", "") 
+            seq = seq.replace("Z", "") 
+            seq = seq.replace("O", "") 
+            seq = seq.replace("B", "")
             if len(seq) == 0:
                 seq = "AAA" # catch empty string case too... 
             temp.append(seq) 
@@ -237,7 +243,7 @@ class TMObjective(LatentSpaceObjective):
         
         if not type(xs_batch) == list:
             xs_batch = xs_batch.tolist() 
-            
+
         if self.min_prob_human != -1:
             n_sub_batches = math.ceil(len(xs_batch)/self.constraint_model_bsz)
             all_c_vals = []

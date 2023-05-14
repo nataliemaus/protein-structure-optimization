@@ -98,10 +98,10 @@ CUDA_VISIBLE_DEVICES=2
 
 docker run -v /home/nmaus/protein-structure-optimization/:/workspace/protein-structure-optimization -w /workspace/protein-structure-optimization/lolbo_scripts --gpus "device=2" -d nmaus/fold2:latest 
 
-CUDA_VISIBLE_DEVICES=3 python3 tm_optimization.py --task_id tm --track_with_wandb True --wandb_entity nmaus --num_initialization_points 1000 --max_n_oracle_calls 150000 --bsz 10 --dim 1024 --max_string_length 150 --vae_tokens uniref --init_w_esmif True --target_pdb_id sample359 --min_plddt 0.85 - run_lolbo - done 
+CUDA_VISIBLE_DEVICES=1 python3 tm_optimization.py --task_id tm --track_with_wandb True --wandb_entity nmaus --num_initialization_points 1000 --max_n_oracle_calls 150000 --bsz 10 --dim 1024 --max_string_length 150 --vae_tokens uniref --init_w_esmif True --target_pdb_id sample587 --min_prob_human 0.8 - run_lolbo - done 
 
 # --gvp_vae True --vae_kl_factor 0.001 --dim 1536 --update_e2e False   XXX never again XXX 
-# constrained: --min_prob_human 0.8   
+# constrained: --min_prob_human 0.9   
 # consrained2: --min_plddt 0.85
 #       (Note: no constraints on locust (too little storage...))
 #       only constrs on ones where baseline will finish (need saved data)
@@ -113,7 +113,7 @@ YIMENG SET w/ NEW UNIREF VAE MODEL (esm if init only!)
 _________________constrained plddt_______________________________
 199 EC210 
 25 EC211 
-359 EC213
+587 EC213
 
 _________________constrained human_______________________________
 286 ALLEGRO-0.9-X2 PRESTO-0.8-X3   (BAD BAD)
@@ -121,7 +121,8 @@ _________________constrained human_______________________________
 199 VIVANCE-0.8-X3 GAUSS151413-0.9-X3   (GGOOD maybe)
 228 GAUSS-0.8-X1-0.9-X3 ALLEGRO-0.8-X2   KILLLL 
 359 PRESTO-0.8-X1-0.9-X0 ALLEGRO-0.8-X1-0.9-X0 (MEH WE'LL SEE)  KILL??? 
-587 EC211-0.9-X0 
+587 EC220-0.9-X1 EC221-0.8-X1
+587 EC222-0.9-X1 
 ____________________avareged____________________________
 286 -- *
 587 -- *

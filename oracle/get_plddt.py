@@ -7,9 +7,18 @@ def compute_plddt(seq, fold_model):
     fold_model = fold_model.to(device)
     tokenizer = AutoTokenizer.from_pretrained("facebook/esmfold_v1")
 
+    seq = seq.replace("-", "") 
+    seq = seq.replace("U", "") 
+    seq = seq.replace("X", "") 
+    seq = seq.replace("Z", "") 
+    seq = seq.replace("O", "") 
+    seq = seq.replace("B", "")
+
     # if seq is not a list of sequences, convert it to a list
     if not isinstance(seq, list):
         seq = [seq]
+    
+    
 
     try:
         tokenized_input = tokenizer(seq, return_tensors="pt", add_special_tokens=False)['input_ids'].to(device)

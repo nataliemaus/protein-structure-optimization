@@ -479,7 +479,7 @@ if __name__ == "__main__":
     elif args.all_robot:
         target_pdb_id_nums = [587,359,280,337,459,582,615,1104] # 286, 199, 25 done 
         ms = [5, 10, 20]
-        taus = [5, 10, 20, 50, 100]
+        taus = [5, 10, 20, 50, 100] 
         for target_id_num in target_pdb_id_nums:
             for m__ in ms:
                 for tau__ in taus:
