@@ -87,7 +87,8 @@ class LOLBOState:
             valid_train_x = self.train_x 
         
         # Update! 5/10/23 
-        if len(vaid_train_y) > 0:
+
+        if len(vaid_train_y) > 1:
             self.best_score_seen = torch.max(vaid_train_y)
             self.best_x_seen = valid_train_x[torch.argmax(vaid_train_y.squeeze())]
 
@@ -99,6 +100,16 @@ class LOLBOState:
             self.top_k_zs = [valid_train_z[i].unsqueeze(-2) for i in top_k_idxs]
             if self.train_c is not None: 
                 self.top_k_cs = [valid_train_c[i].unsqueeze(-2) for i in top_k_idxs]
+        elif len(vaid_train_y) == 1:
+            self.best_score_seen = vaid_train_y.item() 
+            self.best_x_seen = valid_train_x
+            import pdb 
+            pdb.set_trace() 
+            self.top_k_scores = [self.best_score_seen]
+            self.top_k_xs = [self.best_x_seen]
+            self.top_k_zs = [valid_train_z.unsqueeze(-2)] 
+            if self.train_c is not None: 
+                self.top_k_cs = [valid_train_c.unsqueeze(-2)]
         else:
             print("No valid init data according to constraint(s)")
             self.best_score_seen = None
