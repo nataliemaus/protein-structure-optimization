@@ -103,13 +103,9 @@ class TMObjective(LatentSpaceObjective):
 
         if self.gvp_vae:
             # z =  (bsz, 1536) = (bsz, 1024 + 512)
-            try:
-                latent_z = z[:,0:1024].reshape(-1, 2, 512)
-                avg_gvp_embedding = z[:,1024:] 
-                sample = self.vae.sample(n=1, z=latent_z, encodings=avg_gvp_embedding) 
-            except:
-                import pdb 
-                pdb.set_trace() 
+            latent_z = z[:,0:1024].reshape(-1, 2, 512)
+            avg_gvp_embedding = z[:,1024:] 
+            sample = self.vae.sample(n=1, z=latent_z, encodings=avg_gvp_embedding) 
         else:
             sample = self.vae.sample(z=z.reshape(-1, 2, self.dim//2))
         # grab decoded aa strings
@@ -238,10 +234,11 @@ class TMObjective(LatentSpaceObjective):
         '''
         if (self.min_prob_human == -1) and (self.min_plddt == -1):
             return None 
-        if self.min_prob_human != -1:
-            if not type(xs_batch) == list:
-                xs_batch = xs_batch.tolist() 
+        
+        if not type(xs_batch) == list:
+            xs_batch = xs_batch.tolist() 
             
+        if self.min_prob_human != -1:
             n_sub_batches = math.ceil(len(xs_batch)/self.constraint_model_bsz)
             all_c_vals = []
             for i in range(n_sub_batches):
