@@ -87,17 +87,31 @@ class LOLBOState:
             valid_train_x = self.train_x 
         
         # Update! 5/10/23 
-        self.best_score_seen = torch.max(vaid_train_y)
-        self.best_x_seen = valid_train_x[torch.argmax(vaid_train_y.squeeze())]
+        if len(vaid_train_y) > 0:
+            self.best_score_seen = torch.max(vaid_train_y)
+            self.best_x_seen = valid_train_x[torch.argmax(vaid_train_y.squeeze())]
 
-        # track top k scores found
-        self.top_k_scores, top_k_idxs = torch.topk(vaid_train_y.squeeze(), min(self.k, vaid_train_y.shape[0]))
-        self.top_k_scores = self.top_k_scores.tolist() 
-        top_k_idxs = top_k_idxs.tolist()
-        self.top_k_xs = [valid_train_x[i] for i in top_k_idxs]
-        self.top_k_zs = [valid_train_z[i].unsqueeze(-2) for i in top_k_idxs]
-        if self.train_c is not None: 
-            self.top_k_cs = [valid_train_c[i].unsqueeze(-2) for i in top_k_idxs]
+            # track top k scores found 
+            self.top_k_scores, top_k_idxs = torch.topk(vaid_train_y.squeeze(), min(self.k, vaid_train_y.shape[0]))
+            self.top_k_scores = self.top_k_scores.tolist() 
+            top_k_idxs = top_k_idxs.tolist()
+            self.top_k_xs = [valid_train_x[i] for i in top_k_idxs]
+            self.top_k_zs = [valid_train_z[i].unsqueeze(-2) for i in top_k_idxs]
+            if self.train_c is not None: 
+                self.top_k_cs = [valid_train_c[i].unsqueeze(-2) for i in top_k_idxs]
+        else:
+            print("No valid init data according to constraint(s)")
+            self.best_score_seen = None
+            self.best_x_seen = None 
+            self.top_k_scores = []
+            self.top_k_xs = []
+            self.top_k_zs = []
+            if self.train_c is not None:
+                self.top_k_cs = []
+
+
+
+        
 
 
     def initialize_tr_state(self):
@@ -206,8 +220,8 @@ class LOLBOState:
                     self.top_k_zs[min_idx] = z_next_[i].unsqueeze(-2) # .cuda()
                     if self.train_c is not None: # if constrained, update best constraints too
                         self.top_k_cs[min_idx] = c_next_[i].unsqueeze(-2)
-                #if we imporve 
-                if score.item() > self.best_score_seen:
+                #if this is the first valid example we've found, OR if we imporve 
+                if (self.best_score_seen is None) or (score.item() > self.best_score_seen):
                     self.progress_fails_since_last_e2e = 0
                     progress = True
                     self.best_score_seen = score.item() #update best
@@ -277,7 +291,6 @@ class LOLBOState:
         new_ys = self.train_y[-self.bsz:].squeeze(-1).tolist()
         train_x = new_xs + self.top_k_xs
         train_y = torch.tensor(new_ys + self.top_k_scores).float()
-        
 
         c_models = []
         c_mlls = []
@@ -287,8 +300,11 @@ class LOLBOState:
             c_mlls = self.c_mlls
             new_cs = self.train_c[-self.bsz:] 
             # Note: self.top_k_cs is a list of (1, n_cons) tensors 
-            top_k_cs_tensor = torch.cat(self.top_k_cs, -2).float() 
-            train_c = torch.cat((new_cs, top_k_cs_tensor), -2).float() 
+            if len(self.top_k_cs) > 0:
+                top_k_cs_tensor = torch.cat(self.top_k_cs, -2).float() 
+                train_c = torch.cat((new_cs, top_k_cs_tensor), -2).float() 
+            else:
+                train_c = new_cs 
             # train_c = torch.tensor(new_cs + self.top_k_cs).float() 
 
         self.objective, self.model = update_models_end_to_end_with_constraints(
