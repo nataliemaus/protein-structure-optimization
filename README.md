@@ -98,7 +98,7 @@ CUDA_VISIBLE_DEVICES=2
 
 docker run -v /home/nmaus/protein-structure-optimization/:/workspace/protein-structure-optimization -w /workspace/protein-structure-optimization/lolbo_scripts --gpus "device=2" -d nmaus/fold2:latest 
 
-python3 tm_optimization.py --task_id tm --track_with_wandb True --wandb_entity nmaus --num_initialization_points 1000 --max_n_oracle_calls 150000 --bsz 10 --dim 1024 --max_string_length 150 --vae_tokens uniref --init_w_esmif True --target_pdb_id sample587 --min_plddt 0.85 - run_lolbo - done 
+CUDA_VISIBLE_DEVICES=3 python3 tm_optimization.py --task_id tm --track_with_wandb True --wandb_entity nmaus --num_initialization_points 1000 --max_n_oracle_calls 150000 --bsz 10 --dim 1024 --max_string_length 150 --vae_tokens uniref --init_w_esmif True --target_pdb_id sample359 --min_plddt 0.85 - run_lolbo - done 
 
 # --gvp_vae True --vae_kl_factor 0.001 --dim 1536 --update_e2e False   XXX never again XXX 
 # constrained: --min_prob_human 0.8   
@@ -110,17 +110,22 @@ TODO: See if_baseline.py notes !!
 
 YIMENG SET w/ NEW UNIREF VAE MODEL (esm if init only!)
 - == done, above hline == averaged over many  
-_________________constrained_______________________________
+_________________constrained plddt_______________________________
+199 EC210 
+25 EC211 
+359 EC213
+
+_________________constrained human_______________________________
 286 ALLEGRO-0.9-X2 PRESTO-0.8-X3   (BAD BAD)
 25 VIVANCE-0.8-X3-0.9-X3 GAUSS-0.9-X2   (GGOOD)
 199 VIVANCE-0.8-X3 GAUSS151413-0.9-X3   (GGOOD maybe)
 228 GAUSS-0.8-X1-0.9-X3 ALLEGRO-0.8-X2   KILLLL 
-359 PRESTO-0.8-X1-0.9-X0 ALLEGRO-0.8-X1-0.9-X0 (MEH WE'LL SEE) 
-587 EC211-0.9-X1
+359 PRESTO-0.8-X1-0.9-X0 ALLEGRO-0.8-X1-0.9-X0 (MEH WE'LL SEE)  KILL??? 
+587 EC211-0.9-X0 
 ____________________avareged____________________________
 286 -- *
 587 -- *
-359 -- *
+359 -- XXX MESSED UP SAVING SOMEHOW ?? (COULD LOOK INTO)
 228 -- XXX BASELINE NOT SAVED XXX 
 199 -- *
 25 -- *
@@ -146,7 +151,7 @@ ________________________________________________
 375 GAUSS10 :(likely 
 3106 - :(  
 575 - :( 
-167 * EC2-10 :( likely 
+167 * :(
 41 - :( 
 668 GAUSS8  :(likely 
 

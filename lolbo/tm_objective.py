@@ -264,6 +264,8 @@ class TMObjective(LatentSpaceObjective):
             plddt_c_vals.append(c_val)
         plddt_c_vals = torch.tensor(plddt_c_vals).float()
         plddt_c_vals = plddt_c_vals.unsqueeze(-1) 
+        import pdb 
+        pdb.set_trace() 
         if self.min_prob_human != -1:
             return torch.cat((human_cvals, plddt_c_vals), -1) 
         return plddt_c_vals 
