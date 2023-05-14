@@ -113,40 +113,40 @@ _________________constrained_______________________________
 286 ALLEGRO-0.9-X2 PRESTO-0.8-X3   (BAD BAD)
 25 VIVANCE-0.8-X3-0.9-X3 GAUSS-0.9-X2   (GGOOD)
 199 VIVANCE-0.8-X3 GAUSS151413-0.9-X3   (GGOOD maybe)
-228 GAUSS-0.8-X1-0.9-X3 ALLEGRO-0.8-X2  
+228 GAUSS-0.8-X1-0.9-X3 ALLEGRO-0.8-X2   KILLLL 
 359 PRESTO-0.8-X1-0.9-X0 ALLEGRO-0.8-X1-0.9-X0 (MEH WE'LL SEE) 
+____________________avareged____________________________
+286 -- *
+587 -- *
+359 -- *
+228 -- XXX BASELINE NOT SAVED XXX 
+199 -- *
+25 -- *
+455         if baseline needs time 
 ________________________________________________
-286 --   
-587 -- (barerly win) 
-359 -- 
-455         if baseline needs time
-228 -- 
-199 -- 
-25 -- 
-________________________________________________
-575 - :( 
-615 -
-582 -
-459 -
-41 - :( 
-280 - 
+280 - *
+337 - *
+459 - *
+582 - *
+615 - *
+1104 - * 
 494 -       
 129 -
-668 GAUSS8  :(likely 
 611 - 
-375 GAUSS10   NEEDS TIME 
 65 - 
 583 -
 363 - 
-458 - 
-3106 - :(   
+458 -  
 479 - 
 215 -
 664 - 
-337 - 
-167 EC2-10 :( likely 
-1104 EC2-11  W
-117 EC2-12 W ish 
+117 EC2-12 (W, just let finish)
+375 GAUSS10 :(likely 
+3106 - :(  
+575 - :( 
+167 * EC2-10 :( likely 
+41 - :( 
+668 GAUSS8  :(likely 
 
 # CUDA_VISIBLE_DEVICES=0 (DO NOT KILL MORE! NEED SAVED DATA!)
 # python3 if_baseline.py --target_pdb_id sample167  
@@ -166,7 +166,7 @@ yimeng latest if baselines... - == DONE
 65 -
 583 -
 363 -
-1104 GAUSS16 
+1104 -
 458 -
 3106 -
 479 -
@@ -181,12 +181,28 @@ yimeng latest if baselines... - == DONE
 199 VIVANCE 
 41 VIVANCE 
 280 VIVANCE 
+____ ??? 
+NEW 10: 
+135 ALLEGRO
+374 VIVANCE
+527 VIVANCE 
+213 GAUSS
+569 GAUSS
+386 GAUSS
+437 
+499 
+254 
+651 
+
+python3 if_baseline.py --target_pdb_id sample386 --max_n_oracle_calls 100000
+ 
 
 
 # total: 30 (all running for both baseline + regular)
 
 # ROBOT: 
-CUDA_VISIBLE_DEVICES=3 python3 diverse_tm_optimization.py --task_id tm --max_n_oracle_calls 5000000000000000000 --bsz 10 --save_csv_frequency 10 --track_with_wandb True --wandb_entity nmaus --num_initialization_points 1000 --dim 1024 --vae_tokens uniref --max_string_length 150 --init_w_esmif True --M 5 --tau 20 --target_pdb_id sample199 - run_robot - done 
+CUDA_VISIBLE_DEVICES=3 
+python3 diverse_tm_optimization.py --task_id tm --max_n_oracle_calls 150000 --bsz 10 --save_csv_frequency 10 --track_with_wandb True --wandb_entity nmaus --num_initialization_points 1000 --dim 1024 --vae_tokens uniref --max_string_length 150 --init_w_esmif True --M 5 --tau 20 --target_pdb_id sample199 - run_robot - done 
 
 YIMENG SET w/ NEW UNIREF VAE MODEL (esm if init only!)
 25 m10t5-X3 (Gauss 0, 11, 12)
@@ -220,23 +236,14 @@ IF DOES VERY GOOD (0.95):
 216
 126
 IF DOES VERY MEDIUM (0.7-0.8)
-386 
-437 
-499 
-254 
-651 
-DO BAD:
+
+DO BAD: 
 424
-121
 585 
 616
 579
-4107   
-135
-374
-527
-213
-569
+4107 
+
 
 
 _______________________________________

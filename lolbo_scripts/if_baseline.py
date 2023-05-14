@@ -428,19 +428,25 @@ if __name__ == "__main__":
     parser.add_argument('--step_size', type=int, default=100 ) 
     parser.add_argument('--log_if_baseline_robot', type=bool, default=False )
 
+    parser.add_argument('--all_robot', type=bool, default=False )
+
     args = parser.parse_args() 
 
-    # python3 if_baseline.py --target_pdb_id sample25 --log_if_baseline_robot True --M 10 --tau 5
-    # python3 if_baseline.py --target_pdb_id sample25 --log_if_baseline_robot True --M 5 --tau 10
-    # python3 if_baseline.py --target_pdb_id sample25 --log_if_baseline_robot True --M 5 --tau 20
-    # python3 if_baseline.py --target_pdb_id sample25 --log_if_baseline_robot True --M 20 --tau 5
+    # python3 if_baseline.py --all_robot True 
+
+
+    # python3 if_baseline.py --target_pdb_id sampleXX --max_n_oracle_calls 100000
+
+    # (GUASS 18) python3 if_baseline.py --target_pdb_id sample25 --log_if_baseline_robot True --M 10 --tau 5 
+    # (GUASS 18) python3 if_baseline.py --target_pdb_id sample25 --log_if_baseline_robot True --M 5 --tau 10
+    # (GUASS 4) python3 if_baseline.py --target_pdb_id sample25 --log_if_baseline_robot True --M 5 --tau 20
+    # (GUASS 18) python3 if_baseline.py --target_pdb_id sample25 --log_if_baseline_robot True --M 20 --tau 5
+    # ALL COMBOS ARE WINS! 
 
     # CUDA_VISIBLE_DEVICES=1 python3 if_baseline.py --target_pdb_id sample199 --log_if_baseline_robot True --M 10 --tau 5
-    # python3 if_baseline.py --target_pdb_id sample199 --log_if_baseline_robot True --M 5 --tau 10
-    # python3 if_baseline.py --target_pdb_id sample199 --log_if_baseline_robot True --M 5 --tau 20
-    # python3 if_baseline.py --target_pdb_id sample199 --log_if_baseline_robot True --M 20 --tau 5
-
-
+    # CUDA_VISIBLE_DEVICES=2 python3 if_baseline.py --target_pdb_id sample199 --log_if_baseline_robot True --M 5 --tau 10
+    # CUDA_VISIBLE_DEVICES=5 python3 if_baseline.py --target_pdb_id sample199 --log_if_baseline_robot True --M 5 --tau 20
+    # CUDA_VISIBLE_DEVICES=5 python3 if_baseline.py --target_pdb_id sample199 --log_if_baseline_robot True --M 20 --tau 5
 
     # python3 if_baseline.py --target_pdb_id sample25 --compute_probs_h True  (done)
     # python3 if_baseline.py --target_pdb_id sample25 --log_if_baseline_constrained True --min_prob_human 0.8  (gauss17)
@@ -469,6 +475,19 @@ if __name__ == "__main__":
             tau=args.tau,
             step_size=args.step_size,
         )
+    elif args.all_robot:
+        target_pdb_id_nums = [286,587,359,280,337,459,582,615,1104] # 199, 25 done 
+        ms = [5, 10, 20]
+        taus = [5, 10, 20, 50, 100]
+        for target_id_num in target_pdb_id_nums:
+            for m__ in ms:
+                for tau__ in taus:
+                    log_if_baseline_robot(
+                        target_pdb_id=f"sample{target_id_num}", 
+                        M=m__,
+                        tau=tau__,
+                        step_size=args.step_size,
+                    )
     else:
         tracker = create_wandb_tracker(
             config_dict=vars(args),
