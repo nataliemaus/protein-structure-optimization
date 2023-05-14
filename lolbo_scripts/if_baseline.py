@@ -432,8 +432,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args() 
 
-    # python3 if_baseline.py --all_robot True 
-
+    # CUDA_VISIBLE_DEVICES=1 python3 if_baseline.py --all_robot True 
 
     # python3 if_baseline.py --target_pdb_id sampleXX --max_n_oracle_calls 100000
 

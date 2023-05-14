@@ -16,6 +16,7 @@ from uniref_vae.data import collate_fn
 from uniref_vae.load_uniref_vae import load_uniref_vae, load_gvp_vae 
 from oracle.fold import load_esm_if_model, aa_seqs_list_to_avg_gvp_encodings # , get_gvp_encoding
 from oracle.get_prob_human import load_human_classier_model, get_probs_human
+from oracle.get_plddt import compute_plddt 
 
 
 class TMObjective(LatentSpaceObjective):
@@ -37,6 +38,7 @@ class TMObjective(LatentSpaceObjective):
         gvp_vae=False,
         gvp_vae_version_flag=3,
         min_prob_human=-1,
+        min_plddt=-1,
         constraint_model_bsz=64,
     ):
         self.vae_tokens             = vae_tokens 
@@ -49,6 +51,7 @@ class TMObjective(LatentSpaceObjective):
         self.gvp_vae                = gvp_vae
         self.gvp_vae_version_flag   = gvp_vae_version_flag
         self.min_prob_human         = min_prob_human 
+        self.min_plddt              = min_plddt
         self.constraint_model_bsz   = constraint_model_bsz
 
         if self.min_prob_human != -1:
@@ -233,43 +236,39 @@ class TMObjective(LatentSpaceObjective):
                     None of problem is unconstrained
                     Note: constraints, must be of form c(x) <= 0!
         '''
-        if self.min_prob_human == -1:
+        if (self.min_prob_human == -1) and (self.min_plddt == -1):
             return None 
-    
-        if not type(xs_batch) == list:
-            xs_batch = xs_batch.tolist() 
-        
-        n_sub_batches = math.ceil(len(xs_batch)/self.constraint_model_bsz)
-        all_c_vals = []
-        for i in range(n_sub_batches):
-            sub_batch_xs = xs_batch[i*self.constraint_model_bsz : (i+1)*self.constraint_model_bsz]
-            probs_human_tensor = get_probs_human(seqs_list=sub_batch_xs, human_tokenizer=self.human_classifier_tokenizer, human_model=self.human_classifier_model)
-            c_vals_batch = probs_human_tensor*-1 + self.min_prob_human
-            all_c_vals = all_c_vals + c_vals_batch.tolist() 
-        
-        c_vals = torch.tensor(all_c_vals).float()
-        c_vals = c_vals.detach() 
+        if self.min_prob_human != -1:
+            if not type(xs_batch) == list:
+                xs_batch = xs_batch.tolist() 
+            
+            n_sub_batches = math.ceil(len(xs_batch)/self.constraint_model_bsz)
+            all_c_vals = []
+            for i in range(n_sub_batches):
+                sub_batch_xs = xs_batch[i*self.constraint_model_bsz : (i+1)*self.constraint_model_bsz]
+                probs_human_tensor = get_probs_human(seqs_list=sub_batch_xs, human_tokenizer=self.human_classifier_tokenizer, human_model=self.human_classifier_model)
+                c_vals_batch = probs_human_tensor*-1 + self.min_prob_human
+                all_c_vals = all_c_vals + c_vals_batch.tolist() 
+            
+            c_vals = torch.tensor(all_c_vals).float()
+            c_vals = c_vals.detach() 
+            human_cvals = c_vals.unsqueeze(-1) 
+            if self.min_plddt == -1:
+                return human_cvals 
 
-        # probs_human_tensor = get_probs_human(
-        #     seqs_list=xs_batch, 
-        #     human_tokenizer=self.human_classifier_tokenizer, 
-        #     human_model=self.human_classifier_model,
-        # )
-        # c_vals = probs_human_tensor*-1 + self.min_prob_human
+        # plddt c_vals 
+        plddt_c_vals = [] 
+        for seq in xs_batch:
+            plddt = compute_plddt(seq, self.esm_model)
+            c_val = plddt*-1 + self.min_plddt 
+            plddt_c_vals.append(c_val)
+        plddt_c_vals = torch.tensor(plddt_c_vals).float()
+        plddt_c_vals = plddt_c_vals.unsqueeze(-1) 
+        if self.min_prob_human != -1:
+            return torch.cat((human_cvals, plddt_c_vals), -1) 
+        return plddt_c_vals 
+            
 
-        # Old version (non-batched)
-        # c_vals = []
-        # for x in xs_batch:
-        #     probh = get_prob_human(
-        #         seq=x, 
-        #         human_tokenizer=self.human_classifier_tokenizer, 
-        #         human_model=self.human_classifier_model, 
-        #     )
-        #     c_val = (probh*-1) + self.min_prob_human
-        #     c_vals.append(c_val)
-        
-        # c_vals = torch.tensor(c_vals).float() 
-        return c_vals.unsqueeze(-1) 
 
 
 if __name__ == "__main__":
