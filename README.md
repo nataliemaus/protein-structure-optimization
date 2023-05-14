@@ -98,10 +98,11 @@ CUDA_VISIBLE_DEVICES=2
 
 docker run -v /home/nmaus/protein-structure-optimization/:/workspace/protein-structure-optimization -w /workspace/protein-structure-optimization/lolbo_scripts --gpus "device=2" -d nmaus/fold2:latest 
 
-python3 tm_optimization.py --task_id tm --track_with_wandb True --wandb_entity nmaus --num_initialization_points 1000 --max_n_oracle_calls 150000 --bsz 10 --dim 1024 --max_string_length 150 --vae_tokens uniref --init_w_esmif True --target_pdb_id sample337 --min_prob_human 0.9 - run_lolbo - done 
+python3 tm_optimization.py --task_id tm --track_with_wandb True --wandb_entity nmaus --num_initialization_points 1000 --max_n_oracle_calls 150000 --bsz 10 --dim 1024 --max_string_length 150 --vae_tokens uniref --init_w_esmif True --target_pdb_id sample587 --min_plddt 0.85 - run_lolbo - done 
 
 # --gvp_vae True --vae_kl_factor 0.001 --dim 1536 --update_e2e False   XXX never again XXX 
 # constrained: --min_prob_human 0.8   
+# consrained2: --min_plddt 0.85
 #       (Note: no constraints on locust (too little storage...))
 #       only constrs on ones where baseline will finish (need saved data)
 
@@ -115,6 +116,7 @@ _________________constrained_______________________________
 199 VIVANCE-0.8-X3 GAUSS151413-0.9-X3   (GGOOD maybe)
 228 GAUSS-0.8-X1-0.9-X3 ALLEGRO-0.8-X2   KILLLL 
 359 PRESTO-0.8-X1-0.9-X0 ALLEGRO-0.8-X1-0.9-X0 (MEH WE'LL SEE) 
+587 EC211-0.9-X1
 ____________________avareged____________________________
 286 -- *
 587 -- *

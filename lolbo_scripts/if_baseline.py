@@ -217,7 +217,7 @@ def log_if_baseline_robot(
                     # if we run out of feasible points in dataset
                     if idx_num >= len(scores_tensor): 
                         print("out of feasible points")
-                        assert 0 
+                        return None, None
                     # otherwise, finding highest scoring feassible point in remaining dataset for tr center
                     center_idx = top_t_idxs[idx_num]
                     center_score = scores_tensor[center_idx].item()
@@ -243,6 +243,8 @@ def log_if_baseline_robot(
                 scores_tensor=torch.tensor(tm_scores[0:i]).float(), 
                 seqs_list_=seqs[0:i],
             ) 
+            if M_diverse_scores is None:
+                break # if none found 
             tracker.log({
                 "mean_score_diverse_set":M_diverse_scores.mean(),
                 "min_score_diverse_set":M_diverse_scores.min(),
@@ -475,7 +477,7 @@ if __name__ == "__main__":
             step_size=args.step_size,
         )
     elif args.all_robot:
-        target_pdb_id_nums = [286,587,359,280,337,459,582,615,1104] # 199, 25 done 
+        target_pdb_id_nums = [587,359,280,337,459,582,615,1104] # 286, 199, 25 done 
         ms = [5, 10, 20]
         taus = [5, 10, 20, 50, 100]
         for target_id_num in target_pdb_id_nums:
