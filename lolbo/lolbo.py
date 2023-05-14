@@ -102,14 +102,12 @@ class LOLBOState:
                 self.top_k_cs = [valid_train_c[i].unsqueeze(-2) for i in top_k_idxs]
         elif len(vaid_train_y) == 1:
             self.best_score_seen = vaid_train_y.item() 
-            self.best_x_seen = valid_train_x
-            import pdb 
-            pdb.set_trace() 
+            self.best_x_seen = valid_train_x.item() 
             self.top_k_scores = [self.best_score_seen]
             self.top_k_xs = [self.best_x_seen]
-            self.top_k_zs = [valid_train_z.unsqueeze(-2)] 
+            self.top_k_zs = [valid_train_z] 
             if self.train_c is not None: 
-                self.top_k_cs = [valid_train_c.unsqueeze(-2)]
+                self.top_k_cs = [valid_train_c]
         else:
             print("No valid init data according to constraint(s)")
             self.best_score_seen = None
