@@ -11,7 +11,11 @@ def compute_plddt(seq, fold_model):
     if not isinstance(seq, list):
         seq = [seq]
 
-    tokenized_input = tokenizer(seq, return_tensors="pt", add_special_tokens=False)['input_ids'].to(device)
+    try:
+        tokenized_input = tokenizer(seq, return_tensors="pt", add_special_tokens=False)['input_ids'].to(device)
+    except:
+        import pdb 
+        pdb.set_trace() 
 
     with torch.no_grad():
         output = fold_model(tokenized_input)
