@@ -18,13 +18,7 @@ def compute_plddt(seq, fold_model):
     if not isinstance(seq, list):
         seq = [seq]
     
-    
-
-    try:
-        tokenized_input = tokenizer(seq, return_tensors="pt", add_special_tokens=False)['input_ids'].to(device)
-    except:
-        import pdb 
-        pdb.set_trace() 
+    tokenized_input = tokenizer(seq, return_tensors="pt", add_special_tokens=False)['input_ids'].to(device)
 
     with torch.no_grad():
         output = fold_model(tokenized_input)
@@ -34,3 +28,4 @@ def compute_plddt(seq, fold_model):
             ) / output["atom37_atom_exists"].sum(dim=(1, 2))
 
     return mean_plddt.item()
+

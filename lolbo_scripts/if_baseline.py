@@ -200,7 +200,6 @@ def log_if_baseline_robot(
             wandb_entity="nmaus",
         )
 
-
         def is_feasible(x, higher_ranked_xs): 
             for higher_ranked_x in higher_ranked_xs:
                 if compute_edit_distance(x, higher_ranked_x) < tau:
@@ -423,7 +422,7 @@ if __name__ == "__main__":
     parser.add_argument('--analyze_probs_human', type=bool, default=False ) # meh 
     parser.add_argument('--compute_probs_h', type=bool, default=False )
     parser.add_argument('--log_if_baseline_constrained', type=bool, default=False )
-    parser.add_argument('--min_prob_human', type=float, default=0.8 ) 
+    parser.add_argument('--min_prob_human', type=float, default=-1 ) 
 
     parser.add_argument('--M', type=int, default=10 ) 
     parser.add_argument('--tau', type=int, default=10 ) 
@@ -477,9 +476,9 @@ if __name__ == "__main__":
             step_size=args.step_size,
         )
     elif args.all_robot:
-        target_pdb_id_nums = [280,337,459,582,615,1104] # Done: 286, 199, 25, 587, broken:359
+        target_pdb_id_nums = [455] # [280,337,459,582,615,1104] # Done: 286, 199, 25, 587, broken:359
         ms = [5, 10, 20]
-        taus = [5, 10, 20, 50, 100] 
+        taus = [20, 5, 10, 50, 100] 
         for target_id_num in target_pdb_id_nums:
             for m__ in ms:
                 for tau__ in taus:

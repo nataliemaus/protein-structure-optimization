@@ -262,7 +262,7 @@ class TMObjective(LatentSpaceObjective):
         # plddt c_vals 
         plddt_c_vals = [] 
         for seq in xs_batch:
-            plddt = compute_plddt(seq, self.esm_model)
+            plddt = compute_plddt(seq, self.esm_model) 
             c_val = plddt*-1 + self.min_plddt 
             plddt_c_vals.append(c_val)
         plddt_c_vals = torch.tensor(plddt_c_vals).float()
@@ -270,8 +270,6 @@ class TMObjective(LatentSpaceObjective):
         if self.min_prob_human != -1:
             return torch.cat((human_cvals, plddt_c_vals), -1) 
         return plddt_c_vals 
-            
-
 
 
 if __name__ == "__main__":

@@ -75,7 +75,7 @@ runai submit lolbo-struct2 -v /shared_data0/protein-structure-optimization/:/wor
 # running 1000, 20000 
 
 # RUNAI GAUSS INTERACTIVE 
-runai submit lolbo-opt19 -v /shared_data0/protein-structure-optimization/:/workspace/protein-structure-optimization/ --working-dir /workspace/protein-structure-optimization/lolbo_scripts -i nmaus/fold2 -g 1 --interactive --attach 
+runai submit lolbo-opt16 -v /shared_data0/protein-structure-optimization/:/workspace/protein-structure-optimization/ --working-dir /workspace/protein-structure-optimization/lolbo_scripts -i nmaus/fold2 -g 1 --interactive --attach 
 
 
 runai attach test1
@@ -98,10 +98,10 @@ CUDA_VISIBLE_DEVICES=2
 
 docker run -v /home/nmaus/protein-structure-optimization/:/workspace/protein-structure-optimization -w /workspace/protein-structure-optimization/lolbo_scripts --gpus "device=2" -d nmaus/fold2:latest 
 
-CUDA_VISIBLE_DEVICES=1 python3 tm_optimization.py --task_id tm --track_with_wandb True --wandb_entity nmaus --num_initialization_points 1000 --max_n_oracle_calls 150000 --bsz 10 --dim 1024 --max_string_length 150 --vae_tokens uniref --init_w_esmif True --target_pdb_id sample587 --min_prob_human 0.8 - run_lolbo - done 
+CUDA_VISIBLE_DEVICES=2 python3 tm_optimization.py --task_id tm --track_with_wandb True --wandb_entity nmaus --num_initialization_points 1000 --max_n_oracle_calls 150000 --bsz 10 --dim 1024 --max_string_length 150 --vae_tokens uniref --init_w_esmif True --target_pdb_id sample25 --min_plddt 0.8 - run_lolbo - done 
 
 # --gvp_vae True --vae_kl_factor 0.001 --dim 1536 --update_e2e False   XXX never again XXX 
-# constrained: --min_prob_human 0.9   
+# constrained: --min_prob_human 0.8   
 # consrained2: --min_plddt 0.85
 #       (Note: no constraints on locust (too little storage...))
 #       only constrs on ones where baseline will finish (need saved data)
@@ -109,35 +109,61 @@ CUDA_VISIBLE_DEVICES=1 python3 tm_optimization.py --task_id tm --track_with_wand
 TODO: See if_baseline.py notes !! 
 
 YIMENG SET w/ NEW UNIREF VAE MODEL (esm if init only!)
-- == done, above hline == averaged over many  
-_________________constrained plddt_______________________________
+- == done, above hline == averaged over many
+_________________constrained plddt 0.8_______________________________
+25 GAUSS6 
+199 
+587 
+286 
+280
+337 
+459 
+582 
+615 
+1104 
+455 
+_________________constrained plddt 0.85_______________________________
 199 EC210 
 25 EC211 
 587 EC213
-
+286 GAUSS4 
+280 GAUSS5
+337 GAUSS12
+459 GAUSS17
+582 GAUSS18 EC212 
+615 GAUSS7
+1104 LOCUST0
+455 LOCUST2 
 _________________constrained human_______________________________
-286 ALLEGRO-0.9-X2 PRESTO-0.8-X3   (BAD BAD)
-25 VIVANCE-0.8-X3-0.9-X3 GAUSS-0.9-X2   (GGOOD)
-199 VIVANCE-0.8-X3 GAUSS151413-0.9-X3   (GGOOD maybe)
-228 GAUSS-0.8-X1-0.9-X3 ALLEGRO-0.8-X2   KILLLL 
-359 PRESTO-0.8-X1-0.9-X0 ALLEGRO-0.8-X1-0.9-X0 (MEH WE'LL SEE)  KILL??? 
+286 :(
+25 - 
+199 0.8-X3-DONE-W? GAUSS151413-0.9-X3   (GGOOD maybe)
+228 :(
+359 PRESTO-0.8-X1 looking like :( 
 587 EC220-0.9-X1 EC221-0.8-X1
-587 EC222-0.9-X1 
+280 EC222-0.9-X1 GAUSS8-0.8-X1 
+337 GAUSS10-0.8-X1 
+459 GAUSS16-0.8-X1 
+582 ALLEGRO0,5-0.8-X2 
+615 ALLEGRO1,6-0.8-X2 
+1104 ALLEGRO2,3,7-0.8-X3 
+455 ALLEGRO4-0.8-X1 
+
 ____________________avareged____________________________
-286 -- *
 587 -- *
 359 -- XXX MESSED UP SAVING SOMEHOW ?? (COULD LOOK INTO)
 228 -- XXX BASELINE NOT SAVED XXX 
 199 -- *
 25 -- *
-455         if baseline needs time 
 ________________________________________________
 280 - *
 337 - *
 459 - *
 582 - *
 615 - *
+455 -  * 
 1104 - * 
+286 -- *
 494 -       
 129 -
 611 - 
@@ -149,50 +175,19 @@ ________________________________________________
 215 -
 664 - 
 117 EC2-12 (W, just let finish)
-375 GAUSS10 :(likely 
+375 :(
 3106 - :(  
 575 - :( 
 167 * :(
 41 - :( 
-668 GAUSS8  :(likely 
+668 - :(
 
 # CUDA_VISIBLE_DEVICES=0 (DO NOT KILL MORE! NEED SAVED DATA!)
 # python3 if_baseline.py --target_pdb_id sample167  
-yimeng latest if baselines... - == DONE 
-494 -
-129 -
-25  GAUSS3 
-359 GAUSS4
-337 -
-215 -
-664 -
-668 -
-611 -
-375 -
-117 -  
-575 -
-65 -
-583 -
-363 -
-1104 -
-458 -
-3106 -
-479 -
-286 ALLEGRO
-587 ALLEGRO
-455 ALLEGRO
-228 -
-167 ALLEGRO 
-615 VIVANCE 
-582 VIVANCE 
-459 VIVANCE 
-199 VIVANCE 
-41 VIVANCE 
-280 VIVANCE 
 ____ ??? 
-NEW 10: 
+NEW 10: (breifly started first 6 below and killed )
 135 ALLEGRO
-374 VIVANCE
+374 VIVANCE 
 527 VIVANCE 
 213 GAUSS
 569 GAUSS
@@ -208,9 +203,10 @@ python3 if_baseline.py --target_pdb_id sample386 --max_n_oracle_calls 100000
 
 # total: 30 (all running for both baseline + regular)
 
-# ROBOT: 
-CUDA_VISIBLE_DEVICES=3 
-python3 diverse_tm_optimization.py --task_id tm --max_n_oracle_calls 150000 --bsz 10 --save_csv_frequency 10 --track_with_wandb True --wandb_entity nmaus --num_initialization_points 1000 --dim 1024 --vae_tokens uniref --max_string_length 150 --init_w_esmif True --M 5 --tau 20 --target_pdb_id sample199 - run_robot - done 
+# ROBOT: CUDA_VISIBLE_DEVICES=7 
+docker run -v /home/nmaus/protein-structure-optimization/:/workspace/protein-structure-optimization -w /workspace/protein-structure-optimization/robot_scripts --gpus "device=5" -d nmaus/fold2:latest 
+
+python3 diverse_tm_optimization.py --task_id tm --max_n_oracle_calls 150000 --bsz 10 --save_csv_frequency 10 --track_with_wandb True --wandb_entity nmaus --num_initialization_points 1000 --dim 1024 --vae_tokens uniref --max_string_length 150 --init_w_esmif True --M 5 --tau 10 --target_pdb_id sample582 - run_robot - done 
 
 YIMENG SET w/ NEW UNIREF VAE MODEL (esm if init only!)
 25 m10t5-X3 (Gauss 0, 11, 12)
@@ -221,6 +217,29 @@ YIMENG SET w/ NEW UNIREF VAE MODEL (esm if init only!)
 199 m20t5-X2 (EC2-22, EC2-23)
 199 m5t10-X2 (Gauss 1, 2)
 199 m5t20-X0 (Gauss 17, 19, 3)
+587 m10t5 LOCUST3
+587 m5t10 LOCUST4
+587 m5t20 LOCUST5 
+280 m5t10 LOCUST6
+280 m5t20 LOCUST7 
+280 m10t5 LOCUST1 
+582 m5t20 VIVANCE3 
+582 m10t5 PRESTO4 
+582 m5t10 PRESTO5 
+455 m5t20 VIVANCE6 
+455 m10t5 VIVANCE7 
+455 m5t10 PRESTO0  
+1104 m5t20 VIVANCE5 
+1104 m10t5 PRESTO1 
+1104 m5t10 PRESTO3 
+
+286 m5t20 VIVANCE0  
+337 m5t20 VIVANCE1 
+459 m5t20 VIVANCE2 
+615 m5t20 VIVANCE4 
+
+
+
 
 
 
