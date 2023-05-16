@@ -30,7 +30,8 @@ docker run -v /home/nmaus/protein-structure-optimization/:/workspace/protein-str
 
 # Gauss 
 runai delete job lolbo-opt19
-runai submit lolbo-opt19 -v /shared_data0/protein-structure-optimization/:/workspace/protein-structure-optimization/ --working-dir /workspace/protein-structure-optimization/lolbo_scripts -i nmaus/fold2:latest -g 1 --interactive --attach 
+runai submit lolbo-opt11 -v /shared_data0/protein-structure-optimization/:/workspace/protein-structure-optimization/ --working-dir /workspace/protein-structure-optimization/lolbo_scripts -i nmaus/fold2:latest -g 1 --interactive --attach 
+runai attach lolbo-opt0
 
 # EC2 
 docker run --privileged --gpus all -v /home/ec2-user/protein-structure-optimization/:/workspace/protein-structure-optimization -w /workspace/protein-structure-optimization/lolbo_scripts -it nmaus/fold2:latest 
@@ -91,6 +92,15 @@ python3 if_baseline.py --compute_probs_h True
 
 # docker run --privileged --gpus all -it nmaus/fold2:latest
 
+
+
+________________________________________
+________________________________________
+________________________________________
+________________________________________
+________________________________________
+________________________________________
+
 # LOLBO OPTIMIZE TM... : 
 
 cd lolbo_scripts 
@@ -99,41 +109,28 @@ CUDA_VISIBLE_DEVICES=0
 
 docker run -v /home/nmaus/protein-structure-optimization/:/workspace/protein-structure-optimization -w /workspace/protein-structure-optimization/lolbo_scripts --gpus "device=2" -d nmaus/fold2:latest 
 
-CUDA_VISIBLE_DEVICES=0 
+CUDA_VISIBLE_DEVICES=2 
 
-python3 tm_optimization.py --task_id tm --track_with_wandb True --wandb_entity nmaus --num_initialization_points 15000 --max_n_oracle_calls 150000 --bsz 10 --dim 1024 --max_string_length 150 --vae_tokens uniref --init_w_esmif True --target_pdb_id sample280 --min_prob_human 0.8 - run_lolbo - done 
+python3 tm_optimization.py --task_id tm --track_with_wandb True --wandb_entity nmaus --num_initialization_points 15000 --max_n_oracle_calls 150000 --bsz 10 --dim 1024 --max_string_length 150 --vae_tokens uniref --init_w_esmif True --target_pdb_id sample1104 --min_prob_human 0.8 - run_lolbo - done 
 
-# --gvp_vae True --vae_kl_factor 0.001 --dim 1536 --update_e2e False   XXX never again XXX 
-# constrained: --min_prob_human 0.8   
-# consrained2: --min_plddt 0.85 
-#       (Note: no constraints on locust (too little storage...))
-#       only constrs on ones where baseline will finish (need saved data)
-
-TODO: See if_baseline.py notes !! 
+# constrained: --min_prob_human 0.8 
 
 YIMENG SET w/ NEW UNIREF VAE MODEL (esm if init only!)
-- == done, above hline == averaged over many
-_________________constrained plddt 0.8_______________________________
-199 EC212 
-337 PRESTO2
-459 EC220 
-_________________constrained plddt 0.85_______________________________
-199 EC210 
-25 EC211 
-587 EC213 
+- == done, above hline == averaged over many 
 _________________constrained human 0.8 15k init_______________________________
 CODE UP SO WE DON'T RECOMPUTE THOSE 15K EVERY TIME!! 
-199 - 
-455 GAUSS17 
+199 EC221 -
+455 GAUSS17 GAUSS0
 582 GAUSS18
-615 ALLEGRO7 
-587 ALLEGRO6
-286
-25 -
-1104
-280 
-337
-459 
+615 ALLEGRO6 ALLEGRO7
+587 PRESTO2 GAUSS1
+286 EC210 GAUSS2
+25 EC222 - 
+1104 EC211 GAUSS11(naan death, restarting w/ 100k init...)
+280 EC212 
+337 EC220
+459 EC223
+
 _________________constrained human 0.8_______________________________
 286 :( 10k would be huge 
 25 - 
@@ -155,20 +152,18 @@ CUDA_VISIBLE_DEVICES=4
 
 python3 diverse_tm_optimization.py --task_id tm --max_n_oracle_calls 150000 --bsz 10 --save_csv_frequency 10 --track_with_wandb True --wandb_entity nmaus --num_initialization_points 1000 --dim 1024 --vae_tokens uniref --max_string_length 150 --init_w_esmif True --M 5 --tau 20 --target_pdb_id sample459 - run_robot - done 
 
-
-25 m10t5-X3 (Gauss 0, 11, 12)
+25 m10t5-X3 
 25 m20t5 - 
-199 m10t5-X3 (EC2-13, EC2-20, EC2-21)
-199 m20t5-X2 (EC2-22, EC2-23)
-199 m5t10-X2 (Gauss 1, 2)
-199 m5t20-X0 (Gauss 17, 19, 3)
+199 m10t5-X3 
+199 m20t5-X2 
+199 m5t10-X2 
+199 m5t20-X0 - GAUSS19 GAUSS3 W already 
 582 m10t5 PRESTO4 
 582 m5t10 PRESTO5 
 455 m10t5 VIVANCE7 
 455 m5t10 PRESTO0  
 1104 m10t5 PRESTO1 
 1104 m5t10 PRESTO3 
-
 
 587 m5t20 LOCUST0 GAUSS4 GAUSS5
 280 m5t20 LOCUST1 GAUSS6 GAUSS7
@@ -251,7 +246,10 @@ python3 if_baseline.py --target_pdb_id sample386 --max_n_oracle_calls 100000
 
 
 
-
+# --gvp_vae True --vae_kl_factor 0.001 --dim 1536 --update_e2e False   XXX never again XXX 
+# constrained: --min_prob_human 0.8   
+#       (Note: no constraints on locust (too little storage...))
+#       only constrs on ones where baseline will finish (need saved data)
 
 
 
