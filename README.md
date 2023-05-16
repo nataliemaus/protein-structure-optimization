@@ -121,7 +121,7 @@ _________________constrained plddt 0.8_______________________________
 280 GAUSS15 
 337 PRESTO2
 459 EC220 
-582 GAUSS8
+582 GAUSS8 
 615 ALLEGRO0 
 1104 ALLEGRO6
 455 ALLEGRO7 
