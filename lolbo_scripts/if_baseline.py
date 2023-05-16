@@ -452,6 +452,9 @@ if __name__ == "__main__":
     parser.add_argument('--tau', type=int, default=10 ) 
     parser.add_argument('--step_size', type=int, default=100 ) 
     parser.add_argument('--log_if_baseline_robot', type=bool, default=False )
+    # compute_probs_h_all
+    parser.add_argument('--compute_probs_h_all1', type=bool, default=False )
+    parser.add_argument('--compute_probs_h_all2', type=bool, default=False )
 
     parser.add_argument('--all_robot', type=bool, default=False )
 
@@ -483,12 +486,19 @@ if __name__ == "__main__":
 
     # python3 if_baseline.py --target_pdb_id sample228 --min_prob_human -1 (running on gauss)
 
-    # python3 if_baseline.py --compute_probs_h_all True
+    # python3 if_baseline.py --compute_probs_h_all1 True (ALLEGRO62)
+    # python3 if_baseline.py --compute_probs_h_all2 True (ALLEGRO72)
 
-    if args.compute_probs_h_all:
-        # [1104,280,337,459]: # ALLEGRO62
-        # [455,582,615,587,286]: # ALLEGRO72
+    if args.compute_probs_h_all1:
         for id_num in [455,582,615,587,286]: # done: 199, 25 
+            compute_and_save_if_baseline_human_probs(the_target_pdb_id=f"sample{id_num}")
+            log_if_baseline_constrained(
+                target_pdb_id=f"sample{id_num}", 
+                min_prob_human=0.8,
+                step_size=100, 
+            ) 
+    elif args.compute_probs_h_all2:
+        for id_num in [1104,280,337,459]: # done: 199, 25 
             compute_and_save_if_baseline_human_probs(the_target_pdb_id=f"sample{id_num}")
             log_if_baseline_constrained(
                 target_pdb_id=f"sample{id_num}", 
