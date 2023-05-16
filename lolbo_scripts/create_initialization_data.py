@@ -62,6 +62,41 @@ def load_init_data_uniref(target_pdb_id, num_seqs_load=10_000):
     return train_x, train_y
 
 
+def load_data_better(
+    target_pdb_id,
+    num_seqs_load=15_000,
+):
+    probs_filename = f"../data/if_baseline_probs_human_{target_pdb_id}.csv"
+    df = pd.read_csv(probs_filename)
+    train_ys = df["tm_score"].values 
+    probsh = df["prob_human"].values 
+    train_xs = df["seq"].values.tolist() 
+
+    # remove mask, etc. tokens occasionally output by ESM IF  
+    train_xs = [x.replace("<mask>", "X") for x in train_xs]
+    train_xs = [x.replace("<cls>", "X") for x in train_xs]
+    train_xs = [x.replace("<sep>", "X") for x in train_xs]
+    train_xs = [x.replace("<pad>", "X") for x in train_xs]
+    train_xs = [x.replace("<eos>", "X") for x in train_xs]
+
+    train_xs = np.array(train_xs)
+    bool_arr = np.logical_not(np.isnan(train_ys))
+    train_xs = train_xs[bool_arr]
+    train_ys = train_ys[bool_arr]
+    probsh = probsh[bool_arr]
+    train_xs = train_xs.tolist() 
+    if len(train_ys) < num_seqs_load: 
+        print(f"WARNING: Number of Valid ESM IF baseline scores is {len(train_ys)} < {num_seqs_load}")
+    
+    train_y = torch.from_numpy(train_ys).float() 
+    train_y = train_y.unsqueeze(-1) 
+    train_y = train_y[0:num_seqs_load] 
+    train_x = train_xs[0:num_seqs_load]
+    probsh = probsh[0:num_seqs_load]
+
+    return train_x, train_y, probsh
+
+
 def load_init_data_esmif(
     target_pdb_id, 
     num_seqs_load=10_000,
@@ -109,19 +144,24 @@ def load_init_data_esmif(
 def load_init_data(
     target_pdb_id, 
     num_seqs_load=10_000,
-    init_w_esmif=False
+    init_w_esmif=True
 ):
     if init_w_esmif:
-        train_x, train_y = load_init_data_esmif(
-            target_pdb_id, 
+        train_x, train_y, probsh = load_data_better(
+            target_pdb_id,
             num_seqs_load=num_seqs_load,
         )
+        # train_x, train_y = load_init_data_esmif(
+        #     target_pdb_id, 
+        #     num_seqs_load=num_seqs_load,
+        # )
     else:
         train_x, train_y = load_init_data_uniref(
             target_pdb_id, 
             num_seqs_load=num_seqs_load
         )
-    return train_x, train_y
+        probsh = None 
+    return train_x, train_y, probsh
 
 
 def create_data_v1(

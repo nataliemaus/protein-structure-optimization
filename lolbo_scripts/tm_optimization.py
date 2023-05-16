@@ -90,7 +90,13 @@ class TMOptimization(Optimize):
         #   by passing initialization selfies through vae 
         if self.init_train_z is None:
             self.init_train_z = self.compute_train_zs()
-        self.init_train_c = self.objective.compute_constraints(self.init_train_x)
+        
+        if self.min_prob_human != -1: # if human constraint 
+            c_vals = self.init_probsh*-1 + self.min_prob_human
+            c_vals = torch.from_numpy(c_vals).float()
+            self.init_train_c = c_vals.unsqueeze(-1) 
+        else:
+            self.init_train_c = self.objective.compute_constraints(self.init_train_x)
 
         return self
 
@@ -128,7 +134,7 @@ class TMOptimization(Optimize):
                 self.init_train_y (a tensor of scores/y's)
                 self.init_train_z (a tensor of corresponding latent space points)
             '''
-        self.init_train_x, self.init_train_y = load_init_data(
+        self.init_train_x, self.init_train_y, self.init_probsh = load_init_data(
             target_pdb_id=self.target_pdb_id, 
             num_seqs_load=self.num_initialization_points,
             init_w_esmif=self.init_w_esmif,

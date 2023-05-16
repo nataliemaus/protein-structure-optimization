@@ -11,7 +11,7 @@ docker run -v /home1/n/nmaus/protein-structure-optimization/:/workspace/protein-
 
 # Allegro: 
 docker pull docker.io/nmaus/fold2:latest
-docker run -v /home/nmaus/protein-structure-optimization/:/workspace/protein-structure-optimization -e NVIDIA_VISIBLE_DEVICES=0 -it nmaus/fold2:latest 
+docker run -v /home/nmaus/protein-structure-optimization/:/workspace/protein-structure-optimization -e NVIDIA_VISIBLE_DEVICES=6 -it nmaus/fold2:latest 
 
 # OTHER
 docker run -v /home/nmaus/protein-structure-optimization/:/workspace/protein-structure-optimization --gpus all -it nmaus/fold2 
@@ -69,7 +69,6 @@ runai attach lolbo-opt2
 # 29_bp_sh3
 # 170_h_ob
 
-
 runai submit lolbo-struct2 -v /shared_data0/protein-structure-optimization/:/workspace/protein-structure-optimization/ --working-dir /workspace/antibody-design/lolbo_scripts -i nmaus/fold2 -g 1 \ --command -- python3 create_initialization_data.py --num_seqs 20000 --bsz 10 --target_pdb_id 17_bp_sh3 
 
 # running 1000, 20000 
@@ -101,7 +100,8 @@ CUDA_VISIBLE_DEVICES=0
 docker run -v /home/nmaus/protein-structure-optimization/:/workspace/protein-structure-optimization -w /workspace/protein-structure-optimization/lolbo_scripts --gpus "device=2" -d nmaus/fold2:latest 
 
 CUDA_VISIBLE_DEVICES=0 
-python3 tm_optimization.py --task_id tm --track_with_wandb True --wandb_entity nmaus --num_initialization_points 1000 --max_n_oracle_calls 150000 --bsz 10 --dim 1024 --max_string_length 150 --vae_tokens uniref --init_w_esmif True --target_pdb_id sample455 --min_plddt 0.8 - run_lolbo - done 
+
+python3 tm_optimization.py --task_id tm --track_with_wandb True --wandb_entity nmaus --num_initialization_points 15000 --max_n_oracle_calls 150000 --bsz 10 --dim 1024 --max_string_length 150 --vae_tokens uniref --init_w_esmif True --target_pdb_id sample280 --min_prob_human 0.8 - run_lolbo - done 
 
 # --gvp_vae True --vae_kl_factor 0.001 --dim 1536 --update_e2e False   XXX never again XXX 
 # constrained: --min_prob_human 0.8   
@@ -114,43 +114,82 @@ TODO: See if_baseline.py notes !!
 YIMENG SET w/ NEW UNIREF VAE MODEL (esm if init only!)
 - == done, above hline == averaged over many
 _________________constrained plddt 0.8_______________________________
-25 GAUSS6 
 199 EC212 
-587 GAUSS13
-286 GAUSS14 
-280 GAUSS15 
 337 PRESTO2
 459 EC220 
-582 GAUSS8 
-615 ALLEGRO0 
-1104 ALLEGRO6
-455 ALLEGRO7 
 _________________constrained plddt 0.85_______________________________
 199 EC210 
 25 EC211 
-587 EC213
-286 GAUSS4 
-280 GAUSS5
-337 GAUSS12
-459 GAUSS17
-582 GAUSS18 
-615 GAUSS7
-1104 LOCUST0
-455 LOCUST2 
-_________________constrained human_______________________________
-286 :(
+587 EC213 
+_________________constrained human 0.8 15k init_______________________________
+CODE UP SO WE DON'T RECOMPUTE THOSE 15K EVERY TIME!! 
+199 - 
+455 GAUSS17 
+582 GAUSS18
+615 ALLEGRO7 
+587 ALLEGRO6
+286
+25 -
+1104
+280 
+337
+459 
+_________________constrained human 0.8_______________________________
+286 :( 10k would be huge 
 25 - 
 199 - 
-228 - :(
-359 - :( 
-587 EC221-0.8-X1 
-280 EC222-0.8-X1   
-337 GAUSS10-0.8-X1 
-459 GAUSS16-0.8-X1 
-582 ALLEGRO5-0.8-X1 
-615 ALLEGRO1-0.8-X2 
-1104 ALLEGRO2,3-0.8-X2
-455 ALLEGRO4-0.8-X1 
+587 EC221-0.8-X1    10k would be huge 
+280 EC222-0.8-X1     close, 10k would be huge 
+337 GAUSS10-0.8-X1   close, 10k would be huge 
+459 GAUSS16-0.8-X1   15k would be huge 
+582 ALLEGRO5-0.8-X1  15k would be huge 
+615 ALLEGRO1-0.8-X2  10 huge, 12k better 
+1104 ALLEGRO2,3-0.8-X2  init won't help, just run more 
+455 ALLEGRO4-0.8-X1   5k would be huge! 
+
+__________ROBOT__________________________
+# ROBOT: 
+docker run -v /home/nmaus/protein-structure-optimization/:/workspace/protein-structure-optimization -w /workspace/protein-structure-optimization/robot_scripts --gpus "device=5" -d nmaus/fold2:latest 
+
+CUDA_VISIBLE_DEVICES=4 
+
+python3 diverse_tm_optimization.py --task_id tm --max_n_oracle_calls 150000 --bsz 10 --save_csv_frequency 10 --track_with_wandb True --wandb_entity nmaus --num_initialization_points 1000 --dim 1024 --vae_tokens uniref --max_string_length 150 --init_w_esmif True --M 5 --tau 20 --target_pdb_id sample459 - run_robot - done 
+
+
+25 m10t5-X3 (Gauss 0, 11, 12)
+25 m20t5 - 
+199 m10t5-X3 (EC2-13, EC2-20, EC2-21)
+199 m20t5-X2 (EC2-22, EC2-23)
+199 m5t10-X2 (Gauss 1, 2)
+199 m5t20-X0 (Gauss 17, 19, 3)
+582 m10t5 PRESTO4 
+582 m5t10 PRESTO5 
+455 m10t5 VIVANCE7 
+455 m5t10 PRESTO0  
+1104 m10t5 PRESTO1 
+1104 m5t10 PRESTO3 
+
+
+587 m5t20 LOCUST0 GAUSS4 GAUSS5
+280 m5t20 LOCUST1 GAUSS6 GAUSS7
+582 m5t20 VIVANCE3 LOCUST2 GAUSS8 
+455 m5t20 VIVANCE6 LOCUST4 GAUSS12
+1104 m5t20 VIVANCE5  WIN
+286 m5t20 VIVANCE0 LOCUST5 GAUSS13
+337 m5t20 VIVANCE1 LOCUST6 GAUSS14 
+459 m5t20 VIVANCE2 LOCUST7 GAUSS15 
+615 m5t20 VIVANCE4 ALLEGRO0 LOCUST3
+
+
+
+
+
+
+
+
+
+
+
 
 ____________________avareged____________________________
 587 -- *
@@ -206,40 +245,6 @@ python3 if_baseline.py --target_pdb_id sample386 --max_n_oracle_calls 100000
 
 # total: 30 (all running for both baseline + regular)
 
-# ROBOT: CUDA_VISIBLE_DEVICES=7 
-docker run -v /home/nmaus/protein-structure-optimization/:/workspace/protein-structure-optimization -w /workspace/protein-structure-optimization/robot_scripts --gpus "device=5" -d nmaus/fold2:latest 
-
-python3 diverse_tm_optimization.py --task_id tm --max_n_oracle_calls 150000 --bsz 10 --save_csv_frequency 10 --track_with_wandb True --wandb_entity nmaus --num_initialization_points 1000 --dim 1024 --vae_tokens uniref --max_string_length 150 --init_w_esmif True --M 5 --tau 10 --target_pdb_id sample582 - run_robot - done 
-
-YIMENG SET w/ NEW UNIREF VAE MODEL (esm if init only!)
-25 m10t5-X3 (Gauss 0, 11, 12)
-25 m5t10-X3 (LOCUST 0,1,2)
-25 m5t20-X3 (LOCUST 3,4,5) 
-25 m20t5-X3 (LOCUST 6,7) 
-199 m10t5-X3 (EC2-13, EC2-20, EC2-21)
-199 m20t5-X2 (EC2-22, EC2-23)
-199 m5t10-X2 (Gauss 1, 2)
-199 m5t20-X0 (Gauss 17, 19, 3)
-587 m10t5 LOCUST3
-587 m5t10 LOCUST4
-587 m5t20 LOCUST5 
-280 m5t10 LOCUST6
-280 m5t20 LOCUST7 
-280 m10t5 LOCUST1 
-582 m5t20 VIVANCE3 
-582 m10t5 PRESTO4 
-582 m5t10 PRESTO5 
-455 m5t20 VIVANCE6 
-455 m10t5 VIVANCE7 
-455 m5t10 PRESTO0  
-1104 m5t20 VIVANCE5 
-1104 m10t5 PRESTO1 
-1104 m5t10 PRESTO3 
-
-286 m5t20 VIVANCE0  
-337 m5t20 VIVANCE1 
-459 m5t20 VIVANCE2 
-615 m5t20 VIVANCE4 
 
 
 

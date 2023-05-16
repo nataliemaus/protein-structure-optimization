@@ -17,6 +17,8 @@ import time
 from oracle.get_prob_human import get_probs_human, load_human_classier_model
 import math 
 from oracle.edit_distance import compute_edit_distance
+from transformers import AutoTokenizer
+from transformers import EsmForProteinFolding
 
 
 def create_wandb_tracker(
@@ -118,79 +120,141 @@ def compute_and_save_if_baseline_human_probs(
         df.to_csv(probs_filename, index=None) 
 
 
+def compute_and_save_if_baseline_plddts(
+    target_pdb_id,
+    fold_model=None,
+    tokenizer=None,
+):
+    device = "cuda:0"
+    seqs, scores = load_existing_esmif_data(target_pdb_id) 
+
+    if fold_model is None:
+        fold_model = EsmForProteinFolding.from_pretrained("facebook/esmfold_v1")
+        fold_model = fold_model.eval() 
+        fold_model = fold_model.cuda()
+        fold_model = fold_model.to(device) 
+    if tokenizer is None:
+        tokenizer = AutoTokenizer.from_pretrained("facebook/esmfold_v1")
+
+    all_plddts = [] 
+    for seq in seqs: 
+        try:
+            tokenized_input = tokenizer([seq], return_tensors="pt", add_special_tokens=False)['input_ids'].to(device)
+            with torch.no_grad():
+                output = fold_model(tokenized_input)
+                # Calculate the mean plddt score for single chain proteins
+                mean_plddt = (output["plddt"].cuda() * output["atom37_atom_exists"].cuda()).sum(
+                    dim=(1, 2)
+                ) / output["atom37_atom_exists"].cuda().sum(dim=(1, 2))
+                all_plddts.append(mean_plddt.item())
+        except:
+            all_plddts.append(np.nan)
+
+    filename = f"../data/if_baseline_plddts_{target_pdb_id}.csv"
+    data = {
+        "seq":seqs, 
+        "tm_score":scores,
+        "plddt":all_plddts,
+    } 
+    df = pd.DataFrame.from_dict(data)
+    df.to_csv(filename, index=None) 
+
+def log_if_baseline_plddt(
+    target_pdb_id, 
+    min_plddt,
+    step_size=100,
+):
+    assert 0 # TODO 
+    filename = f"../data/if_baseline_plddts_{target_pdb_id}.csv"
+    df = pd.read_csv(filename)
+    tm_scores = df["tm_score"].values 
+    plddts = df["plddt"].values 
+    seqs = df["seq"].values 
+
+    args_dict = {
+        "max_n_oracle_calls":150_000,
+        "n_init":1_000,
+        "if_baseline":True,
+        "target_pdb_id":target_pdb_id,
+        "min_plddt":min_plddt,
+        "step_size":step_size,
+    }
+
+    tracker = create_wandb_tracker(
+        config_dict=args_dict,
+        wandb_project_name="optimimze-tm",
+        wandb_entity="nmaus",
+    )
+    
+    n_oracle_calls = 0
+    for i in range(1_000, len(tm_scores), step_size):
+        scores_batch = tm_scores[0:i]
+        seqs_batch = seqs[0:i]
+        plddt_batch = plddts[0:i]
+
+        valid_scores = scores_batch[plddt_batch >= min_plddt]
+        valid_seqs = seqs_batch[plddt_batch >= min_plddt] 
+        if len(valid_scores) > 0: # if any number of valid init scores 
+            best_found = valid_scores.max() 
+            best_input_seen = valid_seqs[valid_scores.argmax()] 
+            tracker.log({
+                "best_found":best_found,
+                "best_input_seen":best_input_seen,
+                "n_oracle_calls":n_oracle_calls
+            }) 
+        
+        n_oracle_calls += step_size
+    
+    tracker.finish() 
+
+
+
 def log_if_baseline_constrained(
     target_pdb_id, 
     min_prob_human,
     step_size=100,
 ):
-        probs_filename = f"../data/if_baseline_probs_human_{target_pdb_id}.csv"
-        df = pd.read_csv(probs_filename)
-        tm_scores = df["tm_score"].values 
-        probsh = df["prob_human"].values 
-        seqs = df["seq"].values 
+    probs_filename = f"../data/if_baseline_probs_human_{target_pdb_id}.csv"
+    df = pd.read_csv(probs_filename)
+    tm_scores = df["tm_score"].values 
+    probsh = df["prob_human"].values 
+    seqs = df["seq"].values 
 
-        args_dict = {
-            "max_n_oracle_calls":150_000,
-            "n_init":1_000,
-            "if_baseline":True,
-            "target_pdb_id":target_pdb_id,
-            "min_prob_human":min_prob_human,
-            "step_size":step_size,
-        }
+    args_dict = {
+        "max_n_oracle_calls":150_000,
+        "n_init":1_000,
+        "if_baseline":True,
+        "target_pdb_id":target_pdb_id,
+        "min_prob_human":min_prob_human,
+        "step_size":step_size,
+    }
 
-        tracker = create_wandb_tracker(
-            config_dict=args_dict,
-            wandb_project_name="optimimze-tm",
-            wandb_entity="nmaus",
-        )
-        # init_scores = tm_scores[0:1_000]
-        # init_seqs = seqs[0:1_000]
-        # init_probsh = probsh[0:1_000]
-        # valid_init_scores = init_scores[init_probsh >= min_prob_human]
-        # valid_init_seqs = init_seqs[init_probsh >= min_prob_human]
-        # if len(valid_init_scores) > 0: # if any number of valid init scores 
-        #     best_found =  valid_init_scores.max() 
-        #     best_input_seen = valid_init_seqs[valid_init_scores.argmax()] 
-        # else:
-        #     best_found = 0.0
-        #     best_input_seen = "" 
+    tracker = create_wandb_tracker(
+        config_dict=args_dict,
+        wandb_project_name="optimimze-tm",
+        wandb_entity="nmaus",
+    )
+    
+    n_oracle_calls = 0
+    for i in range(1_000, len(tm_scores), step_size):
+        scores_batch = tm_scores[0:i]
+        seqs_batch = seqs[0:i]
+        probsh_batch = probsh[0:i]
+
+        valid_scores = scores_batch[probsh_batch >= min_prob_human]
+        valid_seqs = seqs_batch[probsh_batch >= min_prob_human] 
+        if len(valid_scores) > 0: # if any number of valid init scores 
+            best_found = valid_scores.max() 
+            best_input_seen = valid_seqs[valid_scores.argmax()] 
+            tracker.log({
+                "best_found":best_found,
+                "best_input_seen":best_input_seen,
+                "n_oracle_calls":n_oracle_calls
+            }) 
         
-        n_oracle_calls = 0
-        for i in range(1_000, len(tm_scores), step_size):
-            scores_batch = tm_scores[0:i]
-            seqs_batch = seqs[0:i]
-            probsh_batch = probsh[0:i]
-
-            valid_scores = scores_batch[probsh_batch >= min_prob_human]
-            valid_seqs = seqs_batch[probsh_batch >= min_prob_human] 
-            if len(valid_scores) > 0: # if any number of valid init scores 
-                best_found = valid_scores.max() 
-                best_input_seen = valid_seqs[valid_scores.argmax()] 
-                tracker.log({
-                    "best_found":best_found,
-                    "best_input_seen":best_input_seen,
-                    "n_oracle_calls":n_oracle_calls
-                }) 
-            
-            n_oracle_calls += step_size
-
-        # remaining_scores = tm_scores[1_000:]
-        # remaining_seqs = seqs[1_000:]
-        # remaining_probsh = probsh[1_000:] 
-        # n_oracle_calls = 0
-        # for ix, tm_score in enumerate(remaining_scores):
-        #     if best_found > 0:
-        #         tracker.log({
-        #             "best_found":best_found,
-        #             "best_input_seen":best_input_seen,
-        #             "n_oracle_calls":n_oracle_calls
-        #         }) 
-        #     if (remaining_probsh[ix] >= min_prob_human) and (tm_score > best_found):
-        #         best_found = tm_score 
-        #         best_input_seen = remaining_seqs[ix]
-        #     n_oracle_calls += 1
-        
-        tracker.finish() 
+        n_oracle_calls += step_size
+    
+    tracker.finish() 
 
             
 
@@ -435,6 +499,30 @@ def run_if_baseline(
     pd.DataFrame(np.array(seqs)).to_csv(seqs_filename, index=None, header=None)
 
 
+def plddt_all(target_pdb_id_nums_list):
+    fold_model = EsmForProteinFolding.from_pretrained("facebook/esmfold_v1")
+    fold_model = fold_model.eval() 
+    fold_model = fold_model.cuda()
+    fold_model = fold_model.to('cuda:0') 
+    tokenizer = AutoTokenizer.from_pretrained("facebook/esmfold_v1")
+    for id_num in target_pdb_id_nums_list: 
+        compute_and_save_if_baseline_plddts(
+            f"sample{id_num}",
+            fold_model=fold_model,
+            tokenizer=tokenizer,
+        ) 
+        log_if_baseline_plddt(
+            f"sample{id_num}", 
+            min_plddt=0.8,
+            step_size=100,
+        )
+        log_if_baseline_plddt(
+            f"sample{id_num}", 
+            min_plddt=0.85,
+            step_size=100,
+        )
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser() 
     parser.add_argument('--max_n_oracle_calls', type=int, default=150_000 ) 
@@ -455,7 +543,7 @@ if __name__ == "__main__":
     # compute_probs_h_all
     parser.add_argument('--compute_probs_h_all1', type=bool, default=False )
     parser.add_argument('--compute_probs_h_all2', type=bool, default=False )
-
+    parser.add_argument('--cplddt_all', type=bool, default=False )
     parser.add_argument('--all_robot', type=bool, default=False )
 
     args = parser.parse_args() 
@@ -487,9 +575,14 @@ if __name__ == "__main__":
     # python3 if_baseline.py --target_pdb_id sample228 --min_prob_human -1 (running on gauss)
 
     # python3 if_baseline.py --compute_probs_h_all1 True (ALLEGRO62)
-    # python3 if_baseline.py --compute_probs_h_all2 True (ALLEGRO72)
+    # python3 if_baseline.py --compute_probs_h_all2 True (ALLEGRO72) 
 
-    if args.compute_probs_h_all1:
+    # python3 if_baseline.py --plddt_all1 True 
+    # python3 if_baseline.py --plddt_all2 True 
+
+    if args.plddt_all: 
+        plddt_all(target_pdb_id_nums_list=[199,455,582,615,587,286,25,1104,280,337,459])
+    elif args.compute_probs_h_all1:
         for id_num in [455,582,615,587,286]: # done: 199, 25 
             compute_and_save_if_baseline_human_probs(the_target_pdb_id=f"sample{id_num}")
             log_if_baseline_constrained(
