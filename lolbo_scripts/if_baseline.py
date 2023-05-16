@@ -118,7 +118,11 @@ def compute_and_save_if_baseline_human_probs(
         df.to_csv(probs_filename, index=None) 
 
 
-def log_if_baseline_constrained(target_pdb_id, min_prob_human):
+def log_if_baseline_constrained(
+    target_pdb_id, 
+    min_prob_human,
+    step_size=100,
+):
         probs_filename = f"../data/if_baseline_probs_human_{target_pdb_id}.csv"
         df = pd.read_csv(probs_filename)
         tm_scores = df["tm_score"].values 
@@ -131,6 +135,7 @@ def log_if_baseline_constrained(target_pdb_id, min_prob_human):
             "if_baseline":True,
             "target_pdb_id":target_pdb_id,
             "min_prob_human":min_prob_human,
+            "step_size":step_size,
         }
 
         tracker = create_wandb_tracker(
@@ -138,33 +143,52 @@ def log_if_baseline_constrained(target_pdb_id, min_prob_human):
             wandb_project_name="optimimze-tm",
             wandb_entity="nmaus",
         )
-        init_scores = tm_scores[0:1_000]
-        init_seqs = seqs[0:1_000]
-        init_probsh = probsh[0:1_000]
-        valid_init_scores = init_scores[init_probsh >= min_prob_human]
-        valid_init_seqs = init_seqs[init_probsh >= min_prob_human]
-        if len(valid_init_scores) > 0: # if any number of valid init scores 
-            best_found =  valid_init_scores.max() 
-            best_input_seen = valid_init_seqs[valid_init_scores.argmax()] 
-        else:
-            best_found = 0.0
-            best_input_seen = "" 
+        # init_scores = tm_scores[0:1_000]
+        # init_seqs = seqs[0:1_000]
+        # init_probsh = probsh[0:1_000]
+        # valid_init_scores = init_scores[init_probsh >= min_prob_human]
+        # valid_init_seqs = init_seqs[init_probsh >= min_prob_human]
+        # if len(valid_init_scores) > 0: # if any number of valid init scores 
+        #     best_found =  valid_init_scores.max() 
+        #     best_input_seen = valid_init_seqs[valid_init_scores.argmax()] 
+        # else:
+        #     best_found = 0.0
+        #     best_input_seen = "" 
         
-        remaining_scores = tm_scores[1_000:]
-        remaining_seqs = seqs[1_000:]
-        remaining_probsh = probsh[1_000:] 
         n_oracle_calls = 0
-        for ix, tm_score in enumerate(remaining_scores):
-            if best_found > 0:
+        for i in range(1_000, len(tm_scores), step_size):
+            scores_batch = tm_scores[0:i]
+            seqs_batch = seqs[0:i]
+            probsh_batch = probsh[0:i]
+
+            valid_scores = scores_batch[probsh_batch >= min_prob_human]
+            valid_seqs = seqs_batch[probsh_batch >= min_prob_human] 
+            if len(valid_scores) > 0: # if any number of valid init scores 
+                best_found = valid_scores.max() 
+                best_input_seen = valid_seqs[valid_scores.argmax()] 
                 tracker.log({
                     "best_found":best_found,
                     "best_input_seen":best_input_seen,
                     "n_oracle_calls":n_oracle_calls
                 }) 
-            if (remaining_probsh[ix] >= min_prob_human) and (tm_score > best_found):
-                best_found = tm_score 
-                best_input_seen = remaining_seqs[ix]
-            n_oracle_calls += 1
+            
+            n_oracle_calls += step_size
+
+        # remaining_scores = tm_scores[1_000:]
+        # remaining_seqs = seqs[1_000:]
+        # remaining_probsh = probsh[1_000:] 
+        # n_oracle_calls = 0
+        # for ix, tm_score in enumerate(remaining_scores):
+        #     if best_found > 0:
+        #         tracker.log({
+        #             "best_found":best_found,
+        #             "best_input_seen":best_input_seen,
+        #             "n_oracle_calls":n_oracle_calls
+        #         }) 
+        #     if (remaining_probsh[ix] >= min_prob_human) and (tm_score > best_found):
+        #         best_found = tm_score 
+        #         best_input_seen = remaining_seqs[ix]
+        #     n_oracle_calls += 1
         
         tracker.finish() 
 
@@ -459,7 +483,15 @@ if __name__ == "__main__":
 
     # python3 if_baseline.py --target_pdb_id sample228 --min_prob_human -1 (running on gauss)
 
-    if args.compute_probs_h:
+    if args.compute_probs_h_all:
+        for id_num in [1104,280,455,337,459,582,615,587,286]: # done: 199, 25 
+            compute_and_save_if_baseline_human_probs(the_target_pdb_id=f"sample{id_num}")
+            log_if_baseline_constrained(
+                target_pdb_id=f"sample{id_num}", 
+                min_prob_human=0.8,
+                step_size=100, 
+            ) 
+    elif args.compute_probs_h:
         compute_and_save_if_baseline_human_probs(the_target_pdb_id=args.target_pdb_id)
     elif args.analyze_probs_human:
         analyze_probs_human() 

@@ -75,7 +75,9 @@ runai submit lolbo-struct2 -v /shared_data0/protein-structure-optimization/:/wor
 # running 1000, 20000 
 
 # RUNAI GAUSS INTERACTIVE 
-runai submit lolbo-opt16 -v /shared_data0/protein-structure-optimization/:/workspace/protein-structure-optimization/ --working-dir /workspace/protein-structure-optimization/lolbo_scripts -i nmaus/fold2 -g 1 --interactive --attach 
+runai delete job lolbo-opt8 
+runai submit lolbo-opt8 -v /shared_data0/protein-structure-optimization/:/workspace/protein-structure-optimization/ --working-dir /workspace/protein-structure-optimization/lolbo_scripts -i nmaus/fold2 -g 1 --interactive --attach 
+runai attach lolbo-opt8
 
 
 runai attach test1
@@ -94,15 +96,16 @@ python3 if_baseline.py --compute_probs_h True
 
 cd lolbo_scripts 
 
-CUDA_VISIBLE_DEVICES=2 
+CUDA_VISIBLE_DEVICES=0 
 
 docker run -v /home/nmaus/protein-structure-optimization/:/workspace/protein-structure-optimization -w /workspace/protein-structure-optimization/lolbo_scripts --gpus "device=2" -d nmaus/fold2:latest 
 
-CUDA_VISIBLE_DEVICES=2 python3 tm_optimization.py --task_id tm --track_with_wandb True --wandb_entity nmaus --num_initialization_points 1000 --max_n_oracle_calls 150000 --bsz 10 --dim 1024 --max_string_length 150 --vae_tokens uniref --init_w_esmif True --target_pdb_id sample25 --min_plddt 0.8 - run_lolbo - done 
+CUDA_VISIBLE_DEVICES=0 
+python3 tm_optimization.py --task_id tm --track_with_wandb True --wandb_entity nmaus --num_initialization_points 1000 --max_n_oracle_calls 150000 --bsz 10 --dim 1024 --max_string_length 150 --vae_tokens uniref --init_w_esmif True --target_pdb_id sample455 --min_plddt 0.8 - run_lolbo - done 
 
 # --gvp_vae True --vae_kl_factor 0.001 --dim 1536 --update_e2e False   XXX never again XXX 
 # constrained: --min_prob_human 0.8   
-# consrained2: --min_plddt 0.85
+# consrained2: --min_plddt 0.85 
 #       (Note: no constraints on locust (too little storage...))
 #       only constrs on ones where baseline will finish (need saved data)
 
@@ -112,16 +115,16 @@ YIMENG SET w/ NEW UNIREF VAE MODEL (esm if init only!)
 - == done, above hline == averaged over many
 _________________constrained plddt 0.8_______________________________
 25 GAUSS6 
-199 
-587 
-286 
-280
-337 
-459 
-582 
-615 
-1104 
-455 
+199 EC212 
+587 GAUSS13
+286 GAUSS14 
+280 GAUSS15 
+337 PRESTO2
+459 EC220 
+582 GAUSS8
+615 ALLEGRO0 
+1104 ALLEGRO6
+455 ALLEGRO7 
 _________________constrained plddt 0.85_______________________________
 199 EC210 
 25 EC211 
@@ -130,23 +133,23 @@ _________________constrained plddt 0.85_______________________________
 280 GAUSS5
 337 GAUSS12
 459 GAUSS17
-582 GAUSS18 EC212 
+582 GAUSS18 
 615 GAUSS7
 1104 LOCUST0
 455 LOCUST2 
 _________________constrained human_______________________________
 286 :(
 25 - 
-199 0.8-X3-DONE-W? GAUSS151413-0.9-X3   (GGOOD maybe)
-228 :(
-359 PRESTO-0.8-X1 looking like :( 
-587 EC220-0.9-X1 EC221-0.8-X1
-280 EC222-0.9-X1 GAUSS8-0.8-X1 
+199 - 
+228 - :(
+359 - :( 
+587 EC221-0.8-X1 
+280 EC222-0.8-X1   
 337 GAUSS10-0.8-X1 
 459 GAUSS16-0.8-X1 
-582 ALLEGRO0,5-0.8-X2 
-615 ALLEGRO1,6-0.8-X2 
-1104 ALLEGRO2,3,7-0.8-X3 
+582 ALLEGRO5-0.8-X1 
+615 ALLEGRO1-0.8-X2 
+1104 ALLEGRO2,3-0.8-X2
 455 ALLEGRO4-0.8-X1 
 
 ____________________avareged____________________________
@@ -237,6 +240,7 @@ YIMENG SET w/ NEW UNIREF VAE MODEL (esm if init only!)
 337 m5t20 VIVANCE1 
 459 m5t20 VIVANCE2 
 615 m5t20 VIVANCE4 
+
 
 
 
