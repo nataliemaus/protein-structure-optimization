@@ -30,8 +30,8 @@ docker run -v /home/nmaus/protein-structure-optimization/:/workspace/protein-str
 
 # Gauss 
 runai delete job lolbo-opt19
-runai submit lolbo-opt11 -v /shared_data0/protein-structure-optimization/:/workspace/protein-structure-optimization/ --working-dir /workspace/protein-structure-optimization/lolbo_scripts -i nmaus/fold2:latest -g 1 --interactive --attach 
-runai attach lolbo-opt0
+runai submit lolbo-opt12 -v /shared_data0/protein-structure-optimization/:/workspace/protein-structure-optimization/ --working-dir /workspace/protein-structure-optimization/lolbo_scripts -i nmaus/fold2:latest -g 1 --interactive --attach 
+runai attach lolbo-opt12
 
 # EC2 
 docker run --privileged --gpus all -v /home/ec2-user/protein-structure-optimization/:/workspace/protein-structure-optimization -w /workspace/protein-structure-optimization/lolbo_scripts -it nmaus/fold2:latest 
@@ -107,42 +107,54 @@ cd lolbo_scripts
 
 CUDA_VISIBLE_DEVICES=0 
 
-docker run -v /home/nmaus/protein-structure-optimization/:/workspace/protein-structure-optimization -w /workspace/protein-structure-optimization/lolbo_scripts --gpus "device=2" -d nmaus/fold2:latest 
+docker run -v /home/nmaus/protein-structure-optimization/:/workspace/protein-structure-optimization -w /workspace/protein-structure-optimization/lolbo_scripts --gpus "device=5" -d nmaus/fold2:latest 
 
-CUDA_VISIBLE_DEVICES=2 
-
-python3 tm_optimization.py --task_id tm --track_with_wandb True --wandb_entity nmaus --num_initialization_points 15000 --max_n_oracle_calls 150000 --bsz 10 --dim 1024 --max_string_length 150 --vae_tokens uniref --init_w_esmif True --target_pdb_id sample1104 --min_prob_human 0.8 - run_lolbo - done 
+CUDA_VISIBLE_DEVICES=2 python3 tm_optimization.py --task_id tm --track_with_wandb True --wandb_entity nmaus --num_initialization_points 148000 --max_n_oracle_calls 150000 --bsz 10 --dim 1024 --max_string_length 150 --vae_tokens uniref --init_w_esmif True --target_pdb_id sample587 --min_prob_human 0.8 - run_lolbo - done 
 
 # constrained: --min_prob_human 0.8 
 
 YIMENG SET w/ NEW UNIREF VAE MODEL (esm if init only!)
 - == done, above hline == averaged over many 
+
+NOTES: do not kill any current constrained or robot runs, things just take time!
+_________________constrained human 0.8 148k init_______________________________
+1104 GAUSS11(naan death earlier, check for)  
+615 EC221 
+455 VIVANCE7 
+587 EC222  
+280 PRESTO0 
+1104 PRESTO1 
+286 PRESTO3 
+337 PRESTO4 
+459 PRESTO5 
+
 _________________constrained human 0.8 15k init_______________________________
 CODE UP SO WE DON'T RECOMPUTE THOSE 15K EVERY TIME!! 
-199 EC221 -
-455 GAUSS17 GAUSS0
-582 GAUSS18
+199 -1k!
+25 -w1k!
+582 -w1k! 
+455 GAUSS17 GAUSS0  
 615 ALLEGRO6 ALLEGRO7
 587 PRESTO2 GAUSS1
 286 EC210 GAUSS2
-25 EC222 - 
-1104 EC211 GAUSS11(naan death, restarting w/ 100k init...)
+1104 EC211 
 280 EC212 
 337 EC220
-459 EC223
+459 EC223 
 
 _________________constrained human 0.8_______________________________
-286 :( 10k would be huge 
 25 - 
 199 - 
-587 EC221-0.8-X1    10k would be huge 
-280 EC222-0.8-X1     close, 10k would be huge 
-337 GAUSS10-0.8-X1   close, 10k would be huge 
-459 GAUSS16-0.8-X1   15k would be huge 
-582 ALLEGRO5-0.8-X1  15k would be huge 
-615 ALLEGRO1-0.8-X2  10 huge, 12k better 
-1104 ALLEGRO2,3-0.8-X2  init won't help, just run more 
-455 ALLEGRO4-0.8-X1   5k would be huge! 
+582 - ALLEGRO5-0.8-X1  (allow to finish!)
+
+587 vslow... 
+280 no progress yet 
+337 GAUSS10-0.8-X1  tbd, could use help 
+459 GAUSS16-0.8-X1  fast-but-no-W... help 
+286 :( fast-but-no-progress-help
+615 ALLEGRO1-X1(slow asf bc allegro1 is crowded) fast-but-no-progress-help 
+1104 ALLEGRO2,3-0.8-X2  fast-but-no-progress-help 
+455 ALLEGRO4-0.8-X1   fast-but-no-progress-help 
 
 __________ROBOT__________________________
 # ROBOT: 
@@ -150,36 +162,68 @@ docker run -v /home/nmaus/protein-structure-optimization/:/workspace/protein-str
 
 CUDA_VISIBLE_DEVICES=4 
 
-python3 diverse_tm_optimization.py --task_id tm --max_n_oracle_calls 150000 --bsz 10 --save_csv_frequency 10 --track_with_wandb True --wandb_entity nmaus --num_initialization_points 1000 --dim 1024 --vae_tokens uniref --max_string_length 150 --init_w_esmif True --M 5 --tau 20 --target_pdb_id sample459 - run_robot - done 
+CUDA_VISIBLE_DEVICES=4 python3 diverse_tm_optimization.py --task_id tm --max_n_oracle_calls 150000 --bsz 10 --save_csv_frequency 10 --track_with_wandb True --wandb_entity nmaus --num_initialization_points 148000 --dim 1024 --vae_tokens uniref --max_string_length 150 --init_w_esmif True --M 5 --tau 20 --target_pdb_id sample280 - run_robot - done 
 
-25 m10t5-X3 
+
+_________repeat w/ 148k init___________
+582 GAUSS3
+286 GAUSS18 
+615 GAUSS19 
+337 VIVANCE5
+459 GAUSS12 
+280 LOCUST4 
+587 ? 
+
+_________1k init___________
 25 m20t5 - 
+199 m5t20-X0 - 
+1104 m5t20 -
+455 m5t20 - VIVANCE6 (let fininsh to increase W) 
+
+587 m5t20 LOCUST0 GAUSS4 GAUSS5 sooooo close, needs time 
+280 m5t20 LOCUST1 GAUSS6 GAUSS7  promsing, needs time 
+582 m5t20 VIVANCE3 LOCUST2 GAUSS8  miserable 
+286 m5t20 VIVANCE0 LOCUST5 GAUSS13  miserable 
+337 m5t20 VIVANCE1 LOCUST6 GAUSS14  vague progress but bad 
+459 m5t20 VIVANCE2 LOCUST7 GAUSS15   close but converging to slight L
+615 m5t20 VIVANCE4 ALLEGRO0 LOCUST3  miserable 
+
+________
+
+582 m5t10 - BIG WIN!!! (can we use though w/ lower constraint?)
+
+
+________________________________________
+________________________________________
+________________________________________
+________________________________________
+________________________________________
+________________________________________
+________________________________________
+________________________________________
+________________________________________
+________________________________________
+________________________________________
+________________________________________
+________________________________________
+________________________________________
+________________________________________
+________________________________________
+________________________________________
+________________________________________
+________________________________________
+________________________________________
+
+
+
+
+
+
+_______past_________
+25 m10t5-X3 
 199 m10t5-X3 
 199 m20t5-X2 
 199 m5t10-X2 
-199 m5t20-X0 - GAUSS19 GAUSS3 W already 
-582 m10t5 PRESTO4 
-582 m5t10 PRESTO5 
-455 m10t5 VIVANCE7 
-455 m5t10 PRESTO0  
-1104 m10t5 PRESTO1 
-1104 m5t10 PRESTO3 
-
-587 m5t20 LOCUST0 GAUSS4 GAUSS5
-280 m5t20 LOCUST1 GAUSS6 GAUSS7
-582 m5t20 VIVANCE3 LOCUST2 GAUSS8 
-455 m5t20 VIVANCE6 LOCUST4 GAUSS12
-1104 m5t20 VIVANCE5  WIN
-286 m5t20 VIVANCE0 LOCUST5 GAUSS13
-337 m5t20 VIVANCE1 LOCUST6 GAUSS14 
-459 m5t20 VIVANCE2 LOCUST7 GAUSS15 
-615 m5t20 VIVANCE4 ALLEGRO0 LOCUST3
-
-
-
-
-
-
 
 
 
