@@ -483,8 +483,12 @@ if __name__ == "__main__":
 
     # python3 if_baseline.py --target_pdb_id sample228 --min_prob_human -1 (running on gauss)
 
+    # python3 if_baseline.py --compute_probs_h_all True
+
     if args.compute_probs_h_all:
-        for id_num in [1104,280,337,459]: # [455,582,615,587,286]: # done: 199, 25 
+        # [1104,280,337,459]: # ALLEGRO62
+        # [455,582,615,587,286]: # ALLEGRO72
+        for id_num in [455,582,615,587,286]: # done: 199, 25 
             compute_and_save_if_baseline_human_probs(the_target_pdb_id=f"sample{id_num}")
             log_if_baseline_constrained(
                 target_pdb_id=f"sample{id_num}", 
