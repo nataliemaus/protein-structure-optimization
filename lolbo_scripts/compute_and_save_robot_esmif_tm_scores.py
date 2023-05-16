@@ -36,7 +36,7 @@ for target_pdb_id in df["target_pdb_id"]:
     sub_df = df[df["target_pdb_id"]==target_pdb_id]
     sum_tm_scores = 0
     for i in range(M):
-        seq = sub_df[f"diverse_seq{i+1}_esmif"].values
+        seq = sub_df[f"diverse_seq{i+1}_esmif"].values[0]
         if DEBUG:
             print("seq", seq)
             tm_score = random.randint(0,5)
