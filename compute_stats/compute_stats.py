@@ -73,7 +73,11 @@ def get_cbo_perc_dec_rmsd():
     print("Standard Error percent decrease in RMSD:", std_err_perc_dec)
 
 def seq_to_rmsd(seq, target_pdb_id):
-    target_pdb_path = f"../oracle/target_pdb_files/sample{target_pdb_id}.pdb"
+    if "sample" in target_pdb_id:
+        target_pdb_path = f"../oracle/target_pdb_files/{target_pdb_id}.pdb"
+    else:
+        target_pdb_path = f"../oracle/target_pdb_files/sample{target_pdb_id}.pdb"
+
     rmsd = aa_seq_to_rmsd_score(
         aa_seq=seq, 
         target_pdb_path=target_pdb_path,
