@@ -85,6 +85,7 @@ def seq_to_rmsd(seq, target_pdb_id):
     )
     return rmsd 
 
+
 def compute_rmsds_robot():
     df = pd.read_csv(ROBOT_FILENAME ) 
     new_df = copy.deepcopy(df)
@@ -117,22 +118,23 @@ def compute_rmsds_cbo():
     target_pdb_ids = df["target_pdb_id"].values 
     rmsds_ours = [seq_to_rmsd(seq, target_pdb_ids[k]) for k, seq in enumerate(df["best_seq_ours"].values)]
     new_df["rmsd_score_ours"] = np.array(rmsds_ours)
+    rmsds_esmif = [seq_to_rmsd(seq, target_pdb_ids[k]) for k, seq in enumerate(df["best_seq_esmif"].values)]
 
-    rmsds_esmif = [seq_to_rmsd(seq) for seq in df["best_seq_esmif"].values]
     new_df["rmsd_score_esmif"] = np.array(rmsds_esmif)
 
     new_df.to_csv(CBO_FILENAME.replace(".csv", "_w_RSMD.csv"))
 
 
 def get_stats():
-    print("ROBOT:")
-    get_robot_perc_dec_tm()
     compute_rmsds_robot()
+    compute_rmsds_cbo()
+
+    print("\nROBOT:")
+    get_robot_perc_dec_tm()
     get_robot_perc_dec_rmsd()
 
-    print("\n CBO:")
+    print("\nCBO:")
     get_cbo_perc_dec_tm()
-    compute_rmsds_cbo()
     get_cbo_perc_dec_rmsd() 
 
 
@@ -141,4 +143,11 @@ if __name__ == "__main__":
 
     # Average percent decrease in tm error: 0.4504705983899126
     # Standard Error percent decrease in tm error: 0.09899047315425823
+
+#     Average percent decrease in RSMD: 0.3172316415840256
+# Standard Error percent decrease in RMSD: 0.07696602727670548
+
+#  CBO:
+# Average percent decrease in tm: 0.21176661615023953
+# Standard Error percent decrease in tm: 0.07579338631525835
 
