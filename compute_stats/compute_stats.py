@@ -27,7 +27,7 @@ def get_avg_perc_decrease(esmif_values, our_values):
     perc_decs = (esmif_values - our_values) / esmif_values 
     avg_perc_dec = perc_decs.mean() 
     std_err_perc_dec = perc_decs.std() / np.sqrt(len(perc_decs))
-    return avg_perc_dec, std_err_perc_dec 
+    return avg_perc_dec*100, std_err_perc_dec*100
 
 
 # ROBOT: 
@@ -141,13 +141,14 @@ def get_stats():
 if __name__ == "__main__":
     get_stats()
 
-    # Average percent decrease in tm error: 0.4504705983899126
-    # Standard Error percent decrease in tm error: 0.09899047315425823
+# ROBOT:
+# Average percent decrease in tm error: 45.04705983899126
+# Standard Error percent decrease in tm error: 9.899047315425823
+# Average percent decrease in RSMD: 31.72316415840256
+# Standard Error percent decrease in RMSD: 7.696602727670548
 
-#     Average percent decrease in RSMD: 0.3172316415840256
-# Standard Error percent decrease in RMSD: 0.07696602727670548
-
-#  CBO:
-# Average percent decrease in tm: 0.21176661615023953
-# Standard Error percent decrease in tm: 0.07579338631525835
-
+# CBO:
+# Average percent decrease in tm: 21.176661615023953
+# Standard Error percent decrease in tm: 7.579338631525835
+# Average percent decrease in RSMD: 17.219829895801347
+# Standard Error percent decrease in RMSD: 6.283556005381195
