@@ -152,3 +152,28 @@ if __name__ == "__main__":
 # Standard Error percent decrease in tm: 7.579338631525835
 # Average percent decrease in RSMD: 17.219829895801347
 # Standard Error percent decrease in RMSD: 6.283556005381195
+
+# ROBOT:
+# Average percent decrease in tm error: 45.04705983899126
+# Standard Error percent decrease in tm error: 9.899047315425822
+# Average percent decrease in RSMD: 31.72316415840256
+# Standard Error percent decrease in RMSD: 7.696602727670548
+
+# CBO:
+# Average percent decrease in tm: 24.706099096712766
+# Standard Error percent decrease in tm: 7.9785847309381905
+# Average percent decrease in RSMD: 20.089801545101572
+# Standard Error percent decrease in RMSD: 6.64314133005339
+
+# UPDATE 2:20PM !! 
+# ROBOT:
+# Average percent decrease in tm error: 0.4697792517019653
+# Standard Error percent decrease in tm error: 0.09859104347930969
+# Average percent decrease in RSMD: 0.0
+# Standard Error percent decrease in RMSD: 0.0
+
+#  CBO:
+# Average percent decrease in tm: 0.32503766985630106
+# Standard Error percent decrease in tm: 0.08918539351824058
+# Average percent decrease in RSMD: 0.0
+# Standard Error percent decrease in RMSD: 0.0
