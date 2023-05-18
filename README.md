@@ -100,6 +100,8 @@ ________________________________________
 ________________________________________
 ________________________________________
 ________________________________________
+________________________________________
+________________________________________
 
 # LOLBO OPTIMIZE TM... : 
 
@@ -109,7 +111,7 @@ CUDA_VISIBLE_DEVICES=0
 
 docker run -v /home/nmaus/protein-structure-optimization/:/workspace/protein-structure-optimization -w /workspace/protein-structure-optimization/lolbo_scripts --gpus "device=5" -d nmaus/fold2:latest 
 
-CUDA_VISIBLE_DEVICES=3 python3 tm_optimization.py --task_id tm --track_with_wandb True --wandb_entity nmaus --num_initialization_points 148000 --max_n_oracle_calls 150000 --bsz 10 --dim 1024 --max_string_length 150 --vae_tokens uniref --init_w_esmif True --target_pdb_id sample615 --min_prob_human 0.8 - run_lolbo - done 
+CUDA_VISIBLE_DEVICES=3 python3 tm_optimization.py --task_id tm --track_with_wandb True --wandb_entity nmaus --num_initialization_points 148000 --max_n_oracle_calls 150000 --bsz 10 --dim 1024 --max_string_length 150 --vae_tokens uniref --init_w_esmif True --target_pdb_id sample587 --min_prob_human 0.8 - run_lolbo - done 
 
 # constrained: --min_prob_human 0.8 
 
@@ -119,9 +121,9 @@ YIMENG SET w/ NEW UNIREF VAE MODEL (esm if init only!)
 NOTES: do not kill any current constrained or robot runs, things just take time!
 _________________constrained human 0.8 148k init_______________________________
 1104 GAUSS11(naan death earlier, check for)  
-615 EC221 VIVANCE3
+615 VIVANCE3
 455 VIVANCE7 
-587 EC222  
+587 GAUSS16
 280 PRESTO0 
 1104 PRESTO1 
 286 PRESTO3 
@@ -255,7 +257,7 @@ ________________________________________________
 479 - 
 215 -
 664 - 
-117 EC2-12 (W, just let finish)
+117 - 
 375 :(
 3106 - :(  
 575 - :( 
