@@ -120,12 +120,11 @@ YIMENG SET w/ NEW UNIREF VAE MODEL (esm if init only!)
 
 NOTES: do not kill any current constrained or robot runs, things just take time!
 _________________constrained human 0.8 148k init_______________________________
-1104 GAUSS11(naan death earlier, check for)  
+1104 GAUSS11(naan death earlier, check for)  PRESTO1 
 615 VIVANCE3
 455 VIVANCE7 
 587 GAUSS16
 280 PRESTO0 
-1104 PRESTO1 
 286 PRESTO3 
 337 PRESTO4 
 459 PRESTO5 
@@ -138,11 +137,7 @@ CODE UP SO WE DON'T RECOMPUTE THOSE 15K EVERY TIME!!
 455 GAUSS17 GAUSS0  
 615 ALLEGRO6 ALLEGRO7
 587 PRESTO2 GAUSS1
-286 EC210 GAUSS2
-1104 EC211 
-280 EC212 
-337 EC220
-459 EC223 
+286 GAUSS2 
 
 _________________constrained human 0.8_______________________________
 25 - 
@@ -197,6 +192,12 @@ ________
 
 ________________________________________
 ________________________________________
+________IF BASELINE NEW________________
+494
+
+
+________________________________________
+________________________________________
 ________________________________________
 ________________________________________
 ________________________________________
@@ -226,9 +227,6 @@ _______past_________
 199 m10t5-X3 
 199 m20t5-X2 
 199 m5t10-X2 
-
-
-
 
 
 

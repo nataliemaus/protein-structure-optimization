@@ -543,10 +543,12 @@ if __name__ == "__main__":
     # compute_probs_h_all
     parser.add_argument('--compute_probs_h_all1', type=bool, default=False )
     parser.add_argument('--compute_probs_h_all2', type=bool, default=False )
-    parser.add_argument('--cplddt_all', type=bool, default=False )
+    parser.add_argument('--plddt_all', type=bool, default=False )
     parser.add_argument('--all_robot', type=bool, default=False )
 
     args = parser.parse_args() 
+
+    # CUDA_VISIBLE_DEVICES=0 python3 if_baseline.py --target_pdb_id 
 
     # CUDA_VISIBLE_DEVICES=1 python3 if_baseline.py --all_robot True 
 
