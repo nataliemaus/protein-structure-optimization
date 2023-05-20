@@ -111,7 +111,7 @@ CUDA_VISIBLE_DEVICES=0
 
 docker run -v /home/nmaus/protein-structure-optimization/:/workspace/protein-structure-optimization -w /workspace/protein-structure-optimization/lolbo_scripts --gpus "device=5" -d nmaus/fold2:latest 
 
-CUDA_VISIBLE_DEVICES=3 python3 tm_optimization.py --task_id tm --track_with_wandb True --wandb_entity nmaus --num_initialization_points 148000 --max_n_oracle_calls 150000 --bsz 10 --dim 1024 --max_string_length 150 --vae_tokens uniref --init_w_esmif True --target_pdb_id sample587 --min_prob_human 0.8 - run_lolbo - done 
+CUDA_VISIBLE_DEVICES=0 python3 tm_optimization.py --task_id tm --track_with_wandb True --wandb_entity nmaus --num_initialization_points 148000 --max_n_oracle_calls 150000 --bsz 10 --dim 1024 --max_string_length 150 --vae_tokens uniref --init_w_esmif True --target_pdb_id sample455 --min_prob_human 0.8 - run_lolbo - done 
 
 # constrained: --min_prob_human 0.8 
 
@@ -120,13 +120,13 @@ YIMENG SET w/ NEW UNIREF VAE MODEL (esm if init only!)
 
 NOTES: do not kill any current constrained or robot runs, things just take time!
 _________________constrained human 0.8 148k init_______________________________
-1104 GAUSS11(naan death earlier, check for)  PRESTO1 
-615 VIVANCE3
-455 VIVANCE7 
+1104 - GAUSS11(naan death earlier, check for)  
+615 - VIVANCE3
+455 ... 
 587 GAUSS16
-280 PRESTO0 
-286 PRESTO3 
-337 PRESTO4 
+280 
+286 
+337 
 459 PRESTO5 
 
 _________________constrained human 0.8 15k init_______________________________
@@ -134,10 +134,10 @@ CODE UP SO WE DON'T RECOMPUTE THOSE 15K EVERY TIME!!
 199 -1k!
 25 -w1k!
 582 -w1k! 
-455 GAUSS17 GAUSS0  
-615 ALLEGRO6 ALLEGRO7
+455 GAUSS17  
+615 ALLEGRO7
 587 PRESTO2 GAUSS1
-286 GAUSS2 
+286 
 
 _________________constrained human 0.8_______________________________
 25 - 
@@ -146,7 +146,7 @@ _________________constrained human 0.8_______________________________
 
 587 vslow... 
 280 no progress yet 
-337 GAUSS10-0.8-X1  tbd, could use help 
+337 
 459 GAUSS16-0.8-X1  fast-but-no-W... help 
 286 :( fast-but-no-progress-help
 615 ALLEGRO1-X1(slow asf bc allegro1 is crowded) fast-but-no-progress-help 
@@ -157,33 +157,43 @@ __________ROBOT__________________________
 # ROBOT: 
 docker run -v /home/nmaus/protein-structure-optimization/:/workspace/protein-structure-optimization -w /workspace/protein-structure-optimization/robot_scripts --gpus "device=5" -d nmaus/fold2:latest 
 
-CUDA_VISIBLE_DEVICES=4 
+CUDA_VISIBLE_DEVICES=7 
 
-CUDA_VISIBLE_DEVICES=4 python3 diverse_tm_optimization.py --task_id tm --max_n_oracle_calls 150000 --bsz 10 --save_csv_frequency 10 --track_with_wandb True --wandb_entity nmaus --num_initialization_points 148000 --dim 1024 --vae_tokens uniref --max_string_length 150 --init_w_esmif True --M 5 --tau 20 --target_pdb_id sample587 - run_robot - done 
+CUDA_VISIBLE_DEVICES=7 python3 diverse_tm_optimization.py --task_id tm --max_n_oracle_calls 200000 --bsz 10 --save_csv_frequency 10 --track_with_wandb True --wandb_entity nmaus --num_initialization_points 5000 --dim 1024 --vae_tokens uniref --max_string_length 150 --init_w_esmif True --M 5 --tau 20 --target_pdb_id sample582 - run_robot - done 
 
+
+_________repeat w/ 5k init___________
+582 LOCUST7
+615 LOCUST3
+459 LOCUST6
+_________repeat w/ 10k init___________
+582 LOCUST0
+615 LOCUST1
+459 LOCUST2
+587 - LOCUST5 
 
 _________repeat w/ 148k init___________
-582 GAUSS3
+582 GAUSS3 ...
 286 GAUSS18 
-615 GAUSS19 
-337 VIVANCE5
-459 GAUSS12 
+615 GAUSS19 ...
+337 
+459 GAUSS12 ...
 280 LOCUST4 
-587 GAUSS9 
+587 GAUSS9 ... 
 
 _________1k init___________
 25 m20t5 - 
 199 m5t20-X0 - 
 1104 m5t20 -
 455 m5t20 - VIVANCE6 (let fininsh to increase W) 
+280 - m5t20 GAUSS6 GAUSS7  promsing, barely win 
+337 - m5t20 GAUSS14 
+286 - m5t20 VIVANCE0 barely win  
+587 - m5t20 GAUSS4 sooooo close, needs time 
 
-587 m5t20 LOCUST0 GAUSS4 GAUSS5 sooooo close, needs time 
-280 m5t20 LOCUST1 GAUSS6 GAUSS7  promsing, needs time 
-582 m5t20 LOCUST2 GAUSS8  miserable 
-286 m5t20 VIVANCE0 LOCUST5 GAUSS13  miserable 
-337 m5t20 VIVANCE1 LOCUST6 GAUSS14  vague progress but bad 
-459 m5t20 VIVANCE2 LOCUST7 GAUSS15   close but converging to slight L
-615 m5t20 VIVANCE4 ALLEGRO0 LOCUST3  miserable 
+582 m5t20 miserable 
+459 m5t20 GAUSS15   close but converging to slight L
+615 m5t20 VIVANCE4 ALLEGRO0  miserable 
 
 ________
 
@@ -192,8 +202,37 @@ ________
 
 ________________________________________
 ________________________________________
+CUDA_VISIBLE_DEVICES=4 
+
+docker run -v /home/nmaus/protein-structure-optimization/:/workspace/protein-structure-optimization -w /workspace/protein-structure-optimization/lolbo_scripts --gpus "device=3" -d nmaus/fold2:latest 
+
+python3 if_baseline.py --target_pdb_id sample611          
 ________IF BASELINE NEW________________
-494
+494 VIVANCE0 
+129 VIVANCE6 
+65 VIVANCE4
+664 GAUSS0 
+228 GAUSS2 
+215 GAUSS4   
+117 ALLEGRO6   
+611 PRESTO3 
+VIVANCE2 todo
+VIVANCE5 todo
+VIVANCE7 todo
+
+--
+135 GAUSS8 
+374 PRESTO4 
+527 VIVANCE1
+213 GAUSS6 
+569 ALLEGRO5 
+386 GAUSS5  
+437 GAUSS10  
+499 GAUSS13 
+254 PRESTO0
+651 PRESTO1
+
+
 
 
 ________________________________________
@@ -267,12 +306,12 @@ ________________________________________________
 # python3 if_baseline.py --target_pdb_id sample167  
 ____ ??? 
 NEW 10: (breifly started first 6 below and killed )
-135 ALLEGRO
-374 VIVANCE 
-527 VIVANCE 
-213 GAUSS
-569 GAUSS
-386 GAUSS
+135 
+374 
+527
+213 
+569
+386
 437 
 499 
 254 

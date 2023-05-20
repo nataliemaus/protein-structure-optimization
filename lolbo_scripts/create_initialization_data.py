@@ -147,14 +147,17 @@ def load_init_data(
     init_w_esmif=True
 ):
     if init_w_esmif:
-        train_x, train_y, probsh = load_data_better(
-            target_pdb_id,
-            num_seqs_load=num_seqs_load,
-        )
-        # train_x, train_y = load_init_data_esmif(
-        #     target_pdb_id, 
-        #     num_seqs_load=num_seqs_load,
-        # )
+        try:
+            train_x, train_y, probsh = load_data_better(
+                target_pdb_id,
+                num_seqs_load=num_seqs_load,
+            )
+        except: 
+            train_x, train_y = load_init_data_esmif(
+                target_pdb_id, 
+                num_seqs_load=num_seqs_load,
+            )
+            probsh = None 
     else:
         train_x, train_y = load_init_data_uniref(
             target_pdb_id, 
