@@ -92,9 +92,12 @@ class TMOptimization(Optimize):
             self.init_train_z = self.compute_train_zs()
         
         if self.min_prob_human != -1: # if human constraint 
-            c_vals = self.init_probsh*-1 + self.min_prob_human
-            c_vals = torch.from_numpy(c_vals).float()
-            self.init_train_c = c_vals.unsqueeze(-1) 
+            if self.init_probsh is not None:
+                c_vals = self.init_probsh*-1 + self.min_prob_human
+                c_vals = torch.from_numpy(c_vals).float()
+                self.init_train_c = c_vals.unsqueeze(-1) 
+            else:
+                self.init_train_c = self.objective.compute_constraints(self.init_train_x)
         else:
             self.init_train_c = self.objective.compute_constraints(self.init_train_x)
 
