@@ -546,7 +546,16 @@ if __name__ == "__main__":
     parser.add_argument('--plddt_all', type=bool, default=False )
     parser.add_argument('--all_robot', type=bool, default=False )
 
+    parser.add_argument('--all_robot_one_id', type=bool, default=False )
+    parser.add_argument('--compute_and_log_probs_h', type=bool, default=False )
+
     args = parser.parse_args() 
+
+    # RUN FOR EACH IF BASELINE: 
+    # python3 if_baseline.py --target_pdb_id sampleXXX --all_robot_one_id True 
+    # python3 if_baseline.py --target_pdb_id sampleXXX --compute_and_log_probs_h True
+
+
 
     # CUDA_VISIBLE_DEVICES=0 python3 if_baseline.py --target_pdb_id 
 
@@ -600,6 +609,13 @@ if __name__ == "__main__":
                 min_prob_human=0.8,
                 step_size=100, 
             ) 
+    elif args.compute_and_log_probs_h:
+        compute_and_save_if_baseline_human_probs(the_target_pdb_id=args.target_pdb_id)
+        log_if_baseline_constrained(
+            target_pdb_id=args.target_pdb_id, 
+            min_prob_human=0.8,
+            step_size=100, 
+        ) 
     elif args.compute_probs_h:
         compute_and_save_if_baseline_human_probs(the_target_pdb_id=args.target_pdb_id)
     elif args.analyze_probs_human:
@@ -616,6 +632,19 @@ if __name__ == "__main__":
             tau=args.tau,
             step_size=args.step_size,
         )
+    elif args.all_robot_one_id:
+        # target_pdb_id_nums = [494] # [280,337,459,582,615,1104] # Done: 286, 199, 25, 587, broken:359
+        ms = [5, 10, 20]
+        taus = [20, 5, 10, 50, 100] 
+        # for target_id_num in target_pdb_id_nums:
+        for m__ in ms:
+            for tau__ in taus:
+                log_if_baseline_robot(
+                    target_pdb_id=args.target_pdb_id, 
+                    M=m__,
+                    tau=tau__,
+                    step_size=args.step_size,
+                )
     elif args.all_robot:
         target_pdb_id_nums = [494] # [280,337,459,582,615,1104] # Done: 286, 199, 25, 587, broken:359
         ms = [5, 10, 20]
