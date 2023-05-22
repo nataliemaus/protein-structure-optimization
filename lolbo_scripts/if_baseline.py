@@ -549,11 +549,16 @@ if __name__ == "__main__":
     parser.add_argument('--all_robot_one_id', type=bool, default=False )
     parser.add_argument('--compute_and_log_probs_h', type=bool, default=False )
 
+    parser.add_argument('--everything_one_id', type=bool, default=False )
+
+
     args = parser.parse_args() 
 
     # RUN FOR EACH IF BASELINE: 
-    # python3 if_baseline.py --target_pdb_id sampleXXX --all_robot_one_id True 
-    # python3 if_baseline.py --target_pdb_id sampleXXX --compute_and_log_probs_h True
+    # python3 if_baseline.py --target_pdb_id sampleXXX --everything_one_id True  (does robot all ms and taus + probsh + log constr 0.8)
+
+    # remaining for 494... 
+    # python3 if_baseline.py --target_pdb_id sample494 --compute_and_log_probs_h True
 
 
 
@@ -611,6 +616,25 @@ if __name__ == "__main__":
             ) 
     elif args.compute_and_log_probs_h:
         compute_and_save_if_baseline_human_probs(the_target_pdb_id=args.target_pdb_id)
+        log_if_baseline_constrained(
+            target_pdb_id=args.target_pdb_id, 
+            min_prob_human=0.8,
+            step_size=100, 
+        ) 
+    elif args.everything_one_id: 
+        ms = [5, 10, 20] 
+        taus = [20, 5, 10, 50]  
+        for m__ in ms: 
+            for tau__ in taus: 
+                log_if_baseline_robot(
+                    target_pdb_id=args.target_pdb_id, 
+                    M=m__,
+                    tau=tau__,
+                    step_size=args.step_size,
+                ) 
+        compute_and_save_if_baseline_human_probs(
+            the_target_pdb_id=args.target_pdb_id
+        )
         log_if_baseline_constrained(
             target_pdb_id=args.target_pdb_id, 
             min_prob_human=0.8,
