@@ -550,11 +550,11 @@ if __name__ == "__main__":
 
     # CUDA_VISIBLE_DEVICES=0 python3 if_baseline.py --target_pdb_id 
 
-    # CUDA_VISIBLE_DEVICES=1 python3 if_baseline.py --all_robot True 
+    # CUDA_VISIBLE_DEVICES=0 python3 if_baseline.py --all_robot True 
 
     # python3 if_baseline.py --target_pdb_id sampleXX --max_n_oracle_calls 100000
 
-    # (GUASS 18) python3 if_baseline.py --target_pdb_id sample25 --log_if_baseline_robot True --M 10 --tau 5 
+    # (GUASS 18) CUDA_VISIBLE_DEVICES=0 python3 if_baseline.py --target_pdb_id sample25 --log_if_baseline_robot True --M 5 --tau 20 
     # (GUASS 18) python3 if_baseline.py --target_pdb_id sample25 --log_if_baseline_robot True --M 5 --tau 10
     # (GUASS 4) python3 if_baseline.py --target_pdb_id sample25 --log_if_baseline_robot True --M 5 --tau 20
     # (GUASS 18) python3 if_baseline.py --target_pdb_id sample25 --log_if_baseline_robot True --M 20 --tau 5
@@ -617,7 +617,7 @@ if __name__ == "__main__":
             step_size=args.step_size,
         )
     elif args.all_robot:
-        target_pdb_id_nums = [455] # [280,337,459,582,615,1104] # Done: 286, 199, 25, 587, broken:359
+        target_pdb_id_nums = [494] # [280,337,459,582,615,1104] # Done: 286, 199, 25, 587, broken:359
         ms = [5, 10, 20]
         taus = [20, 5, 10, 50, 100] 
         for target_id_num in target_pdb_id_nums:
