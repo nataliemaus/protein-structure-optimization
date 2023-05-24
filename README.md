@@ -6,7 +6,7 @@ Optimize AA seqs with desired folded 3D structure
 cd oracle/
 chmod 701 TMalign
 
-# Locust/ 6000
+# Locust/ a6000
 docker run -v /home1/n/nmaus/protein-structure-optimization/:/workspace/protein-structure-optimization --gpus all -it nmaus/fold2
 
 # Allegro: 
@@ -70,14 +70,15 @@ runai attach lolbo-opt2
 # 29_bp_sh3
 # 170_h_ob
 
+
 runai submit lolbo-struct2 -v /shared_data0/protein-structure-optimization/:/workspace/protein-structure-optimization/ --working-dir /workspace/antibody-design/lolbo_scripts -i nmaus/fold2 -g 1 \ --command -- python3 create_initialization_data.py --num_seqs 20000 --bsz 10 --target_pdb_id 17_bp_sh3 
 
 # running 1000, 20000 
 
 # RUNAI GAUSS INTERACTIVE 
-runai delete job lolbo-opt8 
-runai submit lolbo-opt8 -v /shared_data0/protein-structure-optimization/:/workspace/protein-structure-optimization/ --working-dir /workspace/protein-structure-optimization/lolbo_scripts -i nmaus/fold2 -g 1 --interactive --attach 
-runai attach lolbo-opt8
+runai delete job lolbo-opt20
+runai submit lolbo-opt20 -v /shared_data0/protein-structure-optimization/:/workspace/protein-structure-optimization/ --working-dir /workspace/protein-structure-optimization/lolbo_scripts -i nmaus/fold2 -g 1 --interactive --attach 
+runai attach lolbo-opt20
 
 
 runai attach test1
@@ -109,9 +110,12 @@ cd lolbo_scripts
 
 CUDA_VISIBLE_DEVICES=0 
 
-docker run -v /home/nmaus/protein-structure-optimization/:/workspace/protein-structure-optimization -w /workspace/protein-structure-optimization/lolbo_scripts --gpus "device=5" -d nmaus/fold2:latest 
+docker run -v /home/nmaus/protein-structure-optimization/:/workspace/protein-structure-optimization -w /workspace/protein-structure-optimization/lolbo_scripts --gpus "device=4" -d nmaus/fold2:latest python3 tm_optimization.py --task_id tm --track_with_wandb True --wandb_entity nmaus --num_initialization_points 148000 --max_n_oracle_calls 200000 --bsz 10 --dim 1024 --max_string_length 150 --vae_tokens uniref --init_w_esmif True --target_pdb_id sample374 --min_prob_human 0.8 - run_lolbo - done 
 
-python3 tm_optimization.py --task_id tm --track_with_wandb True --wandb_entity nmaus --num_initialization_points 1000 --max_n_oracle_calls 150000 --bsz 10 --dim 1024 --max_string_length 150 --vae_tokens uniref --init_w_esmif True --target_pdb_id sample215 --min_prob_human 0.8 - run_lolbo - done 
+254 PRESTO0 (148k) 
+651 PRESTO1 (148k)
+611 PRESTO3 (148k) 
+374 PRESTO4 (148k) 
 
 # constrained: --min_prob_human 0.8 
 
@@ -121,51 +125,55 @@ YIMENG SET w/ NEW UNIREF VAE MODEL (esm if init only!)
 NOTES: do not kill any current constrained or robot runs, things just take time!
 
 _________________New Regular BO 1k init_______________________________
-527 VIVANCE2 
-254 PRESTO5 
-569 ALLEGRO0 
-135 GAUSS3
-213 GAUSS9 
-437 GAUSS11 
-386 GAUSS12
-499 GAUSS15 
-_________________constrained human 0.8 148k init_______________________________
-1104 - 
-615 - VIVANCE3
-455 ... 
-587 
-280 
-286 
-337 
-459 
-
-_________________constrained human 0.8 15k init_______________________________
-CODE UP SO WE DON'T RECOMPUTE THOSE 15K EVERY TIME!! 
-199 -1k!
-25 -w1k!
-582 -w1k! 
-455 GAUSS17  
-615 
-587 PRESTO2 GAUSS1
-286 
+527 -
+254 PRESTO5  W
+569 ALLEGRO0 tbd early
+135 GAUSS3 tbd early
+213 GAUSS9 tbd early
+437 GAUSS11 tbd early
+386 GAUSS12 tbd early
+499 GAUSS15 tbd early 
 
 _________________constrained human 0.8_______________________________
 25 - 
 199 - 
-582 - ALLEGRO5-0.8-X1  (allow to finish!)
+582 - 
+280 - W on 148k init
+286 - W on 148k init
+615 - barely 15k and 148k 
+1104 - W on 148k init 
 
-587 vslow... 
-280 no progress yet 
-337 
-459 0.8-X1  fast-but-no-W... help 
-286 :( fast-but-no-progress-help
-615 ALLEGRO1-X1(slow asf bc allegro1 is crowded) fast-but-no-progress-help 
-1104 3-0.8-X2  fast-but-no-progress-help 
-455 0.8-X1   fast-but-no-progress-help 
+587 PRESTO2 (15k) GAUSS1 (15k) TRASH
+337 TRASH
+459 TRASH
+455 GAUSS17 (15k)  TRASH
 
-664 GAUSS16
-228 GAUSS18
-215 GAUSS19 
+_____NEW BASELINE NOT DONE _________ (still early, need time)
+664 GAUSS16 (1k)
+228 GAUSS18 (1k)
+215 GAUSS19 (1k) 
+_____NEW BASELINE DONE _________ (still early, need time)
+494 VIVANCE0 (10k) VIVANCE7 (148k)
+527 VIVANCE1 (10k) GAUSS7 (148k) W (let finish!)
+129 GAUSS14 (10k) VIVANCE6 (148k) 
+65 VIVANCE2 (10k) VIVANCE4 (148k) 
+135 GAUSS8 (148k) 
+__new, tuesday 10am start__ 
+458 ALLEGRO2 (148k) 
+479 ALLEGRO4 (148k) 
+569 ALLEGRO5 (148k) 
+117 ALLEGRO6 (148k) 
+583 ALLEGRO7 (148k) 
+664 GAUSS0 (148k) 
+228 GAUSS2  (148k) 
+215 GAUSS4 (148k) 
+386 GAUSS5 (148k) 
+213 GAUSS6 (10k)  
+437 GAUSS10 (148k) 
+499 GAUSS13  (148k) 
+359 VIVANCE3 (148k) 
+363 VIVANCE5  (148k) 
+
 
 __________ROBOT__________________________
 # ROBOT: 
@@ -173,79 +181,111 @@ docker run -v /home/nmaus/protein-structure-optimization/:/workspace/protein-str
 
 CUDA_VISIBLE_DEVICES=7 
 
-CUDA_VISIBLE_DEVICES=4 python3 diverse_tm_optimization.py --task_id tm --max_n_oracle_calls 200000 --bsz 10 --save_csv_frequency 10 --track_with_wandb True --wandb_entity nmaus --num_initialization_points 10000 --dim 1024 --vae_tokens uniref --max_string_length 150 --init_w_esmif True --M 5 --tau 20 --target_pdb_id sample582 - run_robot - done 
+CUDA_VISIBLE_DEVICES=4 python3 diverse_tm_optimization.py --task_id tm --max_n_oracle_calls 200000 --bsz 10 --save_csv_frequency 1000 --track_with_wandb True --wandb_entity nmaus --num_initialization_points 10000 --dim 1024 --vae_tokens uniref --max_string_length 150 --init_w_esmif True --M 5 --tau 20 --target_pdb_id sample135 - run_robot - done 
+
+** 10k --> most success!! --> STICK WITH THAT! 
+
+# M 20 TAU 20 RUNNING (assume 10k init): 
+582 LOCUST7 (5k init) LOCUST4 (10k init)
+__NEW__
+494 LOCUST0
+527 LOCUST1 
+129 a60002
+65 a60003
+135 a60004
 
 
-_________repeat w/ 5k init___________
-582 LOCUST7
-615 LOCUST3
-459 LOCUST6
-_________repeat w/ 10k init___________
-582 LOCUST0 LOCUST4
-615 LOCUST1
-459 LOCUST2
-587 - LOCUST5 
+# M 10 TAU 5 RUNNING (assume 10k init): 
+199 LOCUST2
+1104 LOCUST3
+455 LOCUST5 
+587 LOCUST6 
 
-_________repeat w/ 148k init___________
-582 ...
-286 
-615 ...
-337 
-459 ...
-280 
-587 ... 
+# M 20 TAU 20 RESULTS: 
+25 - 
+199 - 
+1104 -
+455 - 
+280 - barely win 
+337 -  
+286 - barely win  
+587 - 
+615 - YAYYY
+459 - barely W 
+582 :(  
+____ NEW _____ 
+494
+527
 
-_________1k init___________
-25 m20t5 - 
-199 m5t20-X0 - 
-1104 m5t20 -
-455 m5t20 - 
-280 - m5t20 GAUSS7  promsing, barely win 
-337 - m5t20 GAUSS14 
-286 - m5t20 barely win  
-587 - m5t20 sooooo close, needs time 
-
-582 m5t20 miserable 
-459 m5t20    close but converging to slight L
-615 m5t20 miserable 
-
+# M 10 TAU 5 RESULTS: 
+25 - 
+199 
+1104 
+455 
+587 
 ________
 
 582 m5t10 - BIG WIN!!! (can we use though w/ lower constraint?)
 
 
+___________IF BASSELINESSSS_____________________________
 ________________________________________
-________________________________________
+# IF BASELINESSS. 
 CUDA_VISIBLE_DEVICES=4 
 
 docker run -v /home/nmaus/protein-structure-optimization/:/workspace/protein-structure-optimization -w /workspace/protein-structure-optimization/lolbo_scripts --gpus "device=3" -d nmaus/fold2:latest 
 
-CUDA_VISIBLE_DEVICES=4 python3 if_baseline.py --target_pdb_id sample583          
-________IF BASELINE________________
-494 VIVANCE0 
-129 VIVANCE6 
-65 VIVANCE4
-664 GAUSS0 
-228 GAUSS2 
-215 GAUSS4   
-117 ALLEGRO6   
-611 PRESTO3 
-359 VIVANCE5 
-363 VIVANCE7 done
-458 ALLEGRO2 
-479 ALLEGRO4
-583 ALLEGRO7 
+python3 if_baseline.py --target_pdb_id sample583  
+        
+________IF BASELINE________________  
+    -b == running baseline comp (robot + constr) 
+    -d == done running -b and file downloaded to desktop 
+    -u == file uploaded to all other GPUs for constr runs 
+    fromVIVANCE == -b done but not -b or -u 
+    fromOTHER == -b done for constr only (not ROBOT, gotta do robot same machine)
+494 -u
+129 -u 
+65 -u 
+664 fromGAUSS
+228 fromGAUSS   
+215 fromGAUSS
+117 fromALLEGRO  
+611 fromPRESTO  
+359 fromVIVANCE 
+363 fromVIVANCE   
+458 fromALLEGRO 
+479 fromALLEGRO 
+583 fromALLEGRO 
 --NEW__
-135 GAUSS8 
-374 PRESTO4 
-527 VIVANCE1
-213 GAUSS6 
-569 ALLEGRO5 
-386 GAUSS5  
-437 GAUSS10  
-499 GAUSS13 
-254 PRESTO0
-651 PRESTO1
+135 -u
+374 fromPRESTO
+527 -u
+213 fromGAUSS 
+569 fromALLEGRO 
+386 fromGAUSS 
+437 fromGAUSS
+499 fromGAUSS
+254 fromPRESTO
+651 fromPRESTO
+
+
+# -b ::
+# RUN FOR EACH IF BASELINE AT SAME TIME: (robot takes no GPU!! )
+#   (does robot all ms and taus + probsh + log constr 0.8)
+
+CUDA_VISIBLE_DEVICES=5
+
+docker run -v /home/nmaus/protein-structure-optimization/:/workspace/protein-structure-optimization -w /workspace/protein-structure-optimization/lolbo_scripts --gpus "device=4" -d nmaus/fold2:latest python3 if_baseline.py --target_pdb_id sample374 --compute_and_log_probs_h True 
+
+tmux new -s struct6b 
+
+python3 if_baseline.py --target_pdb_id sample664 --all_robot_one_id True 
+
+    Note: (unforunatley ROBOT one can't run on gauss (requres no GPU), need move all data to viance or somewhere )
+
+
+# SFTP 
+get if_baseline_probs_human_sample135.csv 
 
 
 
@@ -336,7 +376,7 @@ NEW 10: (breifly started first 6 below and killed )
 254 
 651 
 
-python3 if_baseline.py --target_pdb_id sample386 --max_n_oracle_calls 100000
+python3 if_baseline.py --target_pdb_id sample135 --max_n_oracle_calls 100000
  
 
 

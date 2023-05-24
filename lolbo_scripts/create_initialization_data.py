@@ -65,7 +65,7 @@ def load_init_data_uniref(target_pdb_id, num_seqs_load=10_000):
 def load_data_better(
     target_pdb_id,
     num_seqs_load=15_000,
-):
+): 
     probs_filename = f"../data/if_baseline_probs_human_{target_pdb_id}.csv"
     df = pd.read_csv(probs_filename)
     train_ys = df["tm_score"].values 

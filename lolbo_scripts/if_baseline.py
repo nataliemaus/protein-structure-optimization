@@ -553,14 +553,7 @@ if __name__ == "__main__":
 
 
     args = parser.parse_args() 
-
-    # RUN FOR EACH IF BASELINE: 
-    # python3 if_baseline.py --target_pdb_id sampleXXX --everything_one_id True  (does robot all ms and taus + probsh + log constr 0.8)
-
-    # remaining for 494... 
-    # python3 if_baseline.py --target_pdb_id sample494 --compute_and_log_probs_h True
-
-
+    
 
     # CUDA_VISIBLE_DEVICES=0 python3 if_baseline.py --target_pdb_id 
 
